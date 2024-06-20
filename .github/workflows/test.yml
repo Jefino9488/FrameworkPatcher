@@ -46,8 +46,8 @@ jobs:
     - name: Decompile dex files
       run: |
         java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes.dex -o classes
-        java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes2.dex -o classes2
-        java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes3.dex -o classes3
+        java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes2.dex -o classes
+        java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes3.dex -o classes
 
     - name: List decompiled files for debugging
       run: |
