@@ -14,7 +14,15 @@ wget -O framework.jar "https://dumps.tadiphone.dev/dumps/redmi/xaga/-/raw/missi_
 git clone --depth=1 https://github.com/JesusFreke/smali.git
 cd smali
 ./gradlew build
-cp smali/build/libs/smali-all-*.jar ../smali.jar
+
+# Debugging: List the contents of the build/libs directory
+echo "Contents of smali/build/libs:"
+ls -l build/libs
+echo "Contents of baksmali/build/libs:"
+ls -l ../baksmali/build/libs
+
+# Copy the jars to the working directory
+cp build/libs/smali-all-*.jar ../smali.jar
 cp baksmali/build/libs/baksmali-all-*.jar ../baksmali.jar
 cd ..
 
