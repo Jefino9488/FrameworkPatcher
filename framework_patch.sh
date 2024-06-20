@@ -8,7 +8,7 @@ sudo apt full-upgrade -y
 sudo apt install -y default-jdk zipalign p7zip-full wget
 
 # Download framework.jar
-wget -O framework.jar "<link_to_framework_jar>"
+wget -O framework.jar "https://dumps.tadiphone.dev/dumps/redmi/xaga/-/raw/missi_phone_cn-user-14-UP1A.231005.007-V816.0.1.0.ULOCNXM-release-keys/system/system/framework/framework.jar"
 
 # Clone smali repository
 git clone --depth=1 https://github.com/JesusFreke/smali.git
