@@ -46,33 +46,41 @@ jobs:
     - name: Decompile dex files
       run: |
         java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes.dex -o classes
-        java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes2.dex -o classes
-        java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes3.dex -o classes
+        java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes2.dex -o classes2
+        java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes3.dex -o classes3
 
     - name: List decompiled files for debugging
       run: |
         echo "Contents of classes directory:"
         find classes
+        echo "Contents of classes2 directory:"
+        find classes2
+        echo "Contents of classes3 directory:"
+        find classes3
 
     - name: Modify smali files
       run: |
-        if [ -f "classes/android/security/keystore2/AndroidKeyStoreSpi.smali" ]; then
-          sed -i '/return-object v3/i\    invoke-static {v3}, Lcom/android/internal/util/framework/Android;->engineGetCertificateChain([Ljava/security/cert/Certificate;)[Ljava/security/cert/Certificate;\n    move-result-object v3' classes/android/security/keystore2/AndroidKeyStoreSpi.smali
-        else
-          echo "AndroidKeyStoreSpi.smali not found!"
-        fi
+        directories=("classes" "classes2" "classes3")
 
-        if [ -f "classes/android/app/Instrumentation.smali" ]; then
-          sed -i '/return-object/i\    invoke-static {p1}, Lcom/android/internal/util/framework/Android;->onNewApp(Landroid/content/Context;)V' classes/android/app/Instrumentation.smali
-        else
-          echo "Instrumentation.smali not found!"
-        fi
+        for dir in "${directories[@]}"; do
+          if [ -f "$dir/android/security/keystore2/AndroidKeyStoreSpi.smali" ]; then
+            sed -i '/return-object v3/i\    invoke-static {v3}, Lcom/android/internal/util/framework/Android;->engineGetCertificateChain([Ljava/security/cert/Certificate;)[Ljava/security/cert/Certificate;\n    move-result-object v3' "$dir/android/security/keystore2/AndroidKeyStoreSpi.smali"
+          else
+            echo "AndroidKeyStoreSpi.smali not found in $dir!"
+          fi
 
-        if [ -f "classes/android/app/ApplicationPackageManager.smali" ]; then
-          sed -i '/move-result v0/a\    invoke-static {v0, p1}, Lcom/android/internal/util/framework/Android;->hasSystemFeature(ZLjava/lang/String;)Z\n    move-result v0' classes/android/app/ApplicationPackageManager.smali
-        else
-          echo "ApplicationPackageManager.smali not found!"
-        fi
+          if [ -f "$dir/android/app/Instrumentation.smali" ]; then
+            sed -i '/return-object/i\    invoke-static {p1}, Lcom/android/internal/util/framework/Android;->onNewApp(Landroid/content/Context;)V' "$dir/android/app/Instrumentation.smali"
+          else
+            echo "Instrumentation.smali not found in $dir!"
+          fi
+
+          if [ -f "$dir/android/app/ApplicationPackageManager.smali" ]; then
+            sed -i '/move-result v0/a\    invoke-static {v0, p1}, Lcom/android/internal/util/framework/Android;->hasSystemFeature(ZLjava/lang/String;)Z\n    move-result v0' "$dir/android/app/ApplicationPackageManager.smali"
+          else
+            echo "ApplicationPackageManager.smali not found in $dir!"
+          fi
+        done
 
     - name: Recompile dex files
       run: |
