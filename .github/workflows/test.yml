@@ -1,10 +1,12 @@
-name: Framework Patch
+name: Modify Framework
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -14,14 +16,62 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set execute permission for the script
-      run: chmod +x ./framework_patch.sh
-
-    - name: Execute framework patch script
-      run: ./framework_patch.sh
-
-    - name: Upload modified framework.jar
-      uses: actions/upload-artifact@v4
+    - name: Set up Java
+      uses: actions/setup-java@v3
       with:
-        name: modified-framework
-        path: framework.jar
+        distribution: 'temurin'
+        java-version: '11'
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt full-upgrade -y
+        sudo apt install -y default-jdk zipalign 7zip
+
+    - name: Download framework.jar
+      run: |
+        curl -L -o framework.jar "https://dumps.tadiphone.dev/dumps/redmi/xaga/-/raw/missi_phone_cn-user-14-UP1A.231005.007-V816.0.1.0.ULOCNXM-release-keys/system/system/framework/framework.jar"
+
+    - name: Clone smali repository
+      run: |
+        git clone --depth=1 https://github.com/JesusFreke/smali.git
+        cd smali
+        ./gradlew build
+
+    - name: Extract framework.jar
+      run: 7z x framework.jar -oframework
+
+    - name: Decompile dex files
+      run: |
+        java -jar smali/baksmali/build/libs/baksmali-2.4.0-dev-fat.jar d -a 29 framework/classes.dex -o classes
+        java -jar smali/baksmali/build/libs/baksmali-2.4.0-dev-fat.jar d -a 29 framework/classes2.dex -o classes2
+        java -jar smali/baksmali/build/libs/baksmali-2.4.0-dev-fat.jar d -a 29 framework/classes3.dex -o classes3
+
+    - name: Modify smali files
+      run: |
+        # Modify AndroidKeyStoreSpi.smali
+        sed -i '/return-object v3/i\    invoke-static {v3}, Lcom/android/internal/util/framework/Android;->engineGetCertificateChain([Ljava/security/cert/Certificate;)[Ljava/security/cert/Certificate;\n    move-result-object v3' classes/android/security/keystore2/AndroidKeyStoreSpi.smali
+
+        # Modify Instrumentation.smali
+        sed -i '/return-object/i\    invoke-static {p1}, Lcom/android/internal/util/framework/Android;->onNewApp(Landroid/content/Context;)V' classes/android/app/Instrumentation.smali
+
+        # Modify ApplicationPackageManager.smali
+        sed -i '/move-result v0/a\    invoke-static {v0, p1}, Lcom/android/internal/util/framework/Android;->hasSystemFeature(ZLjava/lang/String;)Z\n    move-result v0' classes/android/app/ApplicationPackageManager.smali
+
+    - name: Recompile dex files
+      run: |
+        java -jar smali/smali/build/libs/smali-2.4.0-dev-fat.jar a -a 29 classes -o framework/classes.dex
+        java -jar smali/smali/build/libs/smali-2.4.0-dev-fat.jar a -a 29 classes2 -o framework/classes2.dex
+        java -jar smali/smali/build/libs/smali-2.4.0-dev-fat.jar a -a 29 classes3 -o framework/classes3.dex
+
+    - name: Recompile framework.jar
+      run: 7z a -tzip framework_new.jar framework/*
+
+    - name: Align the zip
+      run: zipalign -f -p -v -z 4 framework_new.jar aligned_framework.jar
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: aligned_framework
+        path: aligned_framework.jar
