@@ -14,62 +14,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Java
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '11'
+    - name: Set execute permission for the script
+      run: chmod +x scripts/framework_patch.sh
 
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt full-upgrade -y
-        sudo apt install -y default-jdk zipalign 7zip
-
-    - name: Download framework.jar
-      run: |
-        wget -O framework.jar "<link_to_framework_jar>"
-
-    - name: Clone smali repository
-      run: |
-        git clone --depth=1 https://github.com/JesusFreke/smali.git
-        cd smali
-        ./gradlew build
-
-    - name: Extract framework.jar
-      run: |
-        7z x framework.jar -oframework
-
-    - name: Decompile dex files using baksmali
-      run: |
-        java -jar smali/baksmali/build/libs/baksmali-all-2.5.2.jar d -a 29 framework/classes.dex -o classes
-        java -jar smali/baksmali/build/libs/baksmali-all-2.5.2.jar d -a 29 framework/classes2.dex -o classes2
-        java -jar smali/baksmali/build/libs/baksmali-all-2.5.2.jar d -a 29 framework/classes3.dex -o classes3
-
-    - name: Modify smali files
-      run: |
-        sed -i '/const\/4 v4, 0x0/ a\
-invoke-static {v3}, Lcom/android/internal/util/framework/Android;->engineGetCertificateChain([Ljava/security/cert/Certificate;)[Ljava/security/cert/Certificate;\
-move-result-object v3' classes/android/security/keystore2/AndroidKeyStoreSpi.smali
-        sed -i '/newApplication/ a\
-invoke-static {XX}, Lcom/android/internal/util/framework/Android;->onNewApp(Landroid/content/Context;)V' classes/android/app/Instrumentation.smali
-        sed -i '/invoke-virtual {p0, p1, v0}, Landroid\/app\/ApplicationPackageManager;->hasSystemFeature(Ljava\/lang\/String;I)Z/ a\
-invoke-static {v0, p1}, Lcom/android/internal/util/framework/Android;->hasSystemFeature(ZLjava\/lang\/String;)Z;\
-move-result v0' classes/android/app/ApplicationPackageManager.smali
-
-    - name: Recompile dex files using smali
-      run: |
-        java -jar smali/smali/build/libs/smali-all-2.5.2.jar a -a 29 classes -o framework/classes.dex
-        java -jar smali/smali/build/libs/smali-all-2.5.2.jar a -a 29 classes2 -o framework/classes2.dex
-        java -jar smali/smali/build/libs/smali-all-2.5.2.jar a -a 29 classes3 -o framework/classes3.dex
-
-    - name: Repackage framework.jar
-      run: |
-        7z a -tzip framework.zip framework/*
-        zipalign -f -p -v -z 4 framework.zip framework.jar
+    - name: Execute framework patch script
+      run: ./framework_patch.sh
 
     - name: Upload modified framework.jar
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v2
       with:
         name: modified-framework
         path: framework.jar
