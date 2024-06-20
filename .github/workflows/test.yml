@@ -54,9 +54,9 @@ jobs:
         echo "Contents of classes directory:"
         find classes
         echo "Contents of classes2 directory:"
-        find classes2
+        find classes
         echo "Contents of classes3 directory:"
-        find classes3
+        find classes
 
     - name: Modify smali files
       run: |
