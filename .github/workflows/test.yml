@@ -64,12 +64,6 @@ jobs:
         cp -r classes2 classes2_backup
         cp -r classes3 classes3_backup
 
-    - name: Validate and fix registers
-      run: |
-        find classes -type f -name "*.smali" -exec sed -i 's/v1[6-9]/v15/g' {} +
-        find classes2 -type f -name "*.smali" -exec sed -i 's/v1[6-9]/v15/g' {} +
-        find classes3 -type f -name "*.smali" -exec sed -i 's/v1[6-9]/v15/g' {} +
-
     - name: Modify smali files
       run: |
         directories=("classes" "classes2" "classes3")
@@ -93,6 +87,19 @@ jobs:
             echo "ApplicationPackageManager.smali not found in $dir!"
           fi
         done
+
+    - name: Validate and fix registers
+      run: |
+        fix_registers() {
+          dir=$1
+          find "$dir" -type f -name "*.smali" -exec sed -i -E 's/v1([6-9])/v15/g' {} +
+          find "$dir" -type f -name "*.smali" -exec sed -i -E 's/v2([0-9])/v15/g' {} +
+          find "$dir" -type f -name "*.smali" -exec sed -i -E 's/(v[0-9]+), (v[0-9]+)\]/\2, \1]/g' {} +
+        }
+
+        fix_registers classes
+        fix_registers classes2
+        fix_registers classes3
 
     - name: Recompile dex files
       run: |
