@@ -2,13 +2,25 @@
 
 set -e
 
+# Function to handle errors and clean up
+error_handler() {
+  echo "An error occurred. Attempting to fix broken packages..."
+  sudo apt-get install -f
+  sudo dpkg --configure -a
+  sudo apt-get clean
+  sudo apt-get update
+}
+
+# Trap any errors and run the error_handler function
+trap error_handler ERR
+
 # Install dependencies
-sudo apt update
-sudo apt full-upgrade -y
-sudo apt install -y default-jdk zipalign p7zip-full wget
+sudo apt-get update
+sudo apt-get full-upgrade -y || error_handler
+sudo apt-get install -y default-jdk zipalign p7zip-full wget || error_handler
 
 # Download framework.jar
-wget -O framework.jar "https://dumps.tadiphone.dev/dumps/redmi/xaga/-/raw/missi_phone_cn-user-14-UP1A.231005.007-V816.0.1.0.ULOCNXM-release-keys/system/system/framework/framework.jar"
+wget -O framework.jar "<link_to_framework_jar>"
 
 # Clone smali repository
 git clone --depth=1 https://github.com/JesusFreke/smali.git
