@@ -58,6 +58,18 @@ jobs:
         echo "Contents of classes3 directory:"
         find classes3
 
+    - name: Backup smali files
+      run: |
+        cp -r classes classes_backup
+        cp -r classes2 classes2_backup
+        cp -r classes3 classes3_backup
+
+    - name: Validate and fix registers
+      run: |
+        find classes -type f -name "*.smali" -exec sed -i 's/v1[6-9]/v15/g' {} +
+        find classes2 -type f -name "*.smali" -exec sed -i 's/v1[6-9]/v15/g' {} +
+        find classes3 -type f -name "*.smali" -exec sed -i 's/v1[6-9]/v15/g' {} +
+
     - name: Modify smali files
       run: |
         directories=("classes" "classes2" "classes3")
