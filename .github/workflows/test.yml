@@ -24,7 +24,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt full-upgrade -y
-        sudo apt install -y default-jdk zipalign p7zip-full wget
+        sudo apt install -y default-jdk zipalign 7zip
 
     - name: Download framework.jar
       run: |
@@ -35,8 +35,6 @@ jobs:
         git clone --depth=1 https://github.com/JesusFreke/smali.git
         cd smali
         ./gradlew build
-        cp smali/build/libs/smali-all-*.jar ../smali.jar
-        cp baksmali/build/libs/baksmali-all-*.jar ../baksmali.jar
 
     - name: Extract framework.jar
       run: |
@@ -44,35 +42,26 @@ jobs:
 
     - name: Decompile dex files using baksmali
       run: |
-        java -jar baksmali.jar d -a 29 framework/classes.dex -o classes
-        java -jar baksmali.jar d -a 29 framework/classes2.dex -o classes2
-        java -jar baksmali.jar d -a 29 framework/classes3.dex -o classes3
+        java -jar smali/baksmali/build/libs/baksmali-all-2.5.2.jar d -a 29 framework/classes.dex -o classes
+        java -jar smali/baksmali/build/libs/baksmali-all-2.5.2.jar d -a 29 framework/classes2.dex -o classes2
+        java -jar smali/baksmali/build/libs/baksmali-all-2.5.2.jar d -a 29 framework/classes3.dex -o classes3
 
-    - name: Modify AndroidKeyStoreSpi.smali
+    - name: Modify smali files
       run: |
-        # Ensure the paths and sed commands match the actual file structure and content
         sed -i '/const\/4 v4, 0x0/ a\
 invoke-static {v3}, Lcom/android/internal/util/framework/Android;->engineGetCertificateChain([Ljava/security/cert/Certificate;)[Ljava/security/cert/Certificate;\
 move-result-object v3' classes/android/security/keystore2/AndroidKeyStoreSpi.smali
-
-    - name: Modify Instrumentation.smali
-      run: |
-        # Adjust the paths and context register placeholder
-        sed -i '/return-object/ i\
-invoke-static {p0}, Lcom/android/internal/util/framework/Android;->onNewApp(Landroid/content/Context;)V' classes/android/app/Instrumentation.smali
-
-    - name: Modify ApplicationPackageManager.smali
-      run: |
-        # Adjust the paths and ensure the sed commands match the actual content
+        sed -i '/newApplication/ a\
+invoke-static {XX}, Lcom/android/internal/util/framework/Android;->onNewApp(Landroid/content/Context;)V' classes/android/app/Instrumentation.smali
         sed -i '/invoke-virtual {p0, p1, v0}, Landroid\/app\/ApplicationPackageManager;->hasSystemFeature(Ljava\/lang\/String;I)Z/ a\
 invoke-static {v0, p1}, Lcom/android/internal/util/framework/Android;->hasSystemFeature(ZLjava\/lang\/String;)Z;\
 move-result v0' classes/android/app/ApplicationPackageManager.smali
 
     - name: Recompile dex files using smali
       run: |
-        java -jar smali.jar a -a 29 classes -o framework/classes.dex
-        java -jar smali.jar a -a 29 classes2 -o framework/classes2.dex
-        java -jar smali.jar a -a 29 classes3 -o framework/classes3.dex
+        java -jar smali/smali/build/libs/smali-all-2.5.2.jar a -a 29 classes -o framework/classes.dex
+        java -jar smali/smali/build/libs/smali-all-2.5.2.jar a -a 29 classes2 -o framework/classes2.dex
+        java -jar smali/smali/build/libs/smali-all-2.5.2.jar a -a 29 classes3 -o framework/classes3.dex
 
     - name: Repackage framework.jar
       run: |
