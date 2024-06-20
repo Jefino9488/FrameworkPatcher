@@ -33,8 +33,10 @@ jobs:
         curl -L -o framework.jar "https://dumps.tadiphone.dev/dumps/redmi/xaga/-/raw/missi_phone_cn-user-14-UP1A.231005.007-V816.0.1.0.ULOCNXM-release-keys/system/system/framework/framework.jar"
 
     - name: Clone smali repository
+      run: git clone --depth=1 https://github.com/JesusFreke/smali.git
+
+    - name: Build smali and baksmali
       run: |
-        git clone --depth=1 https://github.com/JesusFreke/smali.git
         cd smali
         ./gradlew build
 
@@ -43,9 +45,9 @@ jobs:
 
     - name: Decompile dex files
       run: |
-        java -jar smali/baksmali/build/libs/baksmali-2.4.0-dev-fat.jar d -a 29 framework/classes.dex -o classes
-        java -jar smali/baksmali/build/libs/baksmali-2.4.0-dev-fat.jar d -a 29 framework/classes2.dex -o classes2
-        java -jar smali/baksmali/build/libs/baksmali-2.4.0-dev-fat.jar d -a 29 framework/classes3.dex -o classes3
+        java -jar smali/baksmali/build/libs/baksmali-2.4.0-dev.jar d -a 29 framework/classes.dex -o classes
+        java -jar smali/baksmali/build/libs/baksmali-2.4.0-dev.jar d -a 29 framework/classes2.dex -o classes2
+        java -jar smali/baksmali/build/libs/baksmali-2.4.0-dev.jar d -a 29 framework/classes3.dex -o classes3
 
     - name: Modify smali files
       run: |
@@ -60,9 +62,9 @@ jobs:
 
     - name: Recompile dex files
       run: |
-        java -jar smali/smali/build/libs/smali-2.4.0-dev-fat.jar a -a 29 classes -o framework/classes.dex
-        java -jar smali/smali/build/libs/smali-2.4.0-dev-fat.jar a -a 29 classes2 -o framework/classes2.dex
-        java -jar smali/smali/build/libs/smali-2.4.0-dev-fat.jar a -a 29 classes3 -o framework/classes3.dex
+        java -jar smali/smali/build/libs/smali-2.4.0-dev.jar a -a 29 classes -o framework/classes.dex
+        java -jar smali/smali/build/libs/smali-2.4.0-dev.jar a -a 29 classes2 -o framework/classes2.dex
+        java -jar smali/smali/build/libs/smali-2.4.0-dev.jar a -a 29 classes3 -o framework/classes3.dex
 
     - name: Recompile framework.jar
       run: 7z a -tzip framework_new.jar framework/*
