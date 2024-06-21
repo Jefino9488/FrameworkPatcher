@@ -132,13 +132,13 @@ jobs:
         java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes3 -o framework/classes3.dex
 
     - name: Recompile framework.jar
-      run: 7z a -tzip framework_new.jar framework/*
+      run: 7z a -tzip framework_new.zip framework/*
 
     - name: Align the zip
-      run: zipalign -f -p -v -z 4 framework.zip framework.jar
+      run: zipalign -f -p -v -z 4 framework_new.zip aligned_framework.jar
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: aligned_framework
-        path: framework.jar
+        path: aligned_framework.jar
