@@ -76,40 +76,30 @@ jobs:
           signing_details="$dir/android/content/pm/SigningDetails.smali"
           package_parser_signing_details="$dir/android/content/pm/PackageParser\$SigningDetails.smali"
 
-          # Modify checkCapability methods in SigningDetails.smali
+          # Modify checkCapability methods
           if [ -f "$signing_details" ]; then
-            awk '
-            /method.*checkCapability(Landroid\/content\/pm\/SigningDetails;I)Z/ {
-              print ".method public checkCapability(Landroid/content/pm/SigningDetails;I)Z\n    .registers 4\n\n    const/4 v0, 0x1\n\n    return v0\n.end method"
-              next
-            }
-            /method.*checkCapability(Ljava\/lang\/String;I)Z/ {
-              print ".method public checkCapability(Ljava/lang/String;I)Z\n    .registers 4\n\n    const/4 v0, 0x1\n\n    return v0\n.end method"
-              next
-            }
-            /method.*checkCapabilityRecover(Landroid\/content\/pm\/SigningDetails;I)Z/ {
-              print ".method public checkCapabilityRecover(Landroid/content/pm/SigningDetails;I)Z\n    .registers 4\n    .annotation system Ldalvik/annotation/Throws;\n        value = {\n            Ljava/security/cert/CertificateException;\n        }\n    .end annotation\n\n    const/4 v0, 0x1\n\n    return v0\n.end method"
-              next
-            }
-            { print }
-            ' "$signing_details" > "${signing_details}.tmp" && mv "${signing_details}.tmp" "$signing_details"
-            echo "Modified checkCapability methods in SigningDetails.smali in $dir"
-          else
-            echo "SigningDetails.smali not found in $dir!"
+            sed -i '/.method public checkCapability(Landroid\/content\/pm\/SigningDetails;I)Z/,/.end method/ {
+              s/^.registers.*/    .registers 4/
+              s/^    .*/    const\/4 v0, 0x1\n\n    return v0\n.end method/
+            }' "$signing_details"
+
+            sed -i '/.method public checkCapability(Ljava\/lang\/String;I)Z/,/.end method/ {
+              s/^.registers.*/    .registers 4/
+              s/^    .*/    const\/4 v0, 0x1\n\n    return v0\n.end method/
+            }' "$signing_details"
+
+            sed -i '/.method public checkCapabilityRecover(Landroid\/content\/pm\/SigningDetails;I)Z/,/.end method/ {
+              s/^.registers.*/    .registers 4/
+              s/^    .*/    const\/4 v0, 0x1\n\n    return v0\n.end method/
+            }' "$signing_details"
           fi
 
-          # Modify hasAncestorOrSelf method in PackageParser$SigningDetails.smali
+          # Modify hasAncestorOrSelf method
           if [ -f "$package_parser_signing_details" ]; then
-            awk '
-            /method.*hasAncestorOrSelf(Landroid\/content\/pm\/PackageParser\$SigningDetails;)Z/ {
-              print ".method public greylist-max-o hasAncestorOrSelf(Landroid/content/pm/PackageParser\$SigningDetails;)Z\n    .registers 6\n\n    const/4 v0, 0x1\n\n    return v0\n.end method"
-              next
-            }
-            { print }
-            ' "$package_parser_signing_details" > "${package_parser_signing_details}.tmp" && mv "${package_parser_signing_details}.tmp" "$package_parser_signing_details"
-            echo "Modified hasAncestorOrSelf method in PackageParser\$SigningDetails.smali in $dir"
-          else
-            echo "PackageParser\$SigningDetails.smali not found in $dir!"
+            sed -i '/.method public greylist-max-o hasAncestorOrSelf(Landroid\/content\/pm\/PackageParser\$SigningDetails;)Z/,/.end method/ {
+              s/^.registers.*/    .registers 6/
+              s/^    .*/    const\/4 v0, 0x1\n\n    return v0\n.end method/
+            }' "$package_parser_signing_details"
           fi
         done
 
