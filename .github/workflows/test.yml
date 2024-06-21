@@ -78,28 +78,46 @@ jobs:
 
           # Modify checkCapability methods
           if [ -f "$signing_details" ]; then
-            sed -i '/.method public checkCapability(Landroid\/content\/pm\/SigningDetails;I)Z/,/.end method/ {
-              s/^.registers.*/    .registers 4/
-              s/^    .*/    const\/4 v0, 0x1\n\n    return v0\n.end method/
-            }' "$signing_details"
-
-            sed -i '/.method public checkCapability(Ljava\/lang\/String;I)Z/,/.end method/ {
-              s/^.registers.*/    .registers 4/
-              s/^    .*/    const\/4 v0, 0x1\n\n    return v0\n.end method/
-            }' "$signing_details"
-
-            sed -i '/.method public checkCapabilityRecover(Landroid\/content\/pm\/SigningDetails;I)Z/,/.end method/ {
-              s/^.registers.*/    .registers 4/
-              s/^    .*/    const\/4 v0, 0x1\n\n    return v0\n.end method/
-            }' "$signing_details"
+            awk '
+              BEGIN { modified = 0 }
+              /method public checkCapability\(Landroid\/content\/pm\/SigningDetails;I\)Z/ { modified = 1 }
+              /method public checkCapability\(Ljava\/lang\/String;I\)Z/ { modified = 1 }
+              /method public checkCapabilityRecover\(Landroid\/content\/pm\/SigningDetails;I\)Z/ { modified = 1 }
+              {
+                if (modified && $0 == ".end method") {
+                  print "    .registers 4"
+                  print "    const/4 v0, 0x1"
+                  print "    return v0"
+                  print $0
+                  modified = 0
+                } else if (modified) {
+                  next
+                } else {
+                  print $0
+                }
+              }
+            ' "$signing_details" > tmp && mv tmp "$signing_details"
           fi
 
           # Modify hasAncestorOrSelf method
           if [ -f "$package_parser_signing_details" ]; then
-            sed -i '/.method public greylist-max-o hasAncestorOrSelf(Landroid\/content\/pm\/PackageParser\$SigningDetails;)Z/,/.end method/ {
-              s/^.registers.*/    .registers 6/
-              s/^    .*/    const\/4 v0, 0x1\n\n    return v0\n.end method/
-            }' "$package_parser_signing_details"
+            awk '
+              BEGIN { modified = 0 }
+              /method public greylist-max-o hasAncestorOrSelf\(Landroid\/content\/pm\/PackageParser\$SigningDetails;\)Z/ { modified = 1 }
+              {
+                if (modified && $0 == ".end method") {
+                  print "    .registers 6"
+                  print "    const/4 v0, 0x1"
+                  print "    return v0"
+                  print $0
+                  modified = 0
+                } else if (modified) {
+                  next
+                } else {
+                  print $0
+                }
+              }
+            ' "$package_parser_signing_details" > tmp && mv tmp "$package_parser_signing_details"
           fi
         done
 
