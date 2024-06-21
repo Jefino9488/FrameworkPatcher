@@ -7,6 +7,16 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      framework_jar_url:
+        description: 'URL to download framework.jar'
+        required: true
+        default: 'https://dumps.tadiphone.dev/dumps/redmi/xaga/-/raw/missi_phone_cn-user-14-UP1A.231005.007-V816.0.1.0.ULOCNXM-release-keys/system/system/framework/framework.jar'
+      android_api_level:
+        description: 'Android API level'
+        required: true
+        default: '29'
 
 jobs:
   build:
@@ -30,7 +40,7 @@ jobs:
 
     - name: Download framework.jar
       run: |
-        curl -L -o framework.jar "https://dumps.tadiphone.dev/dumps/redmi/xaga/-/raw/missi_phone_cn-user-14-UP1A.231005.007-V816.0.1.0.ULOCNXM-release-keys/system/system/framework/framework.jar"
+        curl -L -o framework.jar "${{ github.event.inputs.framework_jar_url }}"
 
     - name: Clone smali repository
       run: git clone --depth=1 https://github.com/JesusFreke/smali.git
@@ -45,9 +55,9 @@ jobs:
 
     - name: Decompile dex files
       run: |
-        java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes.dex -o classes
-        java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes2.dex -o classes2
-        java -jar smali/baksmali/build/libs/baksmali.jar d -a 29 framework/classes3.dex -o classes3
+        java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes.dex -o classes
+        java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes2.dex -o classes2
+        java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes3.dex -o classes3
 
     - name: List decompiled files for debugging
       run: |
@@ -108,7 +118,7 @@ jobs:
           if [ -f "$application_package_manager" ]; then
             awk '
             /method.*hasSystemFeature(Ljava\/lang\/String;)Z/ { inMethod = 1 }
-            inMethod && /move-result v0/ {
+            inMethod && /move-result v0/ && !/invoke-virtual/ {
               print "    invoke-static {v0, p1}, Lcom/android/internal/util/framework/Android;->hasSystemFeature(ZLjava/lang/String;)Z"
               print "    move-result v0"
             }
@@ -123,9 +133,9 @@ jobs:
 
     - name: Recompile dex files
       run: |
-        java -jar smali/smali/build/libs/smali.jar a -a 29 classes -o framework/classes.dex
-        java -jar smali/smali/build/libs/smali.jar a -a 29 classes2 -o framework/classes2.dex
-        java -jar smali/smali/build/libs/smali.jar a -a 29 classes3 -o framework/classes3.dex
+        java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes -o framework/classes.dex
+        java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes2 -o framework/classes2.dex
+        java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes3 -o framework/classes3.dex
 
     - name: Recompile framework.jar
       run: 7z a -tzip framework_new.jar framework/*
@@ -134,7 +144,7 @@ jobs:
       run: zipalign -f -p -v -z 4 framework_new.jar aligned_framework.jar
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: aligned_framework
         path: aligned_framework.jar
