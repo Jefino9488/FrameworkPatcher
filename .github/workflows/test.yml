@@ -73,6 +73,7 @@ jobs:
         java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes.dex -o classes
         java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes2.dex -o classes2
         java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes3.dex -o classes3
+        java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes4.dex -o classes4
 
     - name: Decompile services dex files
       run: |
@@ -117,6 +118,7 @@ jobs:
         java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes -o framework/classes.dex
         java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes2 -o framework/classes2.dex
         java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes3 -o framework/classes3.dex
+        java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes4 -o framework/classes4.dex
 
     - name: Recompile services dex files
       run: |
