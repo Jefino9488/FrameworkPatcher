@@ -54,7 +54,6 @@ def modify_file(file_path):
                     modified_lines.append("    .registers 2\n")
                     modified_lines.append("    const/4 v0, 0x0\n")
                     modified_lines.append("    return v0\n")
-                modified_lines.append(line)  # Add the .end method line
                 in_method = False
                 method_type = None
             else:
