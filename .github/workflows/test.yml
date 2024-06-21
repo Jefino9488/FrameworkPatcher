@@ -18,13 +18,13 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
-        java-version: '11'
+        distribution: 'zulu'
+        java-version: '21'
 
     - name: Install dependencies
       run: |
@@ -73,55 +73,43 @@ jobs:
         directories=("classes" "classes2" "classes3")
 
         for dir in "${directories[@]}"; do
-          android_keystore_spi="$dir/android/security/keystore2/AndroidKeyStoreSpi.smali"
-          instrumentation="$dir/android/app/Instrumentation.smali"
-          application_package_manager="$dir/android/app/ApplicationPackageManager.smali"
+          signing_details="$dir/android/content/pm/SigningDetails.smali"
+          package_parser_signing_details="$dir/android/content/pm/PackageParser\$SigningDetails.smali"
 
-          # Modify AndroidKeyStoreSpi.smali
-          if [ -f "$android_keystore_spi" ]; then
+          # Modify checkCapability methods in SigningDetails.smali
+          if [ -f "$signing_details" ]; then
             awk '
-            /method.*engineGetCertificateChain/ { inMethod = 1 }
-            inMethod && /return-object v3/ {
-              print "    invoke-static {v3}, Lcom/android/internal/util/framework/Android;->engineGetCertificateChain([Ljava/security/cert/Certificate;)[Ljava/security/cert/Certificate;"
-              print "    move-result-object v3"
-              inMethod = 0
+            /method.*checkCapability(Landroid\/content\/pm\/SigningDetails;I)Z/ {
+              print ".method public checkCapability(Landroid/content/pm/SigningDetails;I)Z\n    .registers 4\n\n    const/4 v0, 0x1\n\n    return v0\n.end method"
+              next
+            }
+            /method.*checkCapability(Ljava\/lang\/String;I)Z/ {
+              print ".method public checkCapability(Ljava/lang/String;I)Z\n    .registers 4\n\n    const/4 v0, 0x1\n\n    return v0\n.end method"
+              next
+            }
+            /method.*checkCapabilityRecover(Landroid\/content\/pm\/SigningDetails;I)Z/ {
+              print ".method public checkCapabilityRecover(Landroid/content/pm/SigningDetails;I)Z\n    .registers 4\n    .annotation system Ldalvik/annotation/Throws;\n        value = {\n            Ljava/security/cert/CertificateException;\n        }\n    .end annotation\n\n    const/4 v0, 0x1\n\n    return v0\n.end method"
+              next
             }
             { print }
-            ' "$android_keystore_spi" > "${android_keystore_spi}.tmp" && mv "${android_keystore_spi}.tmp" "$android_keystore_spi"
-            echo "Modified AndroidKeyStoreSpi.smali in $dir"
+            ' "$signing_details" > "${signing_details}.tmp" && mv "${signing_details}.tmp" "$signing_details"
+            echo "Modified checkCapability methods in SigningDetails.smali in $dir"
           else
-            echo "AndroidKeyStoreSpi.smali not found in $dir!"
+            echo "SigningDetails.smali not found in $dir!"
           fi
 
-          # Modify Instrumentation.smali
-          if [ -f "$instrumentation" ]; then
+          # Modify hasAncestorOrSelf method in PackageParser$SigningDetails.smali
+          if [ -f "$package_parser_signing_details" ]; then
             awk '
-            /method.*newApplication/ { inMethod = 1 }
-            inMethod && /return-object/ {
-              print "    invoke-static {p1}, Lcom/android/internal/util/framework/Android;->onNewApp(Landroid/content/Context;)V"
-              inMethod = 0
+            /method.*hasAncestorOrSelf(Landroid\/content\/pm\/PackageParser\$SigningDetails;)Z/ {
+              print ".method public greylist-max-o hasAncestorOrSelf(Landroid/content/pm/PackageParser\$SigningDetails;)Z\n    .registers 6\n\n    const/4 v0, 0x1\n\n    return v0\n.end method"
+              next
             }
             { print }
-            ' "$instrumentation" > "${instrumentation}.tmp" && mv "${instrumentation}.tmp" "$instrumentation"
-            echo "Modified Instrumentation.smali in $dir"
+            ' "$package_parser_signing_details" > "${package_parser_signing_details}.tmp" && mv "${package_parser_signing_details}.tmp" "$package_parser_signing_details"
+            echo "Modified hasAncestorOrSelf method in PackageParser\$SigningDetails.smali in $dir"
           else
-            echo "Instrumentation.smali not found in $dir!"
-          fi
-
-          # Modify ApplicationPackageManager.smali
-          if [ -f "$application_package_manager" ]; then
-            awk '
-            /method.*hasSystemFeature(Ljava\/lang\/String;)Z/ { inMethod = 1 }
-            inMethod && /move-result v0/ && !/invoke-virtual/ {
-              print "    invoke-static {v0, p1}, Lcom/android/internal/util/framework/Android;->hasSystemFeature(ZLjava/lang/String;)Z"
-              print "    move-result v0"
-            }
-            inMethod && /return v0/ { inMethod = 0 }
-            { print }
-            ' "$application_package_manager" > "${application_package_manager}.tmp" && mv "${application_package_manager}.tmp" "$application_package_manager"
-            echo "Modified ApplicationPackageManager.smali in $dir"
-          else
-            echo "ApplicationPackageManager.smali not found in $dir!"
+            echo "PackageParser\$SigningDetails.smali not found in $dir!"
           fi
         done
 
