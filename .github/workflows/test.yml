@@ -73,6 +73,7 @@ jobs:
           instrumentation="$dir/android/app/Instrumentation.smali"
           application_package_manager="$dir/android/app/ApplicationPackageManager.smali"
 
+          # Modify AndroidKeyStoreSpi.smali
           if [ -f "$android_keystore_spi" ]; then
             awk '
             /method.*engineGetCertificateChain/ { inMethod = 1 }
@@ -88,32 +89,37 @@ jobs:
             echo "AndroidKeyStoreSpi.smali not found in $dir!"
           fi
 
+          # Modify Instrumentation.smali
           if [ -f "$instrumentation" ]; then
-            if grep -q "return-object" "$instrumentation"; then
-              sed -i '/return-object/i\
-            invoke-static {p1}, Lcom/android/internal/util/framework/Android;->onNewApp(Landroid/content/Context;)V' "$instrumentation"
-              echo "Modified Instrumentation.smali in $dir"
-            else
-              echo "Pattern not found in Instrumentation.smali in $dir"
-            fi
+            awk '
+            /method.*newApplication/ { inMethod = 1 }
+            inMethod && /return-object/ {
+              print "    invoke-static {p1}, Lcom/android/internal/util/framework/Android;->onNewApp(Landroid/content/Context;)V"
+              inMethod = 0
+            }
+            { print }
+            ' "$instrumentation" > "${instrumentation}.tmp" && mv "${instrumentation}.tmp" "$instrumentation"
+            echo "Modified Instrumentation.smali in $dir"
           else
             echo "Instrumentation.smali not found in $dir!"
           fi
 
+          # Modify ApplicationPackageManager.smali
           if [ -f "$application_package_manager" ]; then
-            if grep -q "move-result v0" "$application_package_manager"; then
-              sed -i '/move-result v0/a\
-            invoke-static {v0, p1}, Lcom/android/internal/util/framework/Android;->hasSystemFeature(ZLjava/lang/String;)Z\
-            move-result v0' "$application_package_manager"
-              echo "Modified ApplicationPackageManager.smali in $dir"
-            else
-              echo "Pattern not found in ApplicationPackageManager.smali in $dir"
-            fi
+            awk '
+            /method.*hasSystemFeature(Ljava\/lang\/String;)Z/ { inMethod = 1 }
+            inMethod && /move-result v0/ {
+              print "    invoke-static {v0, p1}, Lcom/android/internal/util/framework/Android;->hasSystemFeature(ZLjava/lang/String;)Z"
+              print "    move-result v0"
+            }
+            inMethod && /return v0/ { inMethod = 0 }
+            { print }
+            ' "$application_package_manager" > "${application_package_manager}.tmp" && mv "${application_package_manager}.tmp" "$application_package_manager"
+            echo "Modified ApplicationPackageManager.smali in $dir"
           else
             echo "ApplicationPackageManager.smali not found in $dir!"
           fi
         done
-
 
     - name: Recompile dex files
       run: |
@@ -128,7 +134,7 @@ jobs:
       run: zipalign -f -p -v -z 4 framework_new.jar aligned_framework.jar
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: aligned_framework
         path: aligned_framework.jar
