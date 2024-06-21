@@ -44,6 +44,16 @@ jobs:
       run: |
         curl -L -o services.jar "${{ github.event.inputs.services_jar_url }}"
 
+    - name: Verify framework.jar
+      run: |
+        file framework.jar
+        hexdump -C framework.jar | head -n 10
+
+    - name: Verify services.jar
+      run: |
+        file services.jar
+        hexdump -C services.jar | head -n 10
+
     - name: Clone smali repository
       run: git clone --depth=1 https://github.com/JesusFreke/smali.git
 
