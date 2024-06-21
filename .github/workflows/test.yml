@@ -115,10 +115,16 @@ jobs:
         java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} services_classes3 -o services/classes3.dex
 
     - name: Recompile framework.jar
-      run: 7z a -tzip framework_new.zip framework/*
+      run: |
+        cd framework
+        7z a -tzip ../framework_new.zip *
+        cd ..
 
     - name: Recompile services.jar
-      run: 7z a -tzip services_new.zip services/*
+      run: |
+        cd services
+        7z a -tzip ../services_new.zip *
+        cd ..
 
     - name: Align the zips
       run: |
@@ -134,7 +140,6 @@ jobs:
       run: |
         cd magisk_module
         zip -r ../magisk_module_test.zip *
-
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
