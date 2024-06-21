@@ -23,7 +23,7 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'zulu'
+        distribution: 'termurin'
         java-version: '21'
 
     - name: Install dependencies
