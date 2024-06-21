@@ -133,6 +133,7 @@ jobs:
 
     - name: Copy aligned jars to Magisk module
       run: |
+        mkdir -p magisk_module/system/framework
         cp aligned_framework.jar magisk_module/system/framework/framework.jar
         cp aligned_services.jar magisk_module/system/framework/services.jar
 
