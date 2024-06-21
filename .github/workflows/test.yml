@@ -125,6 +125,17 @@ jobs:
         zipalign -f -p -v -z 4 framework_new.zip aligned_framework.jar
         zipalign -f -p -v -z 4 services_new.zip aligned_services.jar
 
+    - name: Copy aligned jars to Magisk module
+      run: |
+        cp aligned_framework.jar magisk_module/system/framework/framework.jar
+        cp aligned_services.jar magisk_module/system/framework/services.jar
+
+    - name: Zip Magisk module
+      run: |
+        cd magisk_module
+        zip -r ../magisk_module_test.zip *
+
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -132,3 +143,4 @@ jobs:
         path: |
           aligned_framework.jar
           aligned_services.jar
+          magisk_module_test.zip

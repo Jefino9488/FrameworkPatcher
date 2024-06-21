@@ -1,0 +1,6 @@
+id=mod_framework_services
+name=Framework Services Patch
+version=1.0
+versionCode=1
+author=@Jefino
+description=This module replaces framework.jar and services.jar in system/framework
