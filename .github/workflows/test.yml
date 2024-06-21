@@ -69,24 +69,51 @@ jobs:
         directories=("classes" "classes2" "classes3")
 
         for dir in "${directories[@]}"; do
-          if [ -f "$dir/android/security/keystore2/AndroidKeyStoreSpi.smali" ]; then
-            sed -i '/return-object v3/i\    invoke-static {v3}, Lcom/android/internal/util/framework/Android;->engineGetCertificateChain([Ljava/security/cert/Certificate;)[Ljava/security/cert/Certificate;\n    move-result-object v3' "$dir/android/security/keystore2/AndroidKeyStoreSpi.smali"
+          android_keystore_spi="$dir/android/security/keystore2/AndroidKeyStoreSpi.smali"
+          instrumentation="$dir/android/app/Instrumentation.smali"
+          application_package_manager="$dir/android/app/ApplicationPackageManager.smali"
+
+          if [ -f "$android_keystore_spi" ]; then
+            awk '
+            /method.*engineGetCertificateChain/ { inMethod = 1 }
+            inMethod && /return-object v3/ {
+              print "    invoke-static {v3}, Lcom/android/internal/util/framework/Android;->engineGetCertificateChain([Ljava/security/cert/Certificate;)[Ljava/security/cert/Certificate;"
+              print "    move-result-object v3"
+              inMethod = 0
+            }
+            { print }
+            ' "$android_keystore_spi" > "${android_keystore_spi}.tmp" && mv "${android_keystore_spi}.tmp" "$android_keystore_spi"
+            echo "Modified AndroidKeyStoreSpi.smali in $dir"
           else
             echo "AndroidKeyStoreSpi.smali not found in $dir!"
           fi
 
-          if [ -f "$dir/android/app/Instrumentation.smali" ]; then
-            sed -i '/return-object/i\    invoke-static {p1}, Lcom/android/internal/util/framework/Android;->onNewApp(Landroid/content/Context;)V' "$dir/android/app/Instrumentation.smali"
+          if [ -f "$instrumentation" ]; then
+            if grep -q "return-object" "$instrumentation"; then
+              sed -i '/return-object/i\
+            invoke-static {p1}, Lcom/android/internal/util/framework/Android;->onNewApp(Landroid/content/Context;)V' "$instrumentation"
+              echo "Modified Instrumentation.smali in $dir"
+            else
+              echo "Pattern not found in Instrumentation.smali in $dir"
+            fi
           else
             echo "Instrumentation.smali not found in $dir!"
           fi
 
-          if [ -f "$dir/android/app/ApplicationPackageManager.smali" ]; then
-            sed -i '/move-result v0/a\    invoke-static {v0, p1}, Lcom/android/internal/util/framework/Android;->hasSystemFeature(ZLjava/lang/String;)Z\n    move-result v0' "$dir/android/app/ApplicationPackageManager.smali"
+          if [ -f "$application_package_manager" ]; then
+            if grep -q "move-result v0" "$application_package_manager"; then
+              sed -i '/move-result v0/a\
+            invoke-static {v0, p1}, Lcom/android/internal/util/framework/Android;->hasSystemFeature(ZLjava/lang/String;)Z\
+            move-result v0' "$application_package_manager"
+              echo "Modified ApplicationPackageManager.smali in $dir"
+            else
+              echo "Pattern not found in ApplicationPackageManager.smali in $dir"
+            fi
           else
             echo "ApplicationPackageManager.smali not found in $dir!"
           fi
         done
+
 
     - name: Recompile dex files
       run: |
