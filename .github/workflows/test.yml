@@ -1,4 +1,4 @@
-name: Modify Framework
+name: Modify Framework and Services
 
 on:
   workflow_dispatch:
@@ -7,6 +7,10 @@ on:
         description: 'URL to download framework.jar'
         required: true
         default: 'https://dumps.tadiphone.dev/dumps/redmi/xaga/-/raw/missi_phone_cn-user-14-UP1A.231005.007-V816.0.1.0.ULOCNXM-release-keys/system/system/framework/framework.jar'
+      services_jar_url:
+        description: 'URL to download services.jar'
+        required: true
+        default: 'https://dumps.tadiphone.dev/dumps/redmi/xaga/-/raw/missi_phone_cn-user-14-UP1A.231005.007-V816.0.1.0.ULOCNXM-release-keys/system/system/framework/services.jar'
       android_api_level:
         description: 'Android API level'
         required: true
@@ -36,6 +40,10 @@ jobs:
       run: |
         curl -L -o framework.jar "${{ github.event.inputs.framework_jar_url }}"
 
+    - name: Download services.jar
+      run: |
+        curl -L -o services.jar "${{ github.event.inputs.services_jar_url }}"
+
     - name: Clone smali repository
       run: git clone --depth=1 https://github.com/JesusFreke/smali.git
 
@@ -47,11 +55,20 @@ jobs:
     - name: Extract framework.jar
       run: 7z x framework.jar -oframework
 
-    - name: Decompile dex files
+    - name: Extract services.jar
+      run: 7z x services.jar -oservices
+
+    - name: Decompile framework dex files
       run: |
         java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes.dex -o classes
         java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes2.dex -o classes2
         java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes3.dex -o classes3
+
+    - name: Decompile services dex files
+      run: |
+        java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} services/classes.dex -o services_classes
+        java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} services/classes2.dex -o services_classes2
+        java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} services/classes3.dex -o services_classes3
 
     - name: List decompiled files for debugging
       run: |
@@ -61,31 +78,57 @@ jobs:
         find classes2
         echo "Contents of classes3 directory:"
         find classes3
+        echo "Contents of services_classes directory:"
+        find services_classes
+        echo "Contents of services_classes2 directory:"
+        find services_classes2
+        echo "Contents of services_classes3 directory:"
+        find services_classes3
 
     - name: Backup smali files
       run: |
         cp -r classes classes_backup
         cp -r classes2 classes2_backup
         cp -r classes3 classes3_backup
+        cp -r services_classes services_classes_backup
+        cp -r services_classes2 services_classes2_backup
+        cp -r services_classes3 services_classes3_backup
 
-    - name: Modify smali files
+    - name: Modify framework smali files
       run: |
-        python3 patch.py
+        python3 framework_patch.py
 
-    - name: Recompile dex files
+    - name: Modify services smali files
+      run: |
+        python3 services_patch.py
+
+    - name: Recompile framework dex files
       run: |
         java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes -o framework/classes.dex
         java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes2 -o framework/classes2.dex
         java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes3 -o framework/classes3.dex
 
+    - name: Recompile services dex files
+      run: |
+        java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} services_classes -o services/classes.dex
+        java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} services_classes2 -o services/classes2.dex
+        java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} services_classes3 -o services/classes3.dex
+
     - name: Recompile framework.jar
       run: 7z a -tzip framework_new.zip framework/*
 
-    - name: Align the zip
-      run: zipalign -f -p -v -z 4 framework_new.zip aligned_framework.jar
+    - name: Recompile services.jar
+      run: 7z a -tzip services_new.zip services/*
 
-    - name: Upload artifact
+    - name: Align the zips
+      run: |
+        zipalign -f -p -v -z 4 framework_new.zip aligned_framework.jar
+        zipalign -f -p -v -z 4 services_new.zip aligned_services.jar
+
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: aligned_framework
-        path: aligned_framework.jar
+        name: aligned_jars
+        path: |
+          aligned_framework.jar
+          aligned_services.jar

@@ -4,4 +4,4 @@
 /framework/
 /jars/
 /framework.jar
-/smali/
+/smali/*
