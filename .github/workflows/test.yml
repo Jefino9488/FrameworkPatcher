@@ -168,7 +168,7 @@ jobs:
         cd magisk_module
         zip -r ../moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip *
         cd ..
-        makdir -p out
+        mkdir -p out
         chmod +w moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip
         mv moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip out/
 
