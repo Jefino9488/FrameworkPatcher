@@ -20,6 +20,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      packages: write
+      actions: write
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -157,11 +162,13 @@ jobs:
         device_name=$(echo $framework_url | grep -oP '(?<=dumps/).*(?=/-)')
         echo "version=${version}" >> $GITHUB_ENV
         echo "device_name=${device_name}" >> $GITHUB_ENV
+        echo "version=${version}"
+        echo "device_name=${device_name}"
 
     - name: Zip Magisk module
       run: |
         cd magisk_module
-        zip -r ../magisk_module_test.zip *
+        zip -r ../moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip *
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -170,7 +177,7 @@ jobs:
         path: |
           aligned_framework.jar
           aligned_services.jar
-          magisk_module_test.zip
+          moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip
 
     - name: Create Release Notes
       run: |
@@ -181,7 +188,7 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1
       with:
-          artifacts: magisk_module_test.zip
+          artifacts: moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.run_id }}
           name: ${{ github.run_id }}
