@@ -19,7 +19,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
       packages: write
@@ -168,6 +167,10 @@ jobs:
       run: |
         cd magisk_module
         zip -r ../moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip *
+        cd ..
+        makdir -p out
+        chmod +w moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip
+        mv moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip out/
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -176,7 +179,7 @@ jobs:
         path: |
           aligned_framework.jar
           aligned_services.jar
-          moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip
+          out/moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip
 
     - name: Create Release Notes
       run: |
@@ -187,10 +190,10 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1
       with:
-          artifacts: moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip
-          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: out/*
           tag: ${{ github.run_id }}
           name: ${{ github.run_id }}
           allowUpdates: true
           makeLatest: true
           bodyFile: release_notes.txt
+          token: ${{ secrets.GITHUB_TOKEN }}
