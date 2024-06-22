@@ -149,16 +149,42 @@ jobs:
         cp aligned_framework.jar magisk_module/system/framework/framework.jar
         cp aligned_services.jar magisk_module/system/framework/services.jar
 
+    - name: Create Version From Link
+      id: extract_version
+      run: |
+        framework_url="${{ github.event.inputs.framework_jar_url }}"
+        version=$(echo $framework_url | grep -oP '(?<=release-keys/).*(?=/system)')
+        device_name=$(echo $framework_url | grep -oP '(?<=dumps/).*(?=/-)')
+        echo "version=${version}" >> $GITHUB_ENV
+        echo "device_name=${device_name}" >> $GITHUB_ENV
+
     - name: Zip Magisk module
       run: |
         cd magisk_module
-        zip -r ../magisk_module_test.zip *
+        zip -r "../Modified_${{ env.device_name }}_${{ env.version }}.zip" *
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: aligned_jars
+        name: modified_jars
         path: |
           aligned_framework.jar
           aligned_services.jar
-          magisk_module_test.zip
+          Modified_${{ env.device_name }}_${{ env.version }}.zip
+
+    - name: Create Release Notes
+      run: |
+        echo "## Release Notes" > release_notes.txt
+        echo "- Built modified jars from commit ${{ github.sha }}" >> release_notes.txt
+        echo "- Version: ${{ env.version }}" >> release_notes.txt
+
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+          artifacts: Modified_${{ env.device_name }}_${{ env.version }}.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: "${{ env.version }}"
+          name: "Moded ${{ env.device_name }} framework ${{ env.version }}"
+          allowUpdates: true
+          makeLatest: true
+          bodyFile: release_notes.txt
