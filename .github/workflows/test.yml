@@ -157,24 +157,20 @@ jobs:
         device_name=$(echo $framework_url | grep -oP '(?<=dumps/).*(?=/-)')
         echo "version=${version}" >> $GITHUB_ENV
         echo "device_name=${device_name}" >> $GITHUB_ENV
-        echo "version=${version}"
-        echo "device_name=${device_name}"
 
     - name: Zip Magisk module
       run: |
-        mkdir -p magisk_module_output
         cd magisk_module
-        zip -r "../magisk_module_output/Modified_${{ env.device_name }}_${{ env.version }}.zip" *
-        cd ..
+        zip -r ../magisk_module_test.zip *
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: modified_jars
+        name: aligned_jars
         path: |
           aligned_framework.jar
           aligned_services.jar
-          magisk_module_output/Modified_${{ env.device_name }}_${{ env.version }}.zip
+          magisk_module_test.zip
 
     - name: Create Release Notes
       run: |
@@ -185,10 +181,10 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1
       with:
-          artifacts: magisk_module_output/Modified_${{ env.device_name }}_${{ env.version }}.zip
+          artifacts: magisk_module_test.zip
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "${{ env.version }}"
-          name: "Modded ${{ env.device_name }} framework ${{ env.version }}"
+          tag: ${{ github.run_id }}
+          name: ${{ github.run_id }}
           allowUpdates: true
           makeLatest: true
           bodyFile: release_notes.txt
