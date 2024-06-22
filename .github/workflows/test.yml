@@ -155,16 +155,15 @@ jobs:
         cp aligned_services.jar magisk_module/system/framework/services.jar
 
     - name: Create Version From Link
-      id: extract_version
       run: |
         framework_url="${{ github.event.inputs.framework_jar_url }}"
-        version=$(echo $framework_url | grep -oP '(?<=release-keys/).*(?=/system)')
-        device_name=$(echo $framework_url | grep -oP '(?<=dumps/).*(?=/-)')
+        version=$(echo $framework_url | grep -oP '(?<=V)[^/]*(?=/system)')
+        device_name=$(echo $framework_url | grep -oP '(?<=redmi/)[^/]*(?=/-)')
         echo "version=${version}" >> $GITHUB_ENV
         echo "device_name=${device_name}" >> $GITHUB_ENV
         echo "version=${version}"
         echo "device_name=${device_name}"
-
+      
     - name: Zip Magisk module
       run: |
         cd magisk_module
