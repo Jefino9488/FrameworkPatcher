@@ -191,8 +191,8 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
           artifacts: out/*
-          tag: ${{ github.run_id }}
-          name: ${{ github.run_id }}
+          tag: ${{ env.version }}
+          name: moded_${{ env.device_name }}_${{ env.version }}
           allowUpdates: true
           makeLatest: true
           bodyFile: release_notes.txt
