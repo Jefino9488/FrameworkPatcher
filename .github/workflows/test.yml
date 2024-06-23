@@ -172,15 +172,6 @@ jobs:
         chmod +w moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip
         mv moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip out/
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: aligned_jars
-        path: |
-          aligned_framework.jar
-          aligned_services.jar
-          out/moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip
-
     - name: Create Release Notes
       run: |
         echo "## Release Notes" > release_notes.txt
