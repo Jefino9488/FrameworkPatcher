@@ -198,6 +198,7 @@ def modify_smali_files(directories):
         if os.path.exists(apk_signature_verifier):
             logging.info(f"Found file: {apk_signature_verifier}")
             modify_apk_signature_verifier(apk_signature_verifier)
+            modify_file(apk_signature_verifier)
         else:
             logging.warning(f"File not found: {apk_signature_verifier}")
         if os.path.exists(apk_signature_scheme_v2_verifier):
