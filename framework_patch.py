@@ -170,6 +170,36 @@ def modify_invoke_static(file_path):
     logging.info(f"Completed modification for file: {file_path}")
 
 
+def modify_strict_jar_verifier(file_path):
+    logging.info(f"Modifying StrictJarVerifier file: {file_path}")
+    modify_invoke_static(file_path)
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    modified_lines = []
+    in_method = False
+    method_start_pattern = re.compile(r'\.method private static blacklist verifyMessageDigest\(\[B\[B\)Z')
+    target_line_pattern = re.compile(r'const/4 v1, 0x0')
+
+    for line in lines:
+        if in_method:
+            if line.strip() == '.end method':
+                in_method = False
+
+        if method_start_pattern.search(line):
+            in_method = True
+
+        if in_method and target_line_pattern.search(line):
+            logging.info(f"Found target line. Modifying it.")
+            line = line.replace('const/4 v1, 0x0', 'const/4 v1, 0x1')
+
+        modified_lines.append(line)
+
+    with open(file_path, 'w') as file:
+        file.writelines(modified_lines)
+    logging.info(f"Completed modification for file: {file_path}")
+
+
 def modify_smali_files(directories):
     for directory in directories:
         signing_details = os.path.join(directory, 'android/content/pm/SigningDetails.smali')
@@ -184,6 +214,7 @@ def modify_smali_files(directories):
         package_parser = os.path.join(directory, 'android/content/pm/PackageParser.smali')
         package_parser_exception = os.path.join(directory,
                                                 'android/content/pm/PackageParser$PackageParserException.smali')
+        strict_jar_verifier = os.path.join(directory, 'android/util/jar/StrictJarVerifier.smali')
 
         if os.path.exists(signing_details):
             logging.info(f"Found file: {signing_details}")
@@ -226,6 +257,11 @@ def modify_smali_files(directories):
             modify_exception_file(package_parser_exception)
         else:
             logging.warning(f"File not found: {package_parser_exception}")
+        if os.path.exists(strict_jar_verifier):
+            logging.info(f"Found file: {strict_jar_verifier}")
+            modify_strict_jar_verifier(strict_jar_verifier)
+        else:
+            logging.warning(f"File not found: {strict_jar_verifier}")
 
 
 if __name__ == "__main__":
