@@ -119,6 +119,47 @@ def modify_file(file_path):
     logging.info(f"Completed modification for file: {file_path}")
 
 
+def modify_invoke_interface(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    modified_lines = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        modified_lines.append(line)
+        if 'Lcom/android/server/pm/pkg/AndroidPackage;->isPersistent()Z' in line:
+            for j in range(i + 1, min(i + 4, len(lines))):
+                if re.match(r'\s*move-result\s+(v\d+)', lines[j]):
+                    variable = re.search(r'\s*move-result\s+(v\d+)', lines[j]).group(1)
+                    logging.info(f"Replacing line: {lines[j].strip()} with const/4 {variable}, 0x1")
+                    modified_lines[-1] = line  # Restore the original line
+                    modified_lines.append(f"    const/4 {variable}, 0x1\n")
+                    i = j  # Skip the move-result line
+                    break
+        i += 1
+
+    with open(file_path, 'w') as file:
+        file.writelines(modified_lines)
+    logging.info(f"Completed modification for file: {file_path}")
+
+def modify_parsing_package_utils(file_path):
+    logging.info(f"Modifying ParsingPackageUtils file: {file_path}")
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    modified_lines = []
+    for line in lines:
+        if "invoke-static {p0, p1, v0}, Landroid/util/apk/ApkSignatureVerifier;->unsafeGetCertsWithoutVerification(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;I)Landroid/content/pm/parsing/result/ParseResult;" in line:
+            logging.info("Found target line in ParsingPackageUtils.smali")
+            modified_lines.append("    const/4 v0, 0x1\n")
+        modified_lines.append(line)
+
+    with open(file_path, 'w') as file:
+        file.writelines(modified_lines)
+    logging.info(f"Completed modification for ParsingPackageUtils file: {file_path}")
+
+
 def modify_smali_files(directories):
     for directory in directories:
         # Define paths for services.jar smali files
@@ -128,6 +169,10 @@ def modify_smali_files(directories):
                                               'com/android/server/pm/InstallPackageHelper.smali')
         verification_params = os.path.join(directory,
                                            'com/android/server/pm/VerificationParams.smali')
+        parsing_package_utils = os.path.join(directory,
+                                             'com/android/server/pm/pkg/parsing/ParsingPackageUtils.smali')
+        package_info_utils = os.path.join(directory,
+                                          'com/android/server/pm/parsing/PackageInfoUtils.smali')
 
         if os.path.exists(package_manager_service_utils):
             logging.info(f"Found file: {package_manager_service_utils}")
@@ -146,6 +191,17 @@ def modify_smali_files(directories):
             modify_file(verification_params)
         else:
             logging.warning(f"File not found: {verification_params}")
+
+        if os.path.exists(parsing_package_utils):
+            logging.info(f"Found file: {parsing_package_utils}")
+            modify_parsing_package_utils(parsing_package_utils)
+        else:
+            logging.warning(f"File not found: {parsing_package_utils}")
+        if os.path.exists(package_info_utils):
+            logging.info(f"Found file: {package_info_utils}")
+            modify_invoke_interface(package_info_utils)
+        else:
+            logging.warning(f"File not found: {package_info_utils}")
 
 
 if __name__ == "__main__":
