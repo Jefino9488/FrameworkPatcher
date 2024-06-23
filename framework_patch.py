@@ -93,6 +93,26 @@ def modify_package_parser(file_path):
     logging.info(f"Completed modification for file: {file_path}")
 
 
+def modify_apk_signature_verifier(file_path):
+    logging.info(f"Modifying ApkSignatureVerifier file: {file_path}")
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    modified_lines = []
+    pattern = re.compile(
+        r'invoke-static \{p0, p1, p3\}, Landroid/util/apk/ApkSignatureVerifier;->verifyV1Signature\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;Z\)Landroid/content/pm/parsing/result/ParseResult;')
+
+    for line in lines:
+        if pattern.search(line):
+            logging.info(f"Found target line. Adding line above it.")
+            modified_lines.append("    const p3, 0x0\n")
+        modified_lines.append(line)
+
+    with open(file_path, 'w') as file:
+        file.writelines(modified_lines)
+    logging.info(f"Completed modification for file: {file_path}")
+
+
 def modify_exception_file(file_path):
     logging.info(f"Modifying exception file: {file_path}")
     with open(file_path, 'r') as file:
@@ -177,7 +197,7 @@ def modify_smali_files(directories):
             logging.warning(f"File not found: {package_parser_signing_details}")
         if os.path.exists(apk_signature_verifier):
             logging.info(f"Found file: {apk_signature_verifier}")
-            modify_file(apk_signature_verifier)
+            modify_apk_signature_verifier(apk_signature_verifier)
         else:
             logging.warning(f"File not found: {apk_signature_verifier}")
         if os.path.exists(apk_signature_scheme_v2_verifier):
