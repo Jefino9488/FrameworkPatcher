@@ -134,7 +134,7 @@ def modify_invoke_interface(file_path):
                     variable = re.search(r'\s*move-result\s+(v\d+)', lines[j]).group(1)
                     logging.info(f"Replacing line: {lines[j].strip()} with const/4 {variable}, 0x1")
                     modified_lines[-1] = line  # Restore the original line
-                    modified_lines.append(f"    const/4 {variable}, 0x1\n")
+                    modified_lines.append(f"    const/4 {variable}, 0x0\n")
                     i = j  # Skip the move-result line
                     break
         i += 1
@@ -172,7 +172,7 @@ def modify_smali_files(directories):
         parsing_package_utils = os.path.join(directory,
                                              'com/android/server/pm/pkg/parsing/ParsingPackageUtils.smali')
         package_info_utils = os.path.join(directory,
-                                          'com/android/server/pm/parsing/PackageInfoUtils.smali')
+                                          'com/android/server/pm/InstallPackageHelper.smali')
 
         if os.path.exists(package_manager_service_utils):
             logging.info(f"Found file: {package_manager_service_utils}")
