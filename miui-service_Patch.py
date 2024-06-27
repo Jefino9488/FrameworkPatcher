@@ -36,7 +36,8 @@ def modify_smali_files(directories):
         'com/android/server/job/JobServiceContextImpl.smali',
         'com/android/server/notification/NotificationManagerServiceImpl.smali',
         'com/miui/server/greeze/GreezeManagerService.smali',
-        'miui/app/ActivitySecurityHelper.smali'
+        'miui/app/ActivitySecurityHelper.smali',
+        'com/android/server/am/ActivityManagerServiceImpl.smali'
     ]
 
     search_pattern = r'sget-boolean (v\d+), Lmiui/os/Build;->IS_INTERNATIONAL_BUILD:Z'
