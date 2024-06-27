@@ -358,6 +358,20 @@
     return v0
 .end method
 
+.method public static getIntofSettingsGlobal(Ljava/lang/String;I)I
+    .registers 3
+
+    invoke-static {}, Landroid/preference/SettingsHelper;->getCR()Landroid/content/ContentResolver;
+
+    move-result-object v0
+
+    invoke-static {v0, p0, p1}, Landroid/provider/Settings$Global;->getInt(Landroid/content/ContentResolver;Ljava/lang/String;I)I
+
+    move-result v0
+
+    return v0
+.end method
+
 .method public static getIntofSettingss(Ljava/lang/String;)I
     .registers 3
 
@@ -470,6 +484,18 @@
     move-result-object v0
 
     invoke-static {v0, p0, p1}, Landroid/provider/Settings$System;->putInt(Landroid/content/ContentResolver;Ljava/lang/String;I)Z
+
+    return-void
+.end method
+
+.method public static putIntinSettingsGlobal(Ljava/lang/String;I)V
+    .registers 3
+
+    invoke-static {}, Landroid/preference/SettingsHelper;->getCR()Landroid/content/ContentResolver;
+
+    move-result-object v0
+
+    invoke-static {v0, p0, p1}, Landroid/provider/Settings$Global;->putInt(Landroid/content/ContentResolver;Ljava/lang/String;I)Z
 
     return-void
 .end method
