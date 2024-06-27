@@ -6,19 +6,15 @@ on:
       framework_jar_url:
         description: 'URL to download framework.jar'
         required: true
-        default: 'https://dumps.tadiphone.dev/dumps/redmi/xaga/-/raw/missi_phone_cn-user-14-UP1A.231005.007-V816.0.1.0.ULOCNXM-release-keys/system/system/framework/framework.jar'
       services_jar_url:
         description: 'URL to download services.jar'
         required: true
-        default: 'https://dumps.tadiphone.dev/dumps/redmi/xaga/-/raw/missi_phone_cn-user-14-UP1A.231005.007-V816.0.1.0.ULOCNXM-release-keys/system/system/framework/services.jar'
       miui_services_jar_url:
         description: 'URL to download miui-services.jar'
         required: true
-        default: 'https://example.com/path/to/miui-services.jar'
       miui_framework_jar_url:
         description: 'URL to download miui-framework.jar'
         required: true
-        default: 'https://example.com/path/to/miui-framework.jar'
       android_api_level:
         description: 'Android API level'
         required: true
