@@ -15,6 +15,10 @@ on:
         description: 'URL to download miui-services.jar'
         required: true
         default: 'https://example.com/path/to/miui-services.jar'
+      miui_framework_jar_url:
+        description: 'URL to download miui-framework.jar'
+        required: true
+        default: 'https://example.com/path/to/miui-framework.jar'
       android_api_level:
         description: 'Android API level'
         required: true
@@ -56,6 +60,10 @@ jobs:
       run: |
         curl -L -o miui-services.jar "${{ github.event.inputs.miui_services_jar_url }}"
 
+    - name: Download miui-framework.jar
+      run: |
+        curl -L -o miui-framework.jar "${{ github.event.inputs.miui_framework_jar_url }}"
+
     - name: Clone smali repository
       run: git clone --depth=1 https://github.com/JesusFreke/smali.git
 
@@ -72,6 +80,9 @@ jobs:
 
     - name: Extract miui-services.jar
       run: 7z x miui-services.jar -omiui_services
+
+    - name: Extract miui-framework.jar
+      run: 7z x miui-framework.jar -omiui_framework
 
     - name: Decompile framework dex files
       run: |
@@ -90,6 +101,10 @@ jobs:
       run: |
         java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} miui_services/classes.dex -o miui_services_classes
 
+    - name: Decompile miui-framework dex file
+      run: |
+        java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} miui_framework/classes.dex -o miui_framework_classes
+
     - name: Backup smali files
       run: |
         cp -r classes classes_backup
@@ -99,6 +114,7 @@ jobs:
         cp -r services_classes2 services_classes2_backup
         cp -r services_classes3 services_classes3_backup
         cp -r miui_services_classes miui_services_classes_backup
+        cp -r miui_framework_classes miui_framework_classes_backup
 
     - name: Modify framework smali files
       run: |
@@ -111,6 +127,10 @@ jobs:
     - name: Modify miui-services smali files
       run: |
         python3 miui-service_Patch.py
+
+    - name: Modify miui-framework smali files
+      run: |
+        python3 miui-framework_patch.py
 
     - name: Recompile framework dex files
       run: |
@@ -128,6 +148,10 @@ jobs:
     - name: Recompile miui-services dex file
       run: |
         java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} miui_services_classes -o miui_services/classes.dex
+
+    - name: Recompile miui-framework dex file
+      run: |
+        java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} miui_framework_classes -o miui_framework/classes.dex
 
     - name: Recompile framework.jar
       run: |
@@ -147,11 +171,18 @@ jobs:
         7z a -tzip ../miui_services_new.zip *
         cd ..
 
+    - name: Recompile miui-framework.jar
+      run: |
+        cd miui_framework
+        7z a -tzip ../miui_framework_new.zip *
+        cd ..
+
     - name: Align the zips
       run: |
         zipalign -f -p -v -z 4 framework_new.zip aligned_framework.jar
         zipalign -f -p -v -z 4 services_new.zip aligned_services.jar
         zipalign -f -p -v -z 4 miui_services_new.zip aligned_miui_services.jar
+        zipalign -f -p -v -z 4 miui_framework_new.zip aligned_miui_framework.jar
 
     - name: Copy aligned jars to Magisk module
       run: |
@@ -160,6 +191,7 @@ jobs:
         cp aligned_framework.jar magisk_module/system/framework/framework.jar
         cp aligned_services.jar magisk_module/system/framework/services.jar
         cp aligned_miui_services.jar magisk_module/system/system_ext/framework/miui-services.jar
+        cp aligned_miui_framework.jar magisk_module/system/system_ext/framework/miui-framework.jar
 
     - name: Create Version From Link
       run: |
