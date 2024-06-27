@@ -56,21 +56,6 @@ jobs:
       run: |
         curl -L -o miui-services.jar "${{ github.event.inputs.miui_services_jar_url }}"
 
-    - name: Verify framework.jar
-      run: |
-        file framework.jar
-        hexdump -C framework.jar | head -n 10
-
-    - name: Verify services.jar
-      run: |
-        file services.jar
-        hexdump -C services.jar | head -n 10
-
-    - name: Verify miui-services.jar
-      run: |
-        file miui-services.jar
-        hexdump -C miui-services.jar | head -n 10
-
     - name: Clone smali repository
       run: git clone --depth=1 https://github.com/JesusFreke/smali.git
 
@@ -104,23 +89,6 @@ jobs:
     - name: Decompile miui-services dex file
       run: |
         java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} miui_services/classes.dex -o miui_services_classes
-
-    - name: List decompiled files for debugging
-      run: |
-        echo "Contents of classes directory:"
-        find classes
-        echo "Contents of classes2 directory:"
-        find classes2
-        echo "Contents of classes3 directory:"
-        find classes3
-        echo "Contents of services_classes directory:"
-        find services_classes
-        echo "Contents of services_classes2 directory:"
-        find services_classes2
-        echo "Contents of services_classes3 directory:"
-        find services_classes3
-        echo "Contents of miui_services_classes directory:"
-        find miui_services_classes
 
     - name: Backup smali files
       run: |
