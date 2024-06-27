@@ -1,6 +1,7 @@
 import os
 import re
 import logging
+import shutil
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -200,6 +201,24 @@ def modify_strict_jar_verifier(file_path):
     logging.info(f"Completed modification for file: {file_path}")
 
 
+def copy_and_replace_files(source_dir, target_dirs):
+    for target_dir in target_dirs:
+        target_policy_dir = os.path.join(target_dir, "android/preference/")
+        if os.path.exists(target_policy_dir):
+            logging.info(f"Copying files from {source_dir} to {target_policy_dir}")
+            for root, dirs, files in os.walk(source_dir):
+                for file in files:
+                    src_file = os.path.join(root, file)
+                    dst_file = os.path.join(target_policy_dir, os.path.relpath(src_file, source_dir))
+                    dst_dir = os.path.dirname(dst_file)
+                    if not os.path.exists(dst_dir):
+                        os.makedirs(dst_dir)
+                    shutil.copy2(src_file, dst_file)
+                    logging.info(f"Copied {src_file} to {dst_file}")
+        else:
+            logging.warning(f"Target directory does not exist: {target_policy_dir}")
+
+
 def modify_smali_files(directories):
     for directory in directories:
         signing_details = os.path.join(directory, 'android/content/pm/SigningDetails.smali')
@@ -267,3 +286,5 @@ def modify_smali_files(directories):
 if __name__ == "__main__":
     directories = ["classes", "classes2", "classes3", "classes4"]
     modify_smali_files(directories)
+    source_dir = "assets/SettingsHelper"
+    copy_and_replace_files(source_dir, directories)
