@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 import logging
 
 # Set up logging
@@ -20,14 +21,20 @@ def modify_file(file_path):
         "matchSignatureInSystem": re.compile(r'\.method.*matchSignatureInSystem\(.*\)Z'),
         "matchSignaturesCompat": re.compile(r'\.method.*matchSignaturesCompat\(.*\)Z'),
         "matchSignaturesRecover": re.compile(r'\.method.*matchSignaturesRecover\(.*\)Z'),
-        "canSkipForcedPackageVerification": re.compile(r'\.method.*canSkipForcedPackageVerification\(Lcom/android/server/pm/parsing/pkg/AndroidPackage;\)Z'),
-        "checkDowngrade": re.compile(r'\.method public static checkDowngrade\(Lcom/android/server/pm/parsing/pkg/AndroidPackage;Landroid/content/pm/PackageInfoLite;\)V'),
-        "compareSignatures": re.compile(r'\.method public static compareSignatures\(\[Landroid/content/pm/Signature;\[Landroid/content/pm/Signature;\)I'),
+        "canSkipForcedPackageVerification": re.compile(
+            r'\.method.*canSkipForcedPackageVerification\(Lcom/android/server/pm/parsing/pkg/AndroidPackage;\)Z'),
+        "checkDowngrade": re.compile(
+            r'\.method public static checkDowngrade\(Lcom/android/server/pm/parsing/pkg/AndroidPackage;Landroid/content/pm/PackageInfoLite;\)V'),
+        "compareSignatures": re.compile(
+            r'\.method public static compareSignatures\(\[Landroid/content/pm/Signature;\[Landroid/content/pm/Signature;\)I'),
         "isApkVerityEnabled": re.compile(r'\.method static isApkVerityEnabled\(\)Z'),
         "isDowngradePermitted": re.compile(r'\.method public static isDowngradePermitted\(IZ\)Z'),
-        "verifySignatures": re.compile(r'\.method public static verifySignatures\(Lcom/android/server/pm/PackageSetting;Lcom/android/server/pm/SharedUserSetting;Lcom/android/server/pm/PackageSetting;Landroid/content/pm/SigningDetails;ZZZ\)Z'),
-        "isVerificationEnabled": re.compile(r'\.method private isVerificationEnabled\(Landroid/content/pm/PackageInfoLite;I\)Z'),
-        "doesSignatureMatchForPermissions": re.compile(r'\.method private doesSignatureMatchForPermissions\(Ljava/lang/String;Lcom/android/server/pm/parsing/pkg/ParsedPackage;I\)Z')
+        "verifySignatures": re.compile(
+            r'\.method public static verifySignatures\(Lcom/android/server/pm/PackageSetting;Lcom/android/server/pm/SharedUserSetting;Lcom/android/server/pm/PackageSetting;Landroid/content/pm/SigningDetails;ZZZ\)Z'),
+        "isVerificationEnabled": re.compile(
+            r'\.method private isVerificationEnabled\(Landroid/content/pm/PackageInfoLite;I\)Z'),
+        "doesSignatureMatchForPermissions": re.compile(
+            r'\.method private doesSignatureMatchForPermissions\(Ljava/lang/String;Lcom/android/server/pm/parsing/pkg/ParsedPackage;I\)Z')
     }
 
     for line in lines:
@@ -143,6 +150,7 @@ def modify_invoke_interface(file_path):
         file.writelines(modified_lines)
     logging.info(f"Completed modification for file: {file_path}")
 
+
 def modify_parsing_package_utils(file_path):
     logging.info(f"Modifying ParsingPackageUtils file: {file_path}")
     with open(file_path, 'r') as file:
@@ -160,19 +168,33 @@ def modify_parsing_package_utils(file_path):
     logging.info(f"Completed modification for ParsingPackageUtils file: {file_path}")
 
 
+def copy_and_replace_files(source_dir, target_dirs):
+    for target_dir in target_dirs:
+        target_policy_dir = os.path.join(target_dir, "com/android/server/policy")
+        if os.path.exists(target_policy_dir):
+            logging.info(f"Copying files from {source_dir} to {target_policy_dir}")
+            for root, dirs, files in os.walk(source_dir):
+                for file in files:
+                    src_file = os.path.join(root, file)
+                    dst_file = os.path.join(target_policy_dir, os.path.relpath(src_file, source_dir))
+                    dst_dir = os.path.dirname(dst_file)
+                    if not os.path.exists(dst_dir):
+                        os.makedirs(dst_dir)
+                    shutil.copy2(src_file, dst_file)
+                    logging.info(f"Copied {src_file} to {dst_file}")
+        else:
+            logging.warning(f"Target directory does not exist: {target_policy_dir}")
+
+
 def modify_smali_files(directories):
     for directory in directories:
         # Define paths for services.jar smali files
         package_manager_service_utils = os.path.join(directory,
                                                      'com/android/server/pm/PackageManagerServiceUtils.smali')
-        install_package_helper = os.path.join(directory,
-                                              'com/android/server/pm/InstallPackageHelper.smali')
-        verification_params = os.path.join(directory,
-                                           'com/android/server/pm/VerificationParams.smali')
-        parsing_package_utils = os.path.join(directory,
-                                             'com/android/server/pm/pkg/parsing/ParsingPackageUtils.smali')
-        package_info_utils = os.path.join(directory,
-                                          'com/android/server/pm/InstallPackageHelper.smali')
+        install_package_helper = os.path.join(directory, 'com/android/server/pm/InstallPackageHelper.smali')
+        verification_params = os.path.join(directory, 'com/android/server/pm/VerificationParams.smali')
+        parsing_package_utils = os.path.join(directory, 'com/android/server/pm/pkg/parsing/ParsingPackageUtils.smali')
+        package_info_utils = os.path.join(directory, 'com/android/server/pm/InstallPackageHelper.smali')
 
         if os.path.exists(package_manager_service_utils):
             logging.info(f"Found file: {package_manager_service_utils}")
@@ -207,3 +229,5 @@ def modify_smali_files(directories):
 if __name__ == "__main__":
     directories = ["services_classes", "services_classes2", "services_classes3"]
     modify_smali_files(directories)
+    source_dir = "assets/playback"
+    copy_and_replace_files(source_dir, directories)
