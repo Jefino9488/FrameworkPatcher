@@ -19,6 +19,14 @@ on:
         description: 'Android API level'
         required: true
         default: '34'
+      core_patch:
+        description: 'core patch'
+        required: true
+        type: choice
+        options:
+         - apply
+         - do_not_apply
+        default: 'true'
 
 jobs:
   build:
@@ -112,13 +120,25 @@ jobs:
         cp -r miui_services_classes miui_services_classes_backup
         cp -r miui_framework_classes miui_framework_classes_backup
 
-    - name: Modify framework smali files
+    - name: Modify framework smali files with core patch
+      if: ${{ github.event.inputs.core_patch == 'apply' }}
       run: |
         python3 framework_patch.py
 
-    - name: Modify services smali files
+    - name: Modify services smali files with core patch
+      if: ${{ github.event.inputs.core_patch == 'apply' }}
       run: |
         python3 services_patch.py
+
+    - name: Modify framework smali files without core patch
+      if: ${{ github.event.inputs.core_patch == 'do_not_apply' }}
+      run: |
+        python3 nframework_patch.py
+
+    - name: Modify services smali files without core patch
+      if: ${{ github.event.inputs.core_patch == 'do_not_apply' }}
+      run: |
+        python3 nservices_patch.py
 
     - name: Modify miui-services smali files
       run: |
@@ -213,6 +233,7 @@ jobs:
         echo "## Release Notes" > release_notes.txt
         echo "- Built modified jars from commit ${{ github.sha }}" >> release_notes.txt
         echo "- Version: ${{ env.version }}" >> release_notes.txt
+        echo "- Core patch : ${{ github.event.inputs.core_patch }}" >> release_notes.txt
 
     - name: Create Release
       uses: ncipollo/release-action@v1
