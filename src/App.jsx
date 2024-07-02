@@ -26,6 +26,18 @@ const App = () => {
     e.preventDefault();
 
     try {
+      console.log('Starting to trigger GitHub Action with the following inputs:');
+      console.log({
+        framework_jar_url: frameworkJarUrl,
+        services_jar_url: servicesJarUrl,
+        miui_services_jar_url: miuiServicesJarUrl,
+        miui_framework_jar_url: miuiFrameworkJarUrl,
+        android_api_level: androidApiLevel,
+        core_patch: corePatch,
+        custom_device_name: customDeviceName,
+        custom_version: customVersion
+      });
+
       const response = await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
         owner: REPO_OWNER,
         repo: REPO_NAME,
@@ -70,60 +82,97 @@ const App = () => {
   };
 
   return (
-      <div id="root">
-          <h1 id="h">Modify Framework and Services</h1>
-          <br/>
-          <form ref={formRef} onSubmit={handleSubmit}>
-              <div>
-                  <h2>JAR URLs</h2>
-                  <label htmlFor="framework-jar-url-input">Framework JAR URL:</label>
-                  <input type="url" id="framework-jar-url-input" value={frameworkJarUrl}
-                         onChange={(e) => setFrameworkJarUrl(e.target.value)} required/>
+    <div id="root">
+      <h1 id="h">Modify Framework and Services</h1>
+      <br />
+      <form ref={formRef} onSubmit={handleSubmit}>
+        <div>
+          <h2>JAR URLs</h2>
+          <label htmlFor="framework-jar-url-input">Framework JAR URL:</label>
+          <input
+            type="url"
+            id="framework-jar-url-input"
+            value={frameworkJarUrl}
+            onChange={(e) => setFrameworkJarUrl(e.target.value)}
+            required
+          />
 
-                  <label htmlFor="services-jar-url-input">Services JAR URL:</label>
-                  <input type="url" id="services-jar-url-input" value={servicesJarUrl}
-                         onChange={(e) => setServicesJarUrl(e.target.value)} required/>
+          <label htmlFor="services-jar-url-input">Services JAR URL:</label>
+          <input
+            type="url"
+            id="services-jar-url-input"
+            value={servicesJarUrl}
+            onChange={(e) => setServicesJarUrl(e.target.value)}
+            required
+          />
 
-                  <label htmlFor="miui-services-jar-url-input">MIUI Services JAR URL:</label>
-                  <input type="url" id="miui-services-jar-url-input" value={miuiServicesJarUrl}
-                         onChange={(e) => setMiuiServicesJarUrl(e.target.value)} required/>
+          <label htmlFor="miui-services-jar-url-input">MIUI Services JAR URL:</label>
+          <input
+            type="url"
+            id="miui-services-jar-url-input"
+            value={miuiServicesJarUrl}
+            onChange={(e) => setMiuiServicesJarUrl(e.target.value)}
+            required
+          />
 
-                  <label htmlFor="miui-framework-jar-url-input">MIUI Framework JAR URL:</label>
-                  <input type="url" id="miui-framework-jar-url-input" value={miuiFrameworkJarUrl}
-                         onChange={(e) => setMiuiFrameworkJarUrl(e.target.value)} required/>
-              </div>
+          <label htmlFor="miui-framework-jar-url-input">MIUI Framework JAR URL:</label>
+          <input
+            type="url"
+            id="miui-framework-jar-url-input"
+            value={miuiFrameworkJarUrl}
+            onChange={(e) => setMiuiFrameworkJarUrl(e.target.value)}
+            required
+          />
+        </div>
 
-              <div>
-                  <h2>Additional Settings</h2>
-                  <label htmlFor="android-api-level-input">Android API Level:</label>
-                  <input type="number" id="android-api-level-input" value={androidApiLevel}
-                         onChange={(e) => setAndroidApiLevel(e.target.value)} required/>
+        <div>
+          <h2>Additional Settings</h2>
+          <label htmlFor="android-api-level-input">Android API Level:</label>
+          <input
+            type="number"
+            id="android-api-level-input"
+            value={androidApiLevel}
+            onChange={(e) => setAndroidApiLevel(e.target.value)}
+            required
+          />
 
-                  <label htmlFor="core-patch-select">Core Patch:</label>
-                  <select id="core-patch-select" value={corePatch} onChange={(e) => setCorePatch(e.target.value)}
-                          required>
-                      <option value="apply">Apply</option>
-                      <option value="do_not_apply">Do Not Apply</option>
-                  </select>
+          <label htmlFor="core-patch-select">Core Patch:</label>
+          <select
+            id="core-patch-select"
+            value={corePatch}
+            onChange={(e) => setCorePatch(e.target.value)}
+            required
+          >
+            <option value="apply">Apply</option>
+            <option value="do_not_apply">Do Not Apply</option>
+          </select>
 
-                  <label htmlFor="custom-device-name-input">Custom Device Name (optional):</label>
-                  <input type="text" id="custom-device-name-input" value={customDeviceName}
-                         onChange={(e) => setCustomDeviceName(e.target.value)}/>
+          <label htmlFor="custom-device-name-input">Custom Device Name (optional):</label>
+          <input
+            type="text"
+            id="custom-device-name-input"
+            value={customDeviceName}
+            onChange={(e) => setCustomDeviceName(e.target.value)}
+          />
 
-                  <label htmlFor="custom-version-input">Custom Version (optional):</label>
-                  <input type="text" id="custom-version-input" value={customVersion}
-                         onChange={(e) => setCustomVersion(e.target.value)}/>
-              </div>
-          </form>
-          <div>
-              <button type="submit">Start Build</button>
-          </div>
-          <p>All builds are available on the releases page</p>
-          <div id="root1">
-              <button onClick={handleRedirect}>Go to releases</button>
-              <button onClick={handleRedirectBuild}>Build Status</button>
-          </div>
+          <label htmlFor="custom-version-input">Custom Version (optional):</label>
+          <input
+            type="text"
+            id="custom-version-input"
+            value={customVersion}
+            onChange={(e) => setCustomVersion(e.target.value)}
+          />
+        </div>
+        <div>
+          <button type="submit">Start Build</button>
+        </div>
+      </form>
+      <p>All builds are available on the releases page</p>
+      <div id="root1">
+        <button onClick={handleRedirect}>Go to releases</button>
+        <button onClick={handleRedirectBuild}>Build Status</button>
       </div>
+    </div>
   );
 };
 
