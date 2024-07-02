@@ -229,5 +229,3 @@ def modify_smali_files(directories):
 if __name__ == "__main__":
     directories = ["services_classes", "services_classes2", "services_classes3"]
     modify_smali_files(directories)
-    source_dir = "assets/playback"
-    copy_and_replace_files(source_dir, directories)

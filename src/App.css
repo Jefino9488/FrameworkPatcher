@@ -1,0 +1,91 @@
+/* App.css */
+#root {
+  padding: 20px;
+  text-align: center;
+}
+
+#h {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+form {
+  display: block;
+  width: 100%;
+  max-width: 800px; /* Adjust as needed for desktop */
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 0 auto; /* Center the form */
+}
+
+form > div {
+  width: 48%;
+  display: inline-block;
+  vertical-align: top;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+
+h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+}
+
+input, select, button {
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+button {
+  margin-top: 15px;
+}
+
+#root1 {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#root1 button {
+  margin-right: 10px;
+    margin-left: 10px;
+  width: 30%;
+}
+
+button[type="submit"] {
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 30%; /* Adjust width for submit button */
+  margin: 20px auto 0; /* Center the button */
+  display: block;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  form > div {
+    width: 100%;
+    border-right: none; /* Remove border on mobile */
+  }
+
+  #root1 button {
+    width: 100%;
+    font-weight: normal;
+    margin-right: 5px;
+    margin-left: 5px;
+  }
+}
