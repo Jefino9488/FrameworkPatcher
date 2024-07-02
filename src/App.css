@@ -1,6 +1,6 @@
 /* App.css */
 #root {
-  padding: 20px;
+  padding: 10px;
   text-align: center;
 }
 
@@ -15,7 +15,6 @@ form {
   max-width: 800px; /* Adjust as needed for desktop */
   border: 1px solid #ccc;
   border-radius: 10px;
-  padding: 10px;
   margin: 0 auto; /* Center the form */
 }
 
@@ -59,7 +58,7 @@ button {
 
 #root1 button {
   margin-right: 10px;
-    margin-left: 10px;
+  margin-left: 10px;
   width: 30%;
 }
 
@@ -70,7 +69,7 @@ button[type="submit"] {
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  width: 30%; /* Adjust width for submit button */
+  width: 50%; /* Adjust width for submit button */
   margin: 20px auto 0; /* Center the button */
   display: block;
 }
