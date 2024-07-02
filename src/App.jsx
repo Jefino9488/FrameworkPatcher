@@ -44,7 +44,7 @@ const App = () => {
       });
 
       if (response.status === 204) {
-        window.alert('Build started! Wait for 8 - 10 minutes and check the releases page.');
+        window.alert('Build started! Wait for 5 - 10 minutes and check the releases page.');
         setFrameworkJarUrl('');
         setServicesJarUrl('');
         setMiuiServicesJarUrl('');
