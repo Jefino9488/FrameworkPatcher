@@ -1,8 +1,34 @@
-# React + Vite
+# Framework`Patcher`
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Description
 
-Currently, two official plugins are available:
+This framework patcher patches miui/hyper frameworks that includes `framework.jar`, `services.jar`, `miui-framework.jar`, `miui-services.jar `
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+
+ - China Notification Fix
+ - Support Gboard keyboard extension
+ - Fully Disabled signature verification (core patch)
+
+### Futher Development
+
+ - add support to spoofing
+ - play integrity fix
+ - ...
+
+## Usage
+
+ - visit the website 
+ - provide the required direct urls of the files
+ - give device name, rom verision correctly
+ - click on the build button
+ - you can navigate to workflow to see the progress
+ - if the build is successful
+ - download the file from the release section
+
+## Credits
+
+- [Xiaomi](https://xiaomi.com)
+- [google](https://google.com)
+- [CorePatch](https://github.com/LSPosed/CorePatch)
+- and many more
