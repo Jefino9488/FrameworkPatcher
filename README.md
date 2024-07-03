@@ -32,7 +32,7 @@ Refer to the usage section to know how to use this patcher
  - Support Gboard keyboard extension
  - Fully Disabled signature verification (core patch)
 
-### Futher Development
+### Further Development
 
  - add support to spoofing
  - play integrity fix
