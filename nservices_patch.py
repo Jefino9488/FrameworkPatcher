@@ -227,4 +227,4 @@ def modify_smali_files(directories):
 
 
 if __name__ == "__main__":
-    directories = ["services_classes", "services_classes2", "services_classes3"]
+    directories = ["services_classes", "services_classes2", "services_classes3", "services_classes4"]
