@@ -210,10 +210,12 @@ jobs:
       run: |
         mkdir -p magisk_module/system/framework
         mkdir -p magisk_module/system/system_ext/framework
+        mkdir -p magisk_module/system/product/app/MIUIFrequentPhrase/
         cp aligned_framework.jar magisk_module/system/framework/framework.jar
         cp aligned_services.jar magisk_module/system/framework/services.jar
         cp aligned_miui_services.jar magisk_module/system/system_ext/framework/miui-services.jar
         cp aligned_miui_framework.jar magisk_module/system/system_ext/framework/miui-framework.jar
+        cp assects/app/MIUIFrequentPhrase.apk magisk_module/system/product/app/MIUIFrequentPhrase/
 
     - name: Create Version From Link
       run: |
