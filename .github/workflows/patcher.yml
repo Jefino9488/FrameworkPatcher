@@ -96,7 +96,7 @@ jobs:
 
     - name: Decompile framework dex files
       run: |
-        for i in {1..4}; do
+        for i in {1..10}; do
           if [ -f "framework/classes${i}.dex" ]; then
             java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes${i}.dex -o classes${i}
           else
@@ -106,7 +106,7 @@ jobs:
 
     - name: Decompile services dex files
       run: |
-        for i in {1..4}; do
+        for i in {1..10}; do
           if [ -f "services/classes${i}.dex" ]; then
             java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} services/classes${i}.dex -o services_classes${i}
           else
@@ -124,14 +124,11 @@ jobs:
 
     - name: Backup smali files
       run: |
-        cp -r classes classes_backup
-        cp -r classes2 classes2_backup
-        cp -r classes3 classes3_backup
-        cp -r services_classes services_classes_backup
-        cp -r services_classes2 services_classes2_backup
-        cp -r services_classes3 services_classes3_backup
-        cp -r miui_services_classes miui_services_classes_backup
-        cp -r miui_framework_classes miui_framework_classes_backup
+        for dir in classes services_classes miui_services_classes miui_framework_classes; do
+          if [ -d "${dir}" ]; then
+            cp -r "${dir}" "${dir}_backup"
+          fi
+        done
 
     - name: Modify framework smali files with core patch
       if: ${{ github.event.inputs.core_patch == 'apply' }}
@@ -163,7 +160,7 @@ jobs:
 
     - name: Recompile framework dex files
       run: |
-        for i in {1..4}; do
+        for i in {1..10}; do
           if [ -d "classes${i}" ]; then
             java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes${i} -o framework/classes${i}.dex
           else
@@ -173,7 +170,7 @@ jobs:
 
     - name: Recompile services dex files
       run: |
-        for i in {1..4}; do
+        for i in {1..10}; do
           if [ -d "services_classes${i}" ]; then
             java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} services_classes${i} -o services/classes${i}.dex
           else
