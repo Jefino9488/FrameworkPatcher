@@ -2,7 +2,17 @@
 [![Modify Frameworks](https://github.com/Jefino9488/FrameworkPatcher/actions/workflows/patcher.yml/badge.svg)](https://github.com/Jefino9488/FrameworkPatcher/actions/workflows/patcher.yml)
 ## Description
 
-This framework patcher patches miui/hyper frameworks that includes `framework.jar`, `services.jar`, `miui-framework.jar`, `miui-services.jar `
+This framework patcher patches miui/hyper frameworks 
+
+ - `framework.jar`, `services.jar`, `miui-framework.jar`, `miui-services.jar `
+
+Refer to the usage section to know how to use this patcher
+
+## Supported Devices
+
+ - All Xiaomi Devices
+ - Only A13 - A14 devices are supported
+ - recommended to use on Hyper OS
 
 ## Features
 
@@ -14,6 +24,7 @@ This framework patcher patches miui/hyper frameworks that includes `framework.ja
 
  - add support to spoofing
  - play integrity fix
+ - add support to other devices
  - ...
 
 ## Usage
