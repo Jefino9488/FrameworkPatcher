@@ -12,6 +12,7 @@ Refer to the usage section to know how to use this patcher
 
  - All Xiaomi Devices
  - Only A13 - A14 devices are supported
+ - use stock framework files (modified files are not supported)
  - recommended to use on CN Hyper OS
 
 ## Usage
