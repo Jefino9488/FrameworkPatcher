@@ -1,7 +1,7 @@
 import os
+import re
 import shutil
 import logging
-import re
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -188,51 +188,44 @@ def copy_and_replace_files(source_dir, target_dirs):
 
 def modify_smali_files(directories):
     for directory in directories:
-        smali_directories = [os.path.join(directory, d) for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d)) and d.startswith("services_classes")]
-        for smali_dir in smali_directories:
-            logging.info(f"Processing Smali files in directory: {smali_dir}")
+        # Define paths for services.jar smali files
+        package_manager_service_utils = os.path.join(directory,
+                                                     'com/android/server/pm/PackageManagerServiceUtils.smali')
+        install_package_helper = os.path.join(directory, 'com/android/server/pm/InstallPackageHelper.smali')
+        verification_params = os.path.join(directory, 'com/android/server/pm/VerificationParams.smali')
+        parsing_package_utils = os.path.join(directory, 'com/android/server/pm/pkg/parsing/ParsingPackageUtils.smali')
+        package_info_utils = os.path.join(directory, 'com/android/server/pm/InstallPackageHelper.smali')
 
-            package_manager_service_utils = os.path.join(smali_dir, 'com/android/server/pm/PackageManagerServiceUtils.smali')
-            install_package_helper = os.path.join(smali_dir, 'com/android/server/pm/InstallPackageHelper.smali')
-            verification_params = os.path.join(smali_dir, 'com/android/server/pm/VerificationParams.smali')
-            parsing_package_utils = os.path.join(smali_dir, 'com/android/server/pm/pkg/parsing/ParsingPackageUtils.smali')
-            package_info_utils = os.path.join(smali_dir, 'com/android/server/pm/InstallPackageHelper.smali')
+        if os.path.exists(package_manager_service_utils):
+            logging.info(f"Found file: {package_manager_service_utils}")
+            modify_file(package_manager_service_utils)
+        else:
+            logging.warning(f"File not found: {package_manager_service_utils}")
 
-            if os.path.exists(package_manager_service_utils):
-                logging.info(f"Found file: {package_manager_service_utils}")
-                modify_file(package_manager_service_utils)
-            else:
-                logging.warning(f"File not found: {package_manager_service_utils}")
+        if os.path.exists(install_package_helper):
+            logging.info(f"Found file: {install_package_helper}")
+            modify_file(install_package_helper)
+        else:
+            logging.warning(f"File not found: {install_package_helper}")
 
-            if os.path.exists(install_package_helper):
-                logging.info(f"Found file: {install_package_helper}")
-                modify_file(install_package_helper)
-            else:
-                logging.warning(f"File not found: {install_package_helper}")
+        if os.path.exists(verification_params):
+            logging.info(f"Found file: {verification_params}")
+            modify_file(verification_params)
+        else:
+            logging.warning(f"File not found: {verification_params}")
 
-            if os.path.exists(verification_params):
-                logging.info(f"Found file: {verification_params}")
-                modify_file(verification_params)
-            else:
-                logging.warning(f"File not found: {verification_params}")
-
-            if os.path.exists(parsing_package_utils):
-                logging.info(f"Found file: {parsing_package_utils}")
-                modify_parsing_package_utils(parsing_package_utils)
-            else:
-                logging.warning(f"File not found: {parsing_package_utils}")
-
-            if os.path.exists(package_info_utils):
-                logging.info(f"Found file: {package_info_utils}")
-                modify_invoke_interface(package_info_utils)
-            else:
-                logging.warning(f"File not found: {package_info_utils}")
+        if os.path.exists(parsing_package_utils):
+            logging.info(f"Found file: {parsing_package_utils}")
+            modify_parsing_package_utils(parsing_package_utils)
+        else:
+            logging.warning(f"File not found: {parsing_package_utils}")
+        if os.path.exists(package_info_utils):
+            logging.info(f"Found file: {package_info_utils}")
+            modify_invoke_interface(package_info_utils)
+        else:
+            logging.warning(f"File not found: {package_info_utils}")
 
 
 if __name__ == "__main__":
-    current_directory = os.getcwd()
-    directories = [d for d in os.listdir(current_directory) if os.path.isdir(os.path.join(current_directory, d)) and d.startswith("services_classes")]
-    if not directories:
-        logging.warning("No directories found starting with 'services_classes' in the current directory.")
-    else:
-        modify_smali_files(directories)
+    directories = ["services_classes", "services_classes2", "services_classes3", "services_classes4"]
+    modify_smali_files(directories)

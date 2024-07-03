@@ -6,6 +6,7 @@ import shutil
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+
 def modify_file(file_path):
     logging.info(f"Modifying file: {file_path}")
     with open(file_path, 'r') as file:
@@ -284,11 +285,8 @@ def modify_smali_files(directories):
 
 
 if __name__ == "__main__":
-    base_dir = "."  # Assuming the script is run from the base directory
-    directories = [d for d in os.listdir(base_dir) if d.startswith("classes") and os.path.isdir(d)]
-    for directory in directories:
-        directory = os.path.join(base_dir, directory)
-        modify_smali_files([directory])
+    directories = ["classes", "classes2", "classes3", "classes4"]
+    modify_smali_files(directories)
     source_dirs = ["assets/SettingsHelper", "assets/Utils"]
     sub_dirs = ["android/preference", "android/util"]
     copy_and_replace_files(source_dirs, directories, sub_dirs)
