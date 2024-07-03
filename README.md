@@ -12,7 +12,7 @@ Refer to the usage section to know how to use this patcher
 
  - All Xiaomi Devices
  - Only A13 - A14 devices are supported
- - recommended to use on Hyper OS
+ - recommended to use on CN Hyper OS
 
 ## Features
 
@@ -31,6 +31,7 @@ Refer to the usage section to know how to use this patcher
 
  - visit the website 
  - provide the required direct urls of the files
+ - use [Android dumps](https://dumps.tadiphone.dev/dumps) url to get versionized zip 
  - give device name, rom verision correctly
  - click on the build button
  - you can navigate to workflow to see the progress

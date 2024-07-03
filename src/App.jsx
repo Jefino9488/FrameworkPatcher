@@ -22,6 +22,8 @@ const App = () => {
     auth: GITHUB_TOKEN
   });
 
+  const isDumpUrl = (url) => url.startsWith('https://dumps.tadiphone.dev/dumps/');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -128,13 +130,15 @@ const App = () => {
         <div>
           <h2>Additional Settings</h2>
           <label htmlFor="android-api-level-input">Android API Level:</label>
-          <input
-            type="number"
+          <select
             id="android-api-level-input"
             value={androidApiLevel}
             onChange={(e) => setAndroidApiLevel(e.target.value)}
             required
-          />
+          >
+            <option value="34">34</option>
+            <option value="33">33</option>
+          </select>
 
           <label htmlFor="core-patch-select">Core Patch:</label>
           <select
@@ -147,21 +151,27 @@ const App = () => {
             <option value="do_not_apply">Do Not Apply</option>
           </select>
 
-          <label htmlFor="custom-device-name-input">Custom Device Name (optional):</label>
-          <input
-            type="text"
-            id="custom-device-name-input"
-            value={customDeviceName}
-            onChange={(e) => setCustomDeviceName(e.target.value)}
-          />
+          {!isDumpUrl(frameworkJarUrl) && (
+            <>
+              <label htmlFor="custom-device-name-input">Custom Device Name:</label>
+              <input
+                type="text"
+                id="custom-device-name-input"
+                value={customDeviceName}
+                onChange={(e) => setCustomDeviceName(e.target.value)}
+                required
+              />
 
-          <label htmlFor="custom-version-input">Custom Version (optional):</label>
-          <input
-            type="text"
-            id="custom-version-input"
-            value={customVersion}
-            onChange={(e) => setCustomVersion(e.target.value)}
-          />
+              <label htmlFor="custom-version-input">Custom Version:</label>
+              <input
+                type="text"
+                id="custom-version-input"
+                value={customVersion}
+                onChange={(e) => setCustomVersion(e.target.value)}
+                required
+              />
+            </>
+          )}
         </div>
         <div>
           <button type="submit">Start Build</button>
