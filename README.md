@@ -1,5 +1,5 @@
 # Framework`Patcher`
-
+[![Modify Frameworks](https://github.com/Jefino9488/FrameworkPatcher/actions/workflows/patcher.yml/badge.svg)](https://github.com/Jefino9488/FrameworkPatcher/actions/workflows/patcher.yml)
 ## Description
 
 This framework patcher patches miui/hyper frameworks that includes `framework.jar`, `services.jar`, `miui-framework.jar`, `miui-services.jar `
