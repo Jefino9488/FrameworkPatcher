@@ -26,6 +26,17 @@ This framework patcher patches miui/hyper frameworks that includes `framework.ja
  - if the build is successful
  - download the file from the release section
 
+## Contributing
+
+`FrameworkPatcher` is an open source project and your contribution is very much appreciated.
+1. Fork the project
+2. Create your feature branch (git checkout -b feature/featureName)
+3. Commit your changes (git commit -am 'Add some feature')
+4. Push to the branch (git push origin feature/featureName)
+5. Create a new Pull Request
+6. Wait for the review
+7. If the review is successful, the changes will be merged
+
 ## Credits
 
 - [Xiaomi](https://xiaomi.com)
