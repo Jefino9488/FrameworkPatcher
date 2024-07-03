@@ -227,6 +227,5 @@ def modify_smali_files(directories):
 
 
 if __name__ == "__main__":
-    base_dir = "."
-    directories = [d for d in os.listdir(base_dir) if d.startswith("services_classes") and os.path.isdir(d)]
+    directories = ["services_classes", "services_classes2", "services_classes3", "services_classes4"]
     modify_smali_files(directories)
