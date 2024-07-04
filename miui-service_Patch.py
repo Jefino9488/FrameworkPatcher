@@ -38,30 +38,39 @@ def replace_string_in_file(file_path, search_string, replace_string):
     logging.info(f"Completed string replacement in file: {file_path}")
 
 
-def replace_method_body(file_path, method_signature, new_body):
-    logging.info(f"Replacing method body in file: {file_path}")
+def modify_not_allow_capture_display(file_path):
+    logging.info(f"Modifying notAllowCaptureDisplay method in file: {file_path}")
     with open(file_path, 'r') as file:
         lines = file.readlines()
 
     modified_lines = []
     in_method = False
+    method_start_line = ""
+    search_pattern = re.compile(
+        r'\.method public notAllowCaptureDisplay\(Lcom/android/server/wm/RootWindowContainer;I\)Z')
+
     for line in lines:
         if in_method:
             if line.strip() == '.end method':
-                modified_lines.append(new_body)
-                modified_lines.append(line)
+                # Add method body
+                modified_lines.append(method_start_line)
+                modified_lines.append("    .registers 9\n")
+                modified_lines.append("    const/4 v0, 0x0\n")
+                modified_lines.append("    return v0\n")
                 in_method = False
-            continue
+                method_start_line = ""
+            else:
+                continue
 
-        if method_signature in line:
+        if search_pattern.search(line):
             in_method = True
-            continue
-
-        modified_lines.append(line)
+            method_start_line = line
+        else:
+            modified_lines.append(line)
 
     with open(file_path, 'w') as file:
         file.writelines(modified_lines)
-    logging.info(f"Completed method body replacement in file: {file_path}")
+    logging.info(f"Completed modification for notAllowCaptureDisplay method in file: {file_path}")
 
 
 def modify_smali_files(directories):
@@ -80,7 +89,8 @@ def modify_smali_files(directories):
         'com/android/server/am/ActivityManagerServiceImpl$1.smali',
         'com/android/server/input/InputManagerServiceStubImpl.smali',
         'com/android/server/inputmethod/InputMethodManagerServiceImpl.smali',
-        'com/android/server/wm/MiuiSplitInputMethodImpl.smali'
+        'com/android/server/wm/MiuiSplitInputMethodImpl.smali',
+        'com/android/server/wm/WindowManagerServiceImpl.smali'
     ]
 
     search_pattern = r'sget-boolean (v\d+), Lmiui/os/Build;->IS_INTERNATIONAL_BUILD:Z'
@@ -102,25 +112,10 @@ def modify_smali_files(directories):
                     'com/android/server/wm/MiuiSplitInputMethodImpl.smali'
                 ]:
                     replace_string_in_file(file_path, search_string, replace_string)
+                if class_file == 'com/android/server/wm/WindowManagerServiceImpl.smali':
+                    modify_not_allow_capture_display(file_path)
             else:
                 logging.warning(f"File not found: {file_path}")
-
-        # Replace method body for com/android/server/wm/WindowManagerServiceImpl.smali
-        wm_service_impl_path = os.path.join(directory, 'com/android/server/wm/WindowManagerServiceImpl.smali')
-        if os.path.exists(wm_service_impl_path):
-            logging.info(f"Found file: {wm_service_impl_path}")
-            method_signature = ".method public notAllowCaptureDisplay(Lcom/android/server/wm/RootWindowContainer;I)Z"
-            new_body = """
-    .registers 9
-
-    const/4 v0, 0x0
-
-    return v0
-.end method
-"""
-            replace_method_body(wm_service_impl_path, method_signature, new_body)
-        else:
-            logging.warning(f"File not found: {wm_service_impl_path}")
 
 
 if __name__ == "__main__":
