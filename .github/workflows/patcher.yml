@@ -309,23 +309,20 @@ jobs:
       run: |
         if [ -z "${{ github.event.inputs.custom_version }}" ]; then
           framework_url="${{ github.event.inputs.framework_jar_url }}"
-          version=$(echo $framework_url | grep -oP 'V[^/]*(?=/system)')
+          version=$(echo $framework_url | grep -oP '(?<=V)[^/]*(?=/system)')
           echo "version=${version}" >> $GITHUB_ENV
         else
           echo "version=${{ github.event.inputs.custom_version }}" >> $GITHUB_ENV
         fi
-        
         if [ -z "${{ github.event.inputs.custom_device_name }}" ]; then
           framework_url="${{ github.event.inputs.framework_jar_url }}"
-          device_name=$(echo $framework_url | grep -oP '(?<=dumps/[^/]+/)[^/]+(?=/)')
+          device_name=$(echo $framework_url | grep -oP '(?<=redmi/)[^/]*(?=/-)')
           echo "device_name=${device_name}" >> $GITHUB_ENV
         else
           echo "device_name=${{ github.event.inputs.custom_device_name }}" >> $GITHUB_ENV
         fi
-        
         echo "version=${version}"
         echo "device_name=${device_name}"
-    
 
     - name: Zip Magisk module
       run: |
