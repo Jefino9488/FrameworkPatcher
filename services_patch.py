@@ -174,12 +174,13 @@ def modify_invoke_interface(file_path):
 
 
 def modify_parsing_package_utils(file_path):
+    logging.info(f"Modifying ParsingPackageUtils file: {file_path}")
     with open(file_path, 'r') as file:
         lines = file.readlines()
 
     modified_lines = []
     for line in lines:
-        if "return-object v0" in line:
+        if "invoke-static {p0, p1, v0}, Landroid/util/apk/ApkSignatureVerifier;->unsafeGetCertsWithoutVerification(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;I)Landroid/content/pm/parsing/result/ParseResult;" in line:
             logging.info("Found target line in ParsingPackageUtils.smali")
             modified_lines.append("    const/4 v0, 0x1\n")
         modified_lines.append(line)
