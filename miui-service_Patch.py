@@ -38,6 +38,32 @@ def replace_string_in_file(file_path, search_string, replace_string):
     logging.info(f"Completed string replacement in file: {file_path}")
 
 
+def replace_method_body(file_path, method_signature, new_body):
+    logging.info(f"Replacing method body in file: {file_path}")
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    modified_lines = []
+    in_method = False
+    for line in lines:
+        if in_method:
+            if line.strip() == '.end method':
+                modified_lines.append(new_body)
+                modified_lines.append(line)
+                in_method = False
+            continue
+
+        if method_signature in line:
+            in_method = True
+            continue
+
+        modified_lines.append(line)
+
+    with open(file_path, 'w') as file:
+        file.writelines(modified_lines)
+    logging.info(f"Completed method body replacement in file: {file_path}")
+
+
 def modify_smali_files(directories):
     classes_to_modify = [
         'com/android/server/AppOpsServiceStubImpl.smali',
@@ -78,6 +104,23 @@ def modify_smali_files(directories):
                     replace_string_in_file(file_path, search_string, replace_string)
             else:
                 logging.warning(f"File not found: {file_path}")
+
+        # Replace method body for com/android/server/wm/WindowManagerServiceImpl.smali
+        wm_service_impl_path = os.path.join(directory, 'com/android/server/wm/WindowManagerServiceImpl.smali')
+        if os.path.exists(wm_service_impl_path):
+            logging.info(f"Found file: {wm_service_impl_path}")
+            method_signature = ".method public notAllowCaptureDisplay(Lcom/android/server/wm/RootWindowContainer;I)Z"
+            new_body = """
+    .registers 9
+
+    const/4 v0, 0x0
+
+    return v0
+.end method
+"""
+            replace_method_body(wm_service_impl_path, method_signature, new_body)
+        else:
+            logging.warning(f"File not found: {wm_service_impl_path}")
 
 
 if __name__ == "__main__":
