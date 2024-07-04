@@ -163,14 +163,20 @@ def modify_invoke_interface(file_path):
     while i < len(lines):
         line = lines[i]
         modified_lines.append(line)
-        if 'Lcom/android/server/pm/PackageManagerServiceUtils$PackageInstalledInfo;->init()V' in line:
-            # Replace the line with the desired code
-            modified_lines[-1] = 'invoke-direct {p0}, Lcom/android/server/pm/PackageManagerServiceUtils$PackageInstalledInfo;-><init>()V\n'
+        if 'Lcom/android/server/pm/pkg/AndroidPackage;->isPersistent()Z' in line:
+            for j in range(i + 1, min(i + 4, len(lines))):
+                if re.match(r'\s*move-result\s+(v\d+)', lines[j]):
+                    variable = re.search(r'\s*move-result\s+(v\d+)', lines[j]).group(1)
+                    logging.info(f"Replacing line: {lines[j].strip()} with const/4 {variable}, 0x1")
+                    modified_lines[-1] = line  # Restore the original line
+                    modified_lines.append(f"    const/4 {variable}, 0x0\n")
+                    i = j  # Skip the move-result line
+                    break
         i += 1
 
     with open(file_path, 'w') as file:
         file.writelines(modified_lines)
-    logging.info(f"Completed modification for invoke interface in file: {file_path}")
+    logging.info(f"Completed modification for file: {file_path}")
 
 
 def modify_parsing_package_utils(file_path):
