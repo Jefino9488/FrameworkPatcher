@@ -34,7 +34,12 @@ def modify_file(file_path):
         "isVerificationEnabled": re.compile(
             r'\.method private isVerificationEnabled\(Landroid/content/pm/PackageInfoLite;I\)Z'),
         "doesSignatureMatchForPermissions": re.compile(
-            r'\.method private doesSignatureMatchForPermissions\(Ljava/lang/String;Lcom/android/server/pm/parsing/pkg/ParsedPackage;I\)Z')
+            r'\.method private doesSignatureMatchForPermissions\(Ljava/lang/String;Lcom/android/server/pm/parsing/pkg/ParsedPackage;I\)Z'),
+        "isScreenCaptureAllowed": re.compile(r'\.method public isScreenCaptureAllowed\(I\)Z'),
+        "getScreenCaptureDisabled": re.compile(r'\.method public getScreenCaptureDisabled\(Landroid/content/ComponentName;IZ\)Z'),
+        "setScreenCaptureDisabled": re.compile(r'\.method private setScreenCaptureDisabled\(I\)V'),
+        "isSecureLocked": re.compile(r'\.method isSecureLocked\(\)Z'),
+        "setSecure": re.compile(r'\.method setSecure\(Z\)V')
     }
 
     for line in lines:
@@ -106,6 +111,29 @@ def modify_file(file_path):
                     modified_lines.append("    .registers 11\n")
                     modified_lines.append("    const/4 v0, 0x1\n")
                     modified_lines.append("    return v0\n")
+                elif method_type == "isScreenCaptureAllowed":
+                    logging.info(f"Modifying method body for {method_type}")
+                    modified_lines.append("    .registers 4\n")
+                    modified_lines.append("    const/4 v0, 0x1\n")
+                    modified_lines.append("    return v0\n")
+                elif method_type == "getScreenCaptureDisabled":
+                    logging.info(f"Modifying method body for {method_type}")
+                    modified_lines.append("    .registers 5\n")
+                    modified_lines.append("    const/4 v0, 0x1\n")
+                    modified_lines.append("    return v0\n")
+                elif method_type == "setScreenCaptureDisabled":
+                    logging.info(f"Modifying method body for {method_type}")
+                    modified_lines.append("    .registers 6\n")
+                    modified_lines.append("    return-void\n")
+                elif method_type == "isSecureLocked":
+                    logging.info(f"Modifying method body for {method_type}")
+                    modified_lines.append("    .registers 6\n")
+                    modified_lines.append("    const/4 v0, 0x0\n")
+                    modified_lines.append("    return v0\n")
+                elif method_type == "setSecure":
+                    logging.info(f"Modifying method body for {method_type}")
+                    modified_lines.append("    .registers 14\n")
+                    modified_lines.append("    return-void\n")
                 in_method = False
                 method_type = None
             else:
@@ -135,20 +163,14 @@ def modify_invoke_interface(file_path):
     while i < len(lines):
         line = lines[i]
         modified_lines.append(line)
-        if 'Lcom/android/server/pm/pkg/AndroidPackage;->isPersistent()Z' in line:
-            for j in range(i + 1, min(i + 4, len(lines))):
-                if re.match(r'\s*move-result\s+(v\d+)', lines[j]):
-                    variable = re.search(r'\s*move-result\s+(v\d+)', lines[j]).group(1)
-                    logging.info(f"Replacing line: {lines[j].strip()} with const/4 {variable}, 0x1")
-                    modified_lines[-1] = line  # Restore the original line
-                    modified_lines.append(f"    const/4 {variable}, 0x0\n")
-                    i = j  # Skip the move-result line
-                    break
+        if 'Lcom/android/server/pm/PackageManagerServiceUtils$PackageInstalledInfo;->init()V' in line:
+            # Replace the line with the desired code
+            modified_lines[-1] = 'invoke-direct {p0}, Lcom/android/server/pm/PackageManagerServiceUtils$PackageInstalledInfo;-><init>()V\n'
         i += 1
 
     with open(file_path, 'w') as file:
         file.writelines(modified_lines)
-    logging.info(f"Completed modification for file: {file_path}")
+    logging.info(f"Completed modification for invoke interface in file: {file_path}")
 
 
 def modify_parsing_package_utils(file_path):
@@ -195,6 +217,10 @@ def modify_smali_files(directories):
         verification_params = os.path.join(directory, 'com/android/server/pm/VerificationParams.smali')
         parsing_package_utils = os.path.join(directory, 'com/android/server/pm/pkg/parsing/ParsingPackageUtils.smali')
         package_info_utils = os.path.join(directory, 'com/android/server/pm/InstallPackageHelper.smali')
+        device_policy_cache_impl = os.path.join(directory, 'com/android/server/devicepolicy/DevicePolicyCacheImpl.smali')
+        device_policy_manager_service = os.path.join(directory, 'com/android/server/devicepolicy/DevicePolicyManagerService.smali')
+        window_state = os.path.join(directory, 'com/android/server/wm/WindowState.smali')
+        window_surface_controller = os.path.join(directory, 'com/android/server/wm/WindowSurfaceController.smali')
 
         if os.path.exists(package_manager_service_utils):
             logging.info(f"Found file: {package_manager_service_utils}")
@@ -219,11 +245,36 @@ def modify_smali_files(directories):
             modify_parsing_package_utils(parsing_package_utils)
         else:
             logging.warning(f"File not found: {parsing_package_utils}")
+
         if os.path.exists(package_info_utils):
             logging.info(f"Found file: {package_info_utils}")
             modify_invoke_interface(package_info_utils)
         else:
             logging.warning(f"File not found: {package_info_utils}")
+
+        if os.path.exists(device_policy_cache_impl):
+            logging.info(f"Found file: {device_policy_cache_impl}")
+            modify_file(device_policy_cache_impl)
+        else:
+            logging.warning(f"File not found: {device_policy_cache_impl}")
+
+        if os.path.exists(device_policy_manager_service):
+            logging.info(f"Found file: {device_policy_manager_service}")
+            modify_file(device_policy_manager_service)
+        else:
+            logging.warning(f"File not found: {device_policy_manager_service}")
+
+        if os.path.exists(window_state):
+            logging.info(f"Found file: {window_state}")
+            modify_file(window_state)
+        else:
+            logging.warning(f"File not found: {window_state}")
+
+        if os.path.exists(window_surface_controller):
+            logging.info(f"Found file: {window_surface_controller}")
+            modify_file(window_surface_controller)
+        else:
+            logging.warning(f"File not found: {window_surface_controller}")
 
 
 if __name__ == "__main__":
