@@ -285,7 +285,7 @@ def modify_smali_files(directories):
 
 
 if __name__ == "__main__":
-    directories = ["classes", "classes2", "classes3", "classes4", "classes5"]
+    directories = ["classes", "classes2", "classes3", "classes4"]
     modify_smali_files(directories)
     source_dirs = ["assets/SettingsHelper", "assets/Utils"]
     sub_dirs = ["android/preference", "android/util"]
