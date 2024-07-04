@@ -38,30 +38,6 @@ def replace_string_in_file(file_path, search_string, replace_string):
     logging.info(f"Completed string replacement in file: {file_path}")
 
 
-def modify_specific_method(file_path, method_signature, new_method_body):
-    logging.info(f"Modifying specific method in file: {file_path}")
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
-
-    modified_lines = []
-    in_method = False
-
-    for line in lines:
-        if method_signature in line:
-            in_method = True
-            modified_lines.append(line)
-            modified_lines.append(new_method_body)
-        elif in_method and line.strip() == '.end method':
-            in_method = False
-            continue
-        elif not in_method:
-            modified_lines.append(line)
-
-    with open(file_path, 'w') as file:
-        file.writelines(modified_lines)
-    logging.info(f"Completed modification for method in file: {file_path}")
-
-
 def modify_smali_files(directories):
     classes_to_modify = [
         'com/android/server/AppOpsServiceStubImpl.smali',
@@ -102,19 +78,6 @@ def modify_smali_files(directories):
                     replace_string_in_file(file_path, search_string, replace_string)
             else:
                 logging.warning(f"File not found: {file_path}")
-
-        wm_service_impl_file = os.path.join(directory, 'com/android/server/wm/WindowManagerServiceImpl.smali')
-        if os.path.exists(wm_service_impl_file):
-            logging.info(f"Found file: {wm_service_impl_file}")
-            method_signature = '.method public notAllowCaptureDisplay(Lcom/android/server/wm/RootWindowContainer;I)Z'
-            new_method_body = (
-                '    .registers 9\n'
-                '    const/4 v0, 0x0\n'
-                '    return v0\n'
-            )
-            modify_specific_method(wm_service_impl_file, method_signature, new_method_body)
-        else:
-            logging.warning(f"File not found: {wm_service_impl_file}")
 
 
 if __name__ == "__main__":
