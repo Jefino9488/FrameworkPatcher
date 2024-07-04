@@ -19,6 +19,7 @@ Refer to the usage section to know how to use this patcher
 
  - Visit the [Website of FrameworkPatcher](https://jefino9488.github.io/FrameworkPatcher/) 
  - provide the required direct urls of the files
+ - google drive links are not supported
  - use [Android dumps](https://dumps.tadiphone.dev/dumps) url to get versionized zip 
  - give device name, rom verision correctly
  - click on the build button
