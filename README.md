@@ -32,6 +32,7 @@ Refer to the usage section to know how to use this patcher
  - China Notification Fix
  - Support Gboard keyboard extension
  - Fully Disabled signature verification (core patch)
+ - disable secure flag
 
 ### Further Development
 
