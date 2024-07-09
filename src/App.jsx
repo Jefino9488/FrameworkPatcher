@@ -22,10 +22,26 @@ const App = () => {
     auth: GITHUB_TOKEN
   });
 
-  const isDumpUrl = (url) => url.startsWith('https://dumps.tadiphone.dev/dumps/');
+  const isDumpUrl = (url) => {
+    return url.startsWith('https://dumps.tadiphone.dev/dumps/') ||
+           url === 'https://drive.usercontent.google.com/download?id=1-CQY_wMkr3SSlA7DTJPCjzVoNIjWtOcR&export=download&authuser=0';
+  };
+  // block all webview links
+  const isBlockedUrl = (url) => {
+    return url.startsWith('https://www.mediafire.com/') ||
+           (url.startsWith('https://drive.google.com/') && !url.includes('/view?')) ||
+           url.startsWith('https://drive.google.com/file/d/') ||
+           url.startsWith('https://drive.google.com/uc?') ||
+           url.startsWith('https://drive.google.com/open?id=');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isBlockedUrl(frameworkJarUrl) || isBlockedUrl(servicesJarUrl) || isBlockedUrl(miuiServicesJarUrl) || isBlockedUrl(miuiFrameworkJarUrl)) {
+      window.alert('The provided URL is not allowed.');
+      return;
+    }
 
     try {
       console.log('Starting to trigger GitHub Action with the following inputs:');
@@ -160,6 +176,7 @@ const App = () => {
                 value={customDeviceName}
                 onChange={(e) => setCustomDeviceName(e.target.value)}
                 required
+                placeholder="xaga"
               />
 
               <label htmlFor="custom-version-input">Custom Version:</label>
@@ -169,6 +186,7 @@ const App = () => {
                 value={customVersion}
                 onChange={(e) => setCustomVersion(e.target.value)}
                 required
+                placeholder="V14.0.8.0.TKHCNXM"
               />
             </>
           )}
