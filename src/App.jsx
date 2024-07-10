@@ -32,7 +32,8 @@ const App = () => {
            (url.startsWith('https://drive.google.com/') && !url.includes('/view?')) ||
            url.startsWith('https://drive.google.com/file/d/') ||
            url.startsWith('https://drive.google.com/uc?') ||
-           url.startsWith('https://drive.google.com/open?id=');
+           url.startsWith('https://drive.google.com/open?id=') ||
+           url.startsWith('https://drive.proton.me/');
   };
 
   const handleSubmit = async (e) => {
@@ -114,7 +115,6 @@ const App = () => {
             onChange={(e) => setFrameworkJarUrl(e.target.value)}
             required
           />
-
           <label htmlFor="services-jar-url-input">Services JAR URL:</label>
           <input
             type="url"
@@ -123,7 +123,6 @@ const App = () => {
             onChange={(e) => setServicesJarUrl(e.target.value)}
             required
           />
-
           <label htmlFor="miui-services-jar-url-input">MIUI Services JAR URL:</label>
           <input
             type="url"
@@ -178,7 +177,6 @@ const App = () => {
                 required
                 placeholder="xaga"
               />
-
               <label htmlFor="custom-version-input">Custom Version:</label>
               <input
                 type="text"
