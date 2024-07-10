@@ -108,50 +108,46 @@ const App = () => {
           <h2>JAR URLs</h2>
           <label htmlFor="framework-jar-url-input">Framework JAR URL:</label>
           <input
-              type="url"
-              id="framework-jar-url-input"
-              value={frameworkJarUrl}
-              onChange={(e) => setFrameworkJarUrl(e.target.value)}
-              required
+            type="url"
+            id="framework-jar-url-input"
+            value={frameworkJarUrl}
+            onChange={(e) => setFrameworkJarUrl(e.target.value)}
+            required
           />
 
           <label htmlFor="services-jar-url-input">Services JAR URL:</label>
           <input
-              type="url"
-              id="services-jar-url-input"
-              value={servicesJarUrl}
-              onChange={(e) => setServicesJarUrl(e.target.value)}
-              required
+            type="url"
+            id="services-jar-url-input"
+            value={servicesJarUrl}
+            onChange={(e) => setServicesJarUrl(e.target.value)}
+            required
           />
 
           <label htmlFor="miui-services-jar-url-input">MIUI Services JAR URL:</label>
           <input
-              type="url"
-              id="miui-services-jar-url-input"
-              value={miuiServicesJarUrl}
-              onChange={(e) => setMiuiServicesJarUrl(e.target.value)}
-              required
+            type="url"
+            id="miui-services-jar-url-input"
+            value={miuiServicesJarUrl}
+            onChange={(e) => setMiuiServicesJarUrl(e.target.value)}
+            required
           />
 
           <label htmlFor="miui-framework-jar-url-input">MIUI Framework JAR URL:</label>
           <input
-              type="url"
-              id="miui-framework-jar-url-input"
-              value={miuiFrameworkJarUrl}
-              onChange={(e) => setMiuiFrameworkJarUrl(e.target.value)}
-              required
+            type="url"
+            id="miui-framework-jar-url-input"
+            value={miuiFrameworkJarUrl}
+            onChange={(e) => setMiuiFrameworkJarUrl(e.target.value)}
+            required
           />
-          <form encType="multipart/form-data" action="https://s01.devuploads.com/upload/01" method="post">
-            <input name="sess_id" value="3qr5wkukoy31pd1g"/>
-            <input name="file" type="file"/>
-          </form>
         </div>
 
         <div>
           <h2>Additional Settings</h2>
           <label htmlFor="android-api-level-input">Android API Level:</label>
           <select
-              id="android-api-level-input"
+            id="android-api-level-input"
             value={androidApiLevel}
             onChange={(e) => setAndroidApiLevel(e.target.value)}
             required
