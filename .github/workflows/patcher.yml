@@ -20,13 +20,13 @@ on:
         required: true
         default: '34'
       core_patch:
-        description: 'core patch'
+        description: 'Core patch'
         required: true
         type: choice
         options:
          - apply
          - do_not_apply
-        default: 'true'
+        default: 'apply'
       custom_device_name:
         description: 'Custom device name (optional)'
         required: false
@@ -56,23 +56,51 @@ jobs:
       run: |
         sudo apt update
         sudo apt full-upgrade -y
-        sudo apt install -y default-jdk zipalign 7zip python3
+        sudo apt install -y default-jdk zipalign p7zip-full python3 aria2
 
     - name: Download framework.jar
       run: |
-        curl -L -o framework.jar "${{ github.event.inputs.framework_jar_url }}"
+        curl -L -C - -o framework.jar "${{ github.event.inputs.framework_jar_url }}"
+    - name: Check framework.jar
+      run: |
+        file_size=$(stat -c%s "framework.jar")
+        if [ $file_size -lt 10000000 ]; then
+          echo "Error: framework.jar is too small. Download might have failed." >&2
+          exit 1
+        fi
 
     - name: Download services.jar
       run: |
-        curl -L -o services.jar "${{ github.event.inputs.services_jar_url }}"
+        curl -L -C - -o services.jar "${{ github.event.inputs.services_jar_url }}"
+    - name: Check services.jar
+      run: |
+        file_size=$(stat -c%s "services.jar")
+        if [ $file_size -lt 10000000 ]; then
+          echo "Error: services.jar is too small. Download might have failed." >&2
+          exit 1
+        fi
 
     - name: Download miui-services.jar
       run: |
-        curl -L -o miui-services.jar "${{ github.event.inputs.miui_services_jar_url }}"
+        curl -L -C - -o miui-services.jar "${{ github.event.inputs.miui_services_jar_url }}"
+    - name: Check miui-services.jar
+      run: |
+        file_size=$(stat -c%s "miui-services.jar")
+        if [ $file_size -lt 10000000 ]; then
+          echo "Error: miui-services.jar is too small. Download might have failed." >&2
+          exit 1
+        fi
 
     - name: Download miui-framework.jar
       run: |
-        curl -L -o miui-framework.jar "${{ github.event.inputs.miui_framework_jar_url }}"
+        curl -L -C - -o miui-framework.jar "${{ github.event.inputs.miui_framework_jar_url }}"
+    - name: Check miui-framework.jar
+      run: |
+        file_size=$(stat -c%s "miui-framework.jar")
+        if [ $file_size -lt 10000000 ]; then
+          echo "Error: miui-framework.jar is too small. Download might have failed." >&2
+          exit 1
+        fi
 
     - name: Clone smali repository
       run: git clone --depth=1 https://github.com/JesusFreke/smali.git
