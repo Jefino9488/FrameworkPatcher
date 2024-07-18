@@ -60,18 +60,18 @@ jobs:
 
     - name: Download framework.jar
       run: |
-        aria2c -x 16 -s 16 -o framework.jar "${{ github.event.inputs.framework_jar_url }}"
+        curl -L -o framework.jar "${{ github.event.inputs.framework_jar_url }}"
     - name: Download services.jar
       run: |
-        aria2c -x 16 -s 16 -o services.jar "${{ github.event.inputs.services_jar_url }}"
+        curl -L -o services.jar "${{ github.event.inputs.services_jar_url }}"
 
     - name: Download miui-services.jar
       run: |
-        aria2c -x 16 -s 16 -o miui-services.jar "${{ github.event.inputs.miui_services_jar_url }}"
+        curl -L -o miui-services.jar "${{ github.event.inputs.miui_services_jar_url }}"
 
     - name: Download miui-framework.jar
       run: |
-        aria2c -x 16 -s 16 -o miui-framework.jar "${{ github.event.inputs.miui_framework_jar_url }}"
+        curl -L -o miui-framework.jar "${{ github.event.inputs.miui_framework_jar_url }}"
 
     - name: Clone smali repository
       run: git clone --depth=1 https://github.com/JesusFreke/smali.git
