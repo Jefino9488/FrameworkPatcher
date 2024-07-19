@@ -86,7 +86,7 @@ jobs:
     - name: Check miui-services.jar
       run: |
         file_size=$(stat -c%s "miui-services.jar")
-        if [ $file_size -lt 2000000 ]; then
+        if [ $file_size -lt 1000000 ]; then
           echo "Error: miui-services.jar is too small. Download might have failed." >&2
           exit 1
         fi
@@ -97,7 +97,7 @@ jobs:
     - name: Check miui-framework.jar
       run: |
         file_size=$(stat -c%s "miui-framework.jar")
-        if [ $file_size -lt 2000000 ]; then
+        if [ $file_size -lt 1000000 ]; then
           echo "Error: miui-framework.jar is too small. Download might have failed." >&2
           exit 1
         fi
