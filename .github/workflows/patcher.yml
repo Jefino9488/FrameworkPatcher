@@ -333,6 +333,14 @@ jobs:
         cp aligned_miui_services.jar magisk_module/system/system_ext/framework/miui-services.jar
         cp aligned_miui_framework.jar magisk_module/system/system_ext/framework/miui-framework.jar
 
+    - name: convert dex2oat
+      run: |
+        cp dex2oat.sh magisk_module/system/framework/
+        cp dex2oat.sh magisk_module/system/system_ext/framework/
+        bash magisk_module/system/framework/dex2oat.sh
+        bash magisk_module/system/system_ext/framework/dex2oat.sh
+        rm magisk_module/system/framework/dex2oat.sh
+
     - name: Create Version From Link
       run: |
         if [ -z "${{ github.event.inputs.custom_version }}" ]; then
