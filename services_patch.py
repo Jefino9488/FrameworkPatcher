@@ -2,8 +2,8 @@ import os
 import re
 import shutil
 import logging
+import sys
 
-# Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
@@ -45,8 +45,7 @@ def modify_file(file_path):
     for line in lines:
         if in_method:
             if line.strip() == '.end method':
-                # Add method body based on the identified method type
-                modified_lines.append(method_start_line)  # Add the .method line
+                modified_lines.append(method_start_line)
                 if method_type == "matchSignatureInSystem":
                     logging.info(f"Modifying method body for {method_type}")
                     modified_lines.append("    .registers 3\n")
@@ -143,7 +142,7 @@ def modify_file(file_path):
             if pattern.search(line):
                 in_method = True
                 method_type = key
-                method_start_line = line  # Save the .method line
+                method_start_line = line
                 break
 
         if not in_method:
@@ -164,7 +163,6 @@ def modify_invoke_interface(file_path):
         line = lines[i]
         modified_lines.append(line)
         if 'Lcom/android/server/pm/PackageManagerServiceUtils$PackageInstalledInfo;->init()V' in line:
-            # Replace the line with the desired code
             modified_lines[-1] = 'invoke-direct {p0}, Lcom/android/server/pm/PackageManagerServiceUtils$PackageInstalledInfo;-><init>()V\n'
         i += 1
 
@@ -209,8 +207,8 @@ def copy_and_replace_files(source_dir, target_dirs):
 
 
 def modify_smali_files(directories):
+    core = sys.argv[1].lower() == 'true'
     for directory in directories:
-        # Define paths for services.jar smali files
         package_manager_service_utils = os.path.join(directory,
                                                      'com/android/server/pm/PackageManagerServiceUtils.smali')
         install_package_helper = os.path.join(directory, 'com/android/server/pm/InstallPackageHelper.smali')
@@ -240,30 +238,6 @@ def modify_smali_files(directories):
         else:
             logging.warning(f"File not found: {verification_params}")
 
-        if os.path.exists(parsing_package_utils):
-            logging.info(f"Found file: {parsing_package_utils}")
-            modify_parsing_package_utils(parsing_package_utils)
-        else:
-            logging.warning(f"File not found: {parsing_package_utils}")
-
-        if os.path.exists(package_info_utils):
-            logging.info(f"Found file: {package_info_utils}")
-            modify_invoke_interface(package_info_utils)
-        else:
-            logging.warning(f"File not found: {package_info_utils}")
-
-        if os.path.exists(device_policy_cache_impl):
-            logging.info(f"Found file: {device_policy_cache_impl}")
-            modify_file(device_policy_cache_impl)
-        else:
-            logging.warning(f"File not found: {device_policy_cache_impl}")
-
-        if os.path.exists(device_policy_manager_service):
-            logging.info(f"Found file: {device_policy_manager_service}")
-            modify_file(device_policy_manager_service)
-        else:
-            logging.warning(f"File not found: {device_policy_manager_service}")
-
         if os.path.exists(window_state):
             logging.info(f"Found file: {window_state}")
             modify_file(window_state)
@@ -275,6 +249,32 @@ def modify_smali_files(directories):
             modify_file(window_surface_controller)
         else:
             logging.warning(f"File not found: {window_surface_controller}")
+
+        if os.path.exists(device_policy_manager_service):
+            logging.info(f"Found file: {device_policy_manager_service}")
+            modify_file(device_policy_manager_service)
+        else:
+            logging.warning(f"File not found: {device_policy_manager_service}")
+
+        if os.path.exists(device_policy_cache_impl):
+            logging.info(f"Found file: {device_policy_cache_impl}")
+            modify_file(device_policy_cache_impl)
+        else:
+            logging.warning(f"File not found: {device_policy_cache_impl}")
+
+        if core:
+
+            if os.path.exists(parsing_package_utils):
+                logging.info(f"Found file: {parsing_package_utils}")
+                modify_parsing_package_utils(parsing_package_utils)
+            else:
+                logging.warning(f"File not found: {parsing_package_utils}")
+
+            if os.path.exists(package_info_utils):
+                logging.info(f"Found file: {package_info_utils}")
+                modify_invoke_interface(package_info_utils)
+            else:
+                logging.warning(f"File not found: {package_info_utils}")
 
 
 if __name__ == "__main__":

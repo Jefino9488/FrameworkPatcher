@@ -19,14 +19,14 @@ on:
         description: 'Android API level'
         required: true
         default: '34'
-      core_patch:
-        description: 'Core patch'
+      core:
+        description: 'Apply core patch'
         required: true
         type: choice
         options:
-         - apply
-         - do_not_apply
-        default: 'apply'
+          - 'true'
+          - 'false'
+        default: 'false'
       custom_device_name:
         description: 'Custom device name (optional)'
         required: false
@@ -58,49 +58,19 @@ jobs:
         sudo apt full-upgrade -y
         sudo apt install -y default-jdk zipalign p7zip-full python3 aria2
 
-    - name: Download framework.jar
+    - name: Download and validate JARs
       run: |
         curl -L -C - -o framework.jar "${{ github.event.inputs.framework_jar_url }}"
-    - name: Check framework.jar
-      run: |
-        file_size=$(stat -c%s "framework.jar")
-        if [ $file_size -lt 2000000 ]; then
-          echo "Error: framework.jar is too small. Download might have failed." >&2
-          exit 1
-        fi
-
-    - name: Download services.jar
-      run: |
         curl -L -C - -o services.jar "${{ github.event.inputs.services_jar_url }}"
-    - name: Check services.jar
-      run: |
-        file_size=$(stat -c%s "services.jar")
-        if [ $file_size -lt 2000000 ]; then
-          echo "Error: services.jar is too small. Download might have failed." >&2
-          exit 1
-        fi
-
-    - name: Download miui-services.jar
-      run: |
         curl -L -C - -o miui-services.jar "${{ github.event.inputs.miui_services_jar_url }}"
-    - name: Check miui-services.jar
-      run: |
-        file_size=$(stat -c%s "miui-services.jar")
-        if [ $file_size -lt 1000000 ]; then
-          echo "Error: miui-services.jar is too small. Download might have failed." >&2
-          exit 1
-        fi
-
-    - name: Download miui-framework.jar
-      run: |
         curl -L -C - -o miui-framework.jar "${{ github.event.inputs.miui_framework_jar_url }}"
-    - name: Check miui-framework.jar
-      run: |
-        file_size=$(stat -c%s "miui-framework.jar")
-        if [ $file_size -lt 1000000 ]; then
-          echo "Error: miui-framework.jar is too small. Download might have failed." >&2
-          exit 1
-        fi
+        for jar in framework.jar services.jar miui-services.jar miui-framework.jar; do
+          file_size=$(stat -c%s "$jar")
+          if [ $file_size -lt 2000000 ]; then
+            echo "Error: $jar is too small. Download might have failed." >&2
+            exit 1
+          fi
+        done
 
     - name: Clone smali repository
       run: git clone --depth=1 https://github.com/JesusFreke/smali.git
@@ -201,25 +171,13 @@ jobs:
         cp -r miui_services_classes miui_services_classes_backup
         cp -r miui_framework_classes miui_framework_classes_backup
 
-    - name: Modify framework smali files with core patch
-      if: ${{ github.event.inputs.core_patch == 'apply' }}
+    - name: Modify framework smali
       run: |
-        python3 framework_patch.py
+        python3 framework_patch.py "${{ github.event.inputs.core }}"
 
-    - name: Modify services smali files with core patch
-      if: ${{ github.event.inputs.core_patch == 'apply' }}
+    - name: Modify services smali
       run: |
-        python3 services_patch.py
-
-    - name: Modify framework smali files without core patch
-      if: ${{ github.event.inputs.core_patch == 'do_not_apply' }}
-      run: |
-        python3 nframework_patch.py
-
-    - name: Modify services smali files without core patch
-      if: ${{ github.event.inputs.core_patch == 'do_not_apply' }}
-      run: |
-        python3 nservices_patch.py
+        python3 services_patch.py "${{ github.event.inputs.core }}"
 
     - name: Modify miui-services smali files
       run: |
@@ -332,23 +290,6 @@ jobs:
         cp aligned_services.jar magisk_module/system/framework/services.jar
         cp aligned_miui_services.jar magisk_module/system/system_ext/framework/miui-services.jar
         cp aligned_miui_framework.jar magisk_module/system/system_ext/framework/miui-framework.jar
-
-#    - name: convert dex2oat
-#      run: |
-#        cp dex2oat.sh magisk_module/system/framework/
-#        cp dex2oat.sh magisk_module/system/system_ext/framework/
-#        cp dex2oat64 magisk_module/system/framework/
-#        cp dex2oat64 magisk_module/system/system_ext/framework/
-#        chmod +x magisk_module/system/framework/dex2oat.sh
-#        chmod +x magisk_module/system/system_ext/framework/dex2oat.sh
-#        chmod +x magisk_module/system/framework/dex2oat64
-#        chmod +x magisk_module/system/system_ext/framework/dex2oat64
-#        bash magisk_module/system/framework/dex2oat.sh
-#        bash magisk_module/system/system_ext/framework/dex2oat.sh
-#        rm magisk_module/system/framework/dex2oat.sh
-#        rm magisk_module/system/system_ext/framework/dex2oat.sh
-#        rm magisk_module/system/framework/dex2oat64
-#        rm magisk_module/system/system_ext/framework/dex2oat64
 
     - name: Create Version From Link
       run: |
