@@ -8,7 +8,7 @@ const App = () => {
   const [miuiServicesJarUrl, setMiuiServicesJarUrl] = useState('');
   const [miuiFrameworkJarUrl, setMiuiFrameworkJarUrl] = useState('');
   const [androidApiLevel, setAndroidApiLevel] = useState('34');
-  const [corePatch, setCorePatch] = useState('apply');
+  const [core, setCore] = useState('true');  // Default is now 'true'
   const [customDeviceName, setCustomDeviceName] = useState('');
   const [customVersion, setCustomVersion] = useState('');
 
@@ -26,7 +26,7 @@ const App = () => {
     return url.startsWith('https://dumps.tadiphone.dev/dumps/') ||
            url === 'https://drive.usercontent.google.com/download?id=1-CQY_wMkr3SSlA7DTJPCjzVoNIjWtOcR&export=download&authuser=0';
   };
-  // block all webview links
+
   const isBlockedUrl = (url) => {
     return url.startsWith('https://www.mediafire.com/') ||
            (url.startsWith('https://drive.google.com/') && !url.includes('/view?')) ||
@@ -51,7 +51,7 @@ const App = () => {
         miui_services_jar_url: miuiServicesJarUrl,
         miui_framework_jar_url: miuiFrameworkJarUrl,
         android_api_level: androidApiLevel,
-        core_patch: corePatch,
+        core: core,
         custom_device_name: customDeviceName,
         custom_version: customVersion
       });
@@ -67,7 +67,7 @@ const App = () => {
           miui_services_jar_url: miuiServicesJarUrl,
           miui_framework_jar_url: miuiFrameworkJarUrl,
           android_api_level: androidApiLevel,
-          core_patch: corePatch,
+          core: core,  // Updated field
           custom_device_name: customDeviceName,
           custom_version: customVersion
         }
@@ -80,7 +80,7 @@ const App = () => {
         setMiuiServicesJarUrl('');
         setMiuiFrameworkJarUrl('');
         setAndroidApiLevel('34');
-        setCorePatch('apply');
+        setCore('true');  // Reset to default
         setCustomDeviceName('');
         setCustomVersion('');
       } else {
@@ -156,15 +156,15 @@ const App = () => {
             <option value="33">33</option>
           </select>
 
-          <label htmlFor="core-patch-select">Core Patch:</label>
+          <label htmlFor="core-select">Core Patch:</label>
           <select
-            id="core-patch-select"
-            value={corePatch}
-            onChange={(e) => setCorePatch(e.target.value)}
+            id="core-select"
+            value={core}
+            onChange={(e) => setCore(e.target.value)}
             required
           >
-            <option value="apply">Apply</option>
-            <option value="do_not_apply">Do Not Apply</option>
+            <option value="true">Apply</option>
+            <option value="false">Do Not Apply</option>
           </select>
 
           {!isDumpUrl(frameworkJarUrl) && (
