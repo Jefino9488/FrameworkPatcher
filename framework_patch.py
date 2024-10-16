@@ -257,7 +257,7 @@ def modify_smali_files(directories):
         if os.path.exists(apk_signature_verifier):
             logging.info(f"Found file: {apk_signature_verifier}")
             modify_apk_signature_verifier(apk_signature_verifier)
-            modify_file(apk_signature_verifier)
+            # modify_file(apk_signature_verifier)
         else:
             logging.warning(f"File not found: {apk_signature_verifier}")
 
@@ -298,6 +298,3 @@ def modify_smali_files(directories):
 if __name__ == "__main__":
     directories = ["classes", "classes2", "classes3", "classes4", "classes5"]
     modify_smali_files(directories)
-    source_dirs = ["assets/SettingsHelper", "assets/Utils"]
-    sub_dirs = ["android/preference", "android/util"]
-    copy_and_replace_files(source_dirs, directories, sub_dirs)
