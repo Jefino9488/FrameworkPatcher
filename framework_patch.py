@@ -24,6 +24,7 @@ def modify_file(file_path):
         "hasAncestorOrSelf": re.compile(r'\.method.*hasAncestorOrSelf\(.*\)Z'),
         "getMinimumSignatureSchemeVersionForTargetSdk": re.compile(
             r'\.method.*getMinimumSignatureSchemeVersionForTargetSdk\(I\)I'),
+        "isPackageWhitelistedForHiddenApis": re.compile(r'\.method.*isPackageWhitelistedForHiddenApis\(.*\)Z')
     }
 
     for line in lines:
@@ -58,6 +59,11 @@ def modify_file(file_path):
                     logging.info(f"Modifying method body for {method_type}")
                     modified_lines.append(original_registers_line)
                     modified_lines.append("    const/4 v0, 0x0\n")
+                    modified_lines.append("    return v0\n")
+                elif method_type == "isPackageWhitelistedForHiddenApis":
+                    logging.info(f"Modifying method body for {method_type}")
+                    modified_lines.append(original_registers_line)
+                    modified_lines.append("    const/4 v0, 0x1\n")
                     modified_lines.append("    return v0\n")
                 in_method = False
                 method_type = None
