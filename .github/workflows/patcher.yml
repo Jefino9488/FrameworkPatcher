@@ -324,7 +324,7 @@ jobs:
         echo "## Release Notes" > release_notes.txt
         echo "- Built modified jars from commit ${{ github.sha }}" >> release_notes.txt
         echo "- Version: ${{ env.version }}" >> release_notes.txt
-        echo "- Core patch applied: ${{ github.event.inputs.core_patch }}" >> release_notes.txt
+        echo "- Core patch: ${{ github.event.inputs.core }}" >> release_notes.txt
 
     - name: Create Release
       uses: ncipollo/release-action@v1

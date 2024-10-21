@@ -44,53 +44,143 @@ const App = () => {
       return;
     }
 
-    try {
-      console.log('Starting to trigger GitHub Action with the following inputs:');
-      console.log({
-        framework_jar_url: frameworkJarUrl,
-        services_jar_url: servicesJarUrl,
-        miui_services_jar_url: miuiServicesJarUrl,
-        miui_framework_jar_url: miuiFrameworkJarUrl,
-        android_api_level: androidApiLevel,
-        core: core,
-        custom_device_name: customDeviceName,
-        custom_version: customVersion
-      });
+    let deviceName = customDeviceName;
+    let version = customVersion;
 
-      const response = await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
-        owner: REPO_OWNER,
-        repo: REPO_NAME,
-        workflow_id: WORKFLOW_ID,
-        ref: 'main',
-        inputs: {
+    // Check if the framework JAR URL is from the Tadiphone dump site
+    if (frameworkJarUrl.startsWith('https://dumps.tadiphone.dev/dumps/')) {
+      // Extract the version and device name from the URL if not provided
+      if (!customVersion) {
+        const versionMatch = frameworkJarUrl.match(/V([^/]+)\/system/);
+        if (versionMatch) {
+          version = versionMatch[1];
+        }
+      }
+
+      if (!customDeviceName) {
+        const deviceNameMatch = frameworkJarUrl.match(/redmi\/([^/]+)\/-/);
+        if (deviceNameMatch) {
+          deviceName = deviceNameMatch[1];
+        }
+      }
+
+      console.log(`Extracted version: ${version}`);
+      console.log(`Extracted device name: ${deviceName}`);
+
+      try {
+        // Fetch the list of releases
+        const releasesResponse = await octokit.request('GET /repos/{owner}/{repo}/releases', {
+          owner: REPO_OWNER,
+          repo: REPO_NAME
+        });
+
+        const releases = releasesResponse.data;
+        const matchingRelease = releases.find(release => release.name === `moded_${deviceName}_${version}`);
+        console.log(`moded_${deviceName}_${version}`)
+
+        if (matchingRelease) {
+          window.alert('Build already exists for this device and version. Opening releases page.');
+          window.open(matchingRelease.html_url, '_blank');
+          return;
+        }
+
+        // If no matching release, trigger the GitHub Action
+        console.log('No matching release found. Triggering GitHub Action with the following inputs:');
+        console.log({
           framework_jar_url: frameworkJarUrl,
           services_jar_url: servicesJarUrl,
           miui_services_jar_url: miuiServicesJarUrl,
           miui_framework_jar_url: miuiFrameworkJarUrl,
           android_api_level: androidApiLevel,
-          core: core,  // Updated field
+          core: core,
+          custom_device_name: deviceName,
+          custom_version: version
+        });
+
+        const response = await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+          owner: REPO_OWNER,
+          repo: REPO_NAME,
+          workflow_id: WORKFLOW_ID,
+          ref: 'main',
+          inputs: {
+            framework_jar_url: frameworkJarUrl,
+            services_jar_url: servicesJarUrl,
+            miui_services_jar_url: miuiServicesJarUrl,
+            miui_framework_jar_url: miuiFrameworkJarUrl,
+            android_api_level: androidApiLevel,
+            core: core,
+            custom_device_name: deviceName,
+            custom_version: version
+          }
+        });
+
+        if (response.status === 204) {
+          window.alert('Build started! Wait for 5 - 10 minutes and check the releases page.');
+          setFrameworkJarUrl('');
+          setServicesJarUrl('');
+          setMiuiServicesJarUrl('');
+          setMiuiFrameworkJarUrl('');
+          setAndroidApiLevel('34');
+          setCore('true');  // Reset to default
+          setCustomDeviceName('');
+          setCustomVersion('');
+        } else {
+          console.error('Error triggering GitHub Action:', response.status);
+        }
+      } catch (error) {
+        console.error('Error triggering GitHub Action:', error);
+      }
+    } else {
+      // Handle non-Tadiphone URLs
+      try {
+        console.log('Starting to trigger GitHub Action with the following inputs:');
+        console.log({
+          framework_jar_url: frameworkJarUrl,
+          services_jar_url: servicesJarUrl,
+          miui_services_jar_url: miuiServicesJarUrl,
+          miui_framework_jar_url: miuiFrameworkJarUrl,
+          android_api_level: androidApiLevel,
+          core: core,
           custom_device_name: customDeviceName,
           custom_version: customVersion
-        }
-      });
+        });
 
-      if (response.status === 204) {
-        window.alert('Build started! Wait for 5 - 10 minutes and check the releases page.');
-        setFrameworkJarUrl('');
-        setServicesJarUrl('');
-        setMiuiServicesJarUrl('');
-        setMiuiFrameworkJarUrl('');
-        setAndroidApiLevel('34');
-        setCore('true');  // Reset to default
-        setCustomDeviceName('');
-        setCustomVersion('');
-      } else {
-        console.error('Error triggering GitHub Action:', response.status);
+        const response = await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+          owner: REPO_OWNER,
+          repo: REPO_NAME,
+          workflow_id: WORKFLOW_ID,
+          ref: 'main',
+          inputs: {
+            framework_jar_url: frameworkJarUrl,
+            services_jar_url: servicesJarUrl,
+            miui_services_jar_url: miuiServicesJarUrl,
+            miui_framework_jar_url: miuiFrameworkJarUrl,
+            android_api_level: androidApiLevel,
+            core: core,
+            custom_device_name: customDeviceName,
+            custom_version: customVersion
+          }
+        });
+
+        if (response.status === 204) {
+          window.alert('Build started! Wait for 5 - 10 minutes and check the releases page.');
+          setFrameworkJarUrl('');
+          setServicesJarUrl('');
+          setMiuiServicesJarUrl('');
+          setMiuiFrameworkJarUrl('');
+          setAndroidApiLevel('34');
+          setCore('true');  // Reset to default
+          setCustomDeviceName('');
+          setCustomVersion('');
+        } else {
+          console.error('Error triggering GitHub Action:', response.status);
+        }
+      } catch (error) {
+        console.error('Error triggering GitHub Action:', error);
       }
-    } catch (error) {
-      console.error('Error triggering GitHub Action:', error);
     }
   };
+
 
   const handleRedirect = () => {
     window.open('https://github.com/Jefino9488/FrameworkPatcher/releases', '_blank');
