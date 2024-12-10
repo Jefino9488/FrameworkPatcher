@@ -212,6 +212,48 @@ def modify_strict_jar_verifier(file_path):
         file.writelines(modified_lines)
     logging.info(f"Completed modification for file: {file_path}")
 
+def modify_strict_jar_file(file_path):
+    logging.info(f"Modifying StrictJarFile in {file_path}")
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    modified_lines = []
+    in_method = False
+    found_invoke_virtual = False
+
+    for i, line in enumerate(lines):
+        # Detect the start of the <init> method
+        if re.match(r'\.method.*<init>\(Ljava/lang/String;Ljava/io/FileDescriptor;ZZ\)V', line):
+            logging.info("Found the method: <init>.")
+            in_method = True
+
+        if in_method:
+            # Look for the target `invoke-virtual` line
+            if 'invoke-virtual {p0, v5}, Landroid/util/jar/StrictJarFile;->findEntry(Ljava/lang/String;)Ljava/util/zip/ZipEntry;' in line:
+                logging.info(f"Found target invoke-virtual line at line {i + 1}: {line.strip()}")
+                found_invoke_virtual = True
+
+            # Delete only the 'if-eqz v6, :cond_56' and ':cond_56' lines
+            if 'if-eqz v6, :cond_56' in line:
+                logging.info(f"Deleting 'if-eqz v6, :cond_56' at line {i + 1}")
+                continue  # Skip this line
+
+            if ':cond_56' in line:
+                logging.info(f"Deleting ':cond_56' at line {i + 1}")
+                continue  # Skip this line
+
+            # Add all other lines to modified_lines
+            modified_lines.append(line)
+
+        # Stop processing after the method ends
+        if line.strip() == '.end method':
+            in_method = False
+
+    # Write the updated content back to the file
+    with open(file_path, 'w') as file:
+        file.writelines(modified_lines)
+    logging.info(f"Completed modification for StrictJarFile in {file_path}")
+
 
 def copy_and_replace_files(source_dirs, target_dirs, sub_dirs):
     for source_dir, sub_dir in zip(source_dirs, sub_dirs):
@@ -231,6 +273,49 @@ def copy_and_replace_files(source_dirs, target_dirs, sub_dirs):
             else:
                 logging.warning(f"Target directory does not exist: {target_policy_dir}")
 
+def modify_parse_base_apk_common(file_path):
+    logging.info(f"Modifying parseBaseApkCommon in {file_path}")
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    modified_lines = []
+    in_method = False
+    const_string_index = None
+    target_register = None
+    last_if_nez_index = None
+
+    for i, line in enumerate(lines):
+        if re.match(r'\.method.*parseBaseApkCommon\(.*\)', line) and "private" in line:
+            logging.info("Found the method: parseBaseApkCommon.")
+            in_method = True
+
+        if in_method:
+            if re.search(r'const-string.*<manifest>', line):
+                logging.info(f"Found const-string with error message at line {i + 1}: {line.strip()}")
+                const_string_index = i
+                break
+
+            if "if-nez" in line:
+                last_if_nez_index = i
+                match = re.search(r'if-nez (\w+),', line)
+                if match:
+                    target_register = match.group(1)
+
+    if last_if_nez_index is not None and const_string_index is not None and last_if_nez_index < const_string_index:
+        logging.info(f"Modifying 'if-nez' at line {last_if_nez_index + 1}: {lines[last_if_nez_index].strip()}")
+        modified_lines = (
+            lines[:last_if_nez_index]
+            + [f"    const/4 {target_register}, 0x1\n"]
+            + lines[last_if_nez_index:]
+        )
+    else:
+        logging.warning("Failed to find a valid 'if-nez' before the const-string.")
+        modified_lines = lines
+
+    with open(file_path, 'w') as file:
+        file.writelines(modified_lines)
+    logging.info(f"Completed modification for parseBaseApkCommon in {file_path}")
+
 
 def modify_smali_files(directories):
     core = sys.argv[1].lower() == 'true'
@@ -249,6 +334,7 @@ def modify_smali_files(directories):
         package_parser_exception = os.path.join(directory,
                                                 'android/content/pm/PackageParser$PackageParserException.smali')
         strict_jar_verifier = os.path.join(directory, 'android/util/jar/StrictJarVerifier.smali')
+        strict_jar_file = os.path.join(directory, 'android/util/jar/StrictJarFile.smali')
 
         if os.path.exists(signing_details):
             logging.info(f"Found file: {signing_details}")
@@ -287,6 +373,7 @@ def modify_smali_files(directories):
             if os.path.exists(package_parser):
                 logging.info(f"Found file: {package_parser}")
                 modify_package_parser(package_parser)
+                modify_parse_base_apk_common(package_parser)
             else:
                 logging.warning(f"File not found: {package_parser}")
             if os.path.exists(package_parser_exception):
@@ -299,6 +386,11 @@ def modify_smali_files(directories):
                 modify_strict_jar_verifier(strict_jar_verifier)
             else:
                 logging.warning(f"File not found: {strict_jar_verifier}")
+            if os.path.exists(strict_jar_file):
+                logging.info(f"Found file: {strict_jar_file}")
+                modify_strict_jar_file(strict_jar_file)
+            else:
+                logging.warning(f"File not found: {strict_jar_file}")
 
 
 if __name__ == "__main__":
