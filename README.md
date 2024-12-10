@@ -17,15 +17,17 @@ Refer to the usage section to know how to use this patcher
 
 ## Usage
 
- - Visit the [Website of FrameworkPatcher](https://jefino9488.github.io/FrameworkPatcher/) 
- - provide the required direct urls of the files
- - google drive links are not supported
- - use [Android dumps](https://dumps.tadiphone.dev/dumps) url to get versionized zip 
- - give device name, rom verision correctly
- - click on the build button
- - you can navigate to workflow to see the progress
- - if the build is successful
- - download the file from the release section
+- Visit the [Website of FrameworkPatcher](https://jefino9488.github.io/FrameworkPatcher/)  
+- Provide the required direct URLs of the files.  
+- Google Drive links are not supported.  
+- Use [Android dumps](https://dumps.tadiphone.dev/dumps) URLs to get versionized zips.  
+- Enter the device name and ROM version correctly.  
+- Click on the **Build** button.  
+- Navigate to the workflow to see the progress.  
+- If the build is successful, download the patched files from the release section.
+
+Alternatively, after cloning the repository, you can use the `LocalPatch.sh` script for local patching.  
+**Ensure all required JAR files (e.g., `framework.jar`, `services.jar`, etc.) are placed in the directory before running the script.**
 
 ## Features
 
@@ -33,13 +35,6 @@ Refer to the usage section to know how to use this patcher
  - Support Gboard keyboard extension
  - Fully Disabled signature verification (core patch)
  - disable secure flag
-
-### Further Development
-
- - add support to spoofing
- - play integrity fix
- - add support to other devices
- - ...
 
 ## Contributing
 
