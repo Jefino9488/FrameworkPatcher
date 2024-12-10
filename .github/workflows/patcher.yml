@@ -72,13 +72,13 @@ jobs:
           fi
         done
 
-    - name: Clone smali repository
-      run: git clone --depth=1 https://github.com/JesusFreke/smali.git
-
-    - name: Build smali and baksmali
-      run: |
-        cd smali
-        ./gradlew build
+#    - name: Clone smali repository
+#      run: git clone --depth=1 https://github.com/JesusFreke/smali.git
+#
+#    - name: Build smali and baksmali
+#      run: |
+#        cd smali
+#        ./gradlew build
 
     - name: Extract framework.jar
       run: 7z x framework.jar -oframework
@@ -95,66 +95,40 @@ jobs:
     - name: Decompile framework dex files if available
       run: |
         if [ -f framework/classes.dex ]; then
-          java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes.dex -o classes
+          java -jar baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes.dex -o classes
         else
           echo "framework/classes.dex not found, skipping decompilation."
         fi
-        if [ -f framework/classes2.dex ]; then
-          java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes2.dex -o classes2
-        else
-          echo "framework/classes2.dex not found, skipping decompilation."
-        fi
-        if [ -f framework/classes3.dex ]; then
-          java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes3.dex -o classes3
-        else
-          echo "framework/classes3.dex not found, skipping decompilation."
-        fi
-        if [ -f framework/classes4.dex ]; then
-          java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes4.dex -o classes4
-        else
-          echo "framework/classes4.dex not found, skipping decompilation."
-        fi
-        if [ -f framework/classes5.dex ]; then
-          java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes5.dex -o classes5
-        else
-          echo "framework/classes5.dex not found, skipping decompilation."
-        fi
+        for i in {2..5}; do
+          if [ -f "framework/classes${i}.dex" ]; then
+            java -jar baksmali.jar d -a ${{ github.event.inputs.android_api_level }} "framework/classes${i}.dex" -o "classes${i}"
+          else
+            echo "framework/classes${i}.dex not found, skipping decompile."
+          fi
+        done
 
     - name: Decompile services dex files if available
       run: |
         if [ -f services/classes.dex ]; then
-          java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} services/classes.dex -o services_classes
+          java -jar baksmali.jar d -a ${{ github.event.inputs.android_api_level }} services/classes.dex -o services_classes
         else
           echo "services/classes.dex not found, skipping decompilation."
         fi
-        if [ -f services/classes2.dex ]; then
-          java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} services/classes2.dex -o services_classes2
-        else
-          echo "services/classes2.dex not found, skipping decompilation."
-        fi
-        if [ -f services/classes3.dex ]; then
-          java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} services/classes3.dex -o services_classes3
-        else
-          echo "services/classes3.dex not found, skipping decompilation."
-        fi
-        if [ -f services/classes4.dex ]; then
-          java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} services/classes4.dex -o services_classes4
-        else
-          echo "services/classes4.dex not found, skipping decompilation."
-        fi
-        if [ -f services/classes5.dex ]; then
-          java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} services/classes5.dex -o services_classes5
-        else
-          echo "services/classes5.dex not found, skipping decompilation."
-        fi
+        for i in {2..5}; do
+          if [ -f "services/classes${i}.dex" ]; then
+            java -jar baksmali.jar d -a ${{ github.event.inputs.android_api_level }} "services/classes${i}.dex" -o "services_classes${i}"
+          else
+            echo "services/classes${i}.dex not found, skipping decompile."
+          fi
+        done
 
     - name: Decompile miui-services dex file
       run: |
-        java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} miui_services/classes.dex -o miui_services_classes
+        java -jar baksmali.jar d -a ${{ github.event.inputs.android_api_level }} miui_services/classes.dex -o miui_services_classes
 
     - name: Decompile miui-framework dex file
       run: |
-        java -jar smali/baksmali/build/libs/baksmali.jar d -a ${{ github.event.inputs.android_api_level }} miui_framework/classes.dex -o miui_framework_classes
+        java -jar baksmali.jar d -a ${{ github.event.inputs.android_api_level }} miui_framework/classes.dex -o miui_framework_classes
 
     - name: Backup smali files
       run: |
@@ -190,66 +164,40 @@ jobs:
     - name: Recompile framework dex files
       run: |
         if [ -d classes ]; then
-          java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes -o framework/classes.dex
+          java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} classes -o framework/classes.dex
         else
           echo "classes directory not found, skipping recompilation."
         fi
-        if [ -d classes2 ]; then
-          java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes2 -o framework/classes2.dex
-        else
-          echo "classes2 directory not found, skipping recompilation."
-        fi
-        if [ -d classes3 ]; then
-          java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes3 -o framework/classes3.dex
-        else
-          echo "classes3 directory not found, skipping recompilation."
-        fi
-        if [ -d classes4 ]; then
-          java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes4 -o framework/classes4.dex
-        else
-          echo "classes4 directory not found, skipping recompilation."
-        fi
-        if [ -d classes5 ]; then
-          java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} classes5 -o framework/classes5.dex
-        else
-          echo "classes5 directory not found, skipping recompilation."
-        fi
+        for i in {2..5}; do
+          if [ -d "classes$i" ]; then
+            java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} "classes$i" -o "framework/classes$i.dex"
+          else
+            echo "classes$i directory not found, skipping recompilation."
+          fi
+        done
 
     - name: Recompile services dex files
       run: |
         if [ -d services_classes ]; then
-          java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} services_classes -o services/classes.dex
+          java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} services_classes -o services/classes.dex
         else
           echo "services_classes directory not found, skipping recompilation."
         fi
-        if [ -d services_classes2 ]; then
-          java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} services_classes2 -o services/classes2.dex
-        else
-          echo "services_classes2 directory not found, skipping recompilation."
-        fi
-        if [ -d services_classes3 ]; then
-          java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} services_classes3 -o services/classes3.dex
-        else
-          echo "services_classes3 directory not found, skipping recompilation."
-        fi
-        if [ -d services_classes4 ]; then
-          java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} services_classes4 -o services/classes4.dex
-        else
-          echo "services_classes4 directory not found, skipping recompilation."
-        fi
-        if [ -d services_classes5 ]; then
-          java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} services_classes5 -o services/classes5.dex
-        else
-          echo "services_classes5 directory not found, skipping recompilation."
-        fi
+        for i in {2..5}; do
+          if [ -d "services_classes$i" ]; then
+            java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} "services_classes$i" -o "services/classes$i.dex"
+          else
+            echo "services_classes$i directory not found, skipping recompilation."
+          fi
+        done
 
     - name: Recompile miui-services dex file
       run: |
-        java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} miui_services_classes -o miui_services/classes.dex
+        java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} miui_services_classes -o miui_services/classes.dex
 
     - name: Recompile miui-framework dex file
       run: |
-        java -jar smali/smali/build/libs/smali.jar a -a ${{ github.event.inputs.android_api_level }} miui_framework_classes -o miui_framework/classes.dex
+        java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} miui_framework_classes -o miui_framework/classes.dex
 
     - name: Recompile framework.jar
       run: |
