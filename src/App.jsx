@@ -98,7 +98,7 @@ const App = () => {
             core: core,
             custom_device_name: deviceName,
             custom_version: version,
-            is_cn: isCN
+            isCN: isCN
           }
         });
 
@@ -135,7 +135,7 @@ const App = () => {
             core: core,
             custom_device_name: customDeviceName,
             custom_version: customVersion,
-            is_cn: isCN
+            isCN: isCN
           }
         });
 
