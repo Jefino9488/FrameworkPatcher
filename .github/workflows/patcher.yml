@@ -27,6 +27,14 @@ on:
           - 'true'
           - 'false'
         default: 'false'
+      isCN:
+        description: 'Is CN'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
       custom_device_name:
         description: 'Custom device name (optional)'
         required: false
@@ -71,14 +79,6 @@ jobs:
             exit 1
           fi
         done
-
-#    - name: Clone smali repository
-#      run: git clone --depth=1 https://github.com/JesusFreke/smali.git
-#
-#    - name: Build smali and baksmali
-#      run: |
-#        cd smali
-#        ./gradlew build
 
     - name: Extract framework.jar
       run: 7z x framework.jar -oframework
@@ -151,7 +151,7 @@ jobs:
 
     - name: Modify services smali
       run: |
-        python3 services_patch.py "${{ github.event.inputs.core }}"
+        python3 services_patch.py "${{ github.event.inputs.core }}" "${{ github.event.inputs.isCN }}"
 
     - name: Modify miui-services smali files
       run: |
