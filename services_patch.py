@@ -3,6 +3,7 @@ import re
 import shutil
 import logging
 import sys
+isCN = sys.argv[2].lower() == 'true'
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -75,7 +76,7 @@ def modify_file(file_path):
                     modified_lines.append("        }\n")
                     modified_lines.append("    .end annotation\n")
                     modified_lines.append("    return-void\n")
-                elif method_type == "compareSignatures":
+                elif method_type == "compareSignatures" and isCN:
                     logging.info(f"Modifying method body for {method_type}")
                     modified_lines.append("    .registers 3\n")
                     modified_lines.append("    const/4 v0, 0x0\n")
