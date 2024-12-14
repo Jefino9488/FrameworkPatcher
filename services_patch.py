@@ -7,6 +7,63 @@ isCN = sys.argv[2].lower() == 'true'
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+def prepatch(filepath):
+    with open(filepath, 'r') as file:
+        lines = file.readlines()
+
+    if not any('invoke-custom' in line for line in lines):
+        logging.info(f"No invoke-custom found in file: {filepath}. Skipping modification.")
+        return
+
+    modified_lines = []
+    in_method = False
+    method_type = None
+    method_patterns = {
+        "equals": re.compile(r'\.method.*equals\(Ljava/lang/Object;\)Z'),
+        "hashCode": re.compile(r'\.method.*hashCode\(\)I'),
+        "toString": re.compile(r'\.method.*toString\(\)Ljava/lang/String;')
+    }
+    registers_line = ""
+
+    for line in lines:
+        if in_method:
+            if line.strip().startswith('.registers'):
+                registers_line = line
+                continue
+
+            if line.strip() == '.end method':
+                if method_type in method_patterns:
+                    logging.info(f"Clearing method body for {method_type}")
+                    modified_lines.append(registers_line)
+                    if method_type == "hashCode":
+                        modified_lines.append("    const/4 v0, 0x0\n")
+                        modified_lines.append("    return v0\n")
+                    elif method_type == "equals":
+                        modified_lines.append("    const/4 v0, 0x0\n")
+                        modified_lines.append("    return v0\n")
+                    elif method_type == "toString":
+                        modified_lines.append("    const/4 v0, 0x0\n")
+                        modified_lines.append("    return v0\n")
+                in_method = False
+                method_type = None
+                registers_line = ""
+            else:
+                continue
+
+        for key, pattern in method_patterns.items():
+            if pattern.search(line):
+                logging.info(f"Found method {key}. Clearing method content.")
+                in_method = True
+                method_type = key
+                modified_lines.append(line)  # Add method declaration to output
+                break
+
+        if not in_method:
+            modified_lines.append(line)
+
+    with open(filepath, 'w') as file:
+        file.writelines(modified_lines)
+    logging.info(f"Completed modification for file: {filepath}")
 
 def modify_file(file_path):
     logging.info(f"Modifying file: {file_path}")
@@ -22,25 +79,20 @@ def modify_file(file_path):
         "matchSignatureInSystem": re.compile(r'\.method.*matchSignatureInSystem\(.*\)Z'),
         "matchSignaturesCompat": re.compile(r'\.method.*matchSignaturesCompat\(.*\)Z'),
         "matchSignaturesRecover": re.compile(r'\.method.*matchSignaturesRecover\(.*\)Z'),
-        "canSkipForcedPackageVerification": re.compile(
-            r'\.method.*canSkipForcedPackageVerification\(Lcom/android/server/pm/parsing/pkg/AndroidPackage;\)Z'),
-        "checkDowngrade": re.compile(
-            r'\.method public static checkDowngrade\(Lcom/android/server/pm/parsing/pkg/AndroidPackage;Landroid/content/pm/PackageInfoLite;\)V'),
-        "compareSignatures": re.compile(
-            r'\.method public static compareSignatures\(\[Landroid/content/pm/Signature;\[Landroid/content/pm/Signature;\)I'),
-        "isApkVerityEnabled": re.compile(r'\.method static isApkVerityEnabled\(\)Z'),
-        "isDowngradePermitted": re.compile(r'\.method public static isDowngradePermitted\(IZ\)Z'),
-        "verifySignatures": re.compile(
-            r'\.method public static verifySignatures\(Lcom/android/server/pm/PackageSetting;Lcom/android/server/pm/SharedUserSetting;Lcom/android/server/pm/PackageSetting;Landroid/content/pm/SigningDetails;ZZZ\)Z'),
-        "isVerificationEnabled": re.compile(
-            r'\.method private isVerificationEnabled\(Landroid/content/pm/PackageInfoLite;I\)Z'),
-        "doesSignatureMatchForPermissions": re.compile(
-            r'\.method private doesSignatureMatchForPermissions\(Ljava/lang/String;Lcom/android/server/pm/parsing/pkg/ParsedPackage;I\)Z'),
-        "isScreenCaptureAllowed": re.compile(r'\.method public isScreenCaptureAllowed\(I\)Z'),
-        "getScreenCaptureDisabled": re.compile(r'\.method public getScreenCaptureDisabled\(Landroid/content/ComponentName;IZ\)Z'),
-        "setScreenCaptureDisabled": re.compile(r'\.method private setScreenCaptureDisabled\(I\)V'),
-        "isSecureLocked": re.compile(r'\.method isSecureLocked\(\)Z'),
-        "setSecure": re.compile(r'\.method setSecure\(Z\)V')
+        "canSkipForcedPackageVerification": re.compile(r'\.method.*canSkipForcedPackageVerification\(.*\)Z'),
+        "checkDowngrade": re.compile(r'\.method.*checkDowngrade\(.*\)V'),
+        "compareSignatures": re.compile(r'\.method.*compareSignatures\(.*\)I'),
+        "isApkVerityEnabled": re.compile(r'\.method.*isApkVerityEnabled\(.*\)Z'),
+        "isDowngradePermitted": re.compile(r'\.method.*isDowngradePermitted\(.*\)Z'),
+        "verifySignatures": re.compile(r'\.method.*verifySignatures\(.*\)Z'),
+        "isVerificationEnabled": re.compile(r'\.method.*isVerificationEnabled\(.*\)Z'),
+        "doesSignatureMatchForPermissions": re.compile(r'\.method.*doesSignatureMatchForPermissions\(.*\)Z'),
+        "isScreenCaptureAllowed": re.compile(r'\.method.*isScreenCaptureAllowed\(.*\)Z'),
+        "getScreenCaptureDisabled": re.compile(r'\.method.*getScreenCaptureDisabled\(.*\)Z'),
+        "setScreenCaptureDisabled": re.compile(r'\.method.*setScreenCaptureDisabled\(.*\)V'),
+        "isSecureLocked": re.compile(r'\.method.*isSecureLocked\(.*\)Z'),
+        "setSecure": re.compile(r'\.method.*setSecure\(.*\)V'),
+        "shouldCheckUpgradeKeySetLocked": re.compile(r'\.method.*shouldCheckUpgradeKeySetLocked\(.*\)Z')
     }
 
     for line in lines:
@@ -134,6 +186,11 @@ def modify_file(file_path):
                     logging.info(f"Modifying method body for {method_type}")
                     modified_lines.append("    .registers 14\n")
                     modified_lines.append("    return-void\n")
+                elif method_type == "shouldCheckUpgradeKeySetLocked":
+                    logging.info(f"Modifying method body for {method_type}")
+                    modified_lines.append("    .registers 3\n")
+                    modified_lines.append("    const/4 v0, 0x0\n")
+                    modified_lines.append("    return v0\n")
                 in_method = False
                 method_type = None
             else:
@@ -154,59 +211,6 @@ def modify_file(file_path):
     logging.info(f"Completed modification for file: {file_path}")
 
 
-def modify_invoke_interface(file_path):
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
-
-    modified_lines = []
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        modified_lines.append(line)
-        if 'Lcom/android/server/pm/PackageManagerServiceUtils$PackageInstalledInfo;->init()V' in line:
-            modified_lines[-1] = 'invoke-direct {p0}, Lcom/android/server/pm/PackageManagerServiceUtils$PackageInstalledInfo;-><init>()V\n'
-        i += 1
-
-    with open(file_path, 'w') as file:
-        file.writelines(modified_lines)
-    logging.info(f"Completed modification for invoke interface in file: {file_path}")
-
-
-def modify_parsing_package_utils(file_path):
-    logging.info(f"Modifying ParsingPackageUtils file: {file_path}")
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
-
-    modified_lines = []
-    for line in lines:
-        if "invoke-static {p0, p1, v0}, Landroid/util/apk/ApkSignatureVerifier;->unsafeGetCertsWithoutVerification(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;I)Landroid/content/pm/parsing/result/ParseResult;" in line:
-            logging.info("Found target line in ParsingPackageUtils.smali")
-            modified_lines.append("    const/4 v0, 0x1\n")
-        modified_lines.append(line)
-
-    with open(file_path, 'w') as file:
-        file.writelines(modified_lines)
-    logging.info(f"Completed modification for ParsingPackageUtils file: {file_path}")
-
-
-def copy_and_replace_files(source_dir, target_dirs):
-    for target_dir in target_dirs:
-        target_policy_dir = os.path.join(target_dir, "com/android/server/policy")
-        if os.path.exists(target_policy_dir):
-            logging.info(f"Copying files from {source_dir} to {target_policy_dir}")
-            for root, dirs, files in os.walk(source_dir):
-                for file in files:
-                    src_file = os.path.join(root, file)
-                    dst_file = os.path.join(target_policy_dir, os.path.relpath(src_file, source_dir))
-                    dst_dir = os.path.dirname(dst_file)
-                    if not os.path.exists(dst_dir):
-                        os.makedirs(dst_dir)
-                    shutil.copy2(src_file, dst_file)
-                    logging.info(f"Copied {src_file} to {dst_file}")
-        else:
-            logging.warning(f"Target directory does not exist: {target_policy_dir}")
-
-
 def modify_smali_files(directories):
     core = sys.argv[1].lower() == 'true'
     for directory in directories:
@@ -214,12 +218,25 @@ def modify_smali_files(directories):
                                                      'com/android/server/pm/PackageManagerServiceUtils.smali')
         install_package_helper = os.path.join(directory, 'com/android/server/pm/InstallPackageHelper.smali')
         verification_params = os.path.join(directory, 'com/android/server/pm/VerificationParams.smali')
-        parsing_package_utils = os.path.join(directory, 'com/android/server/pm/pkg/parsing/ParsingPackageUtils.smali')
-        package_info_utils = os.path.join(directory, 'com/android/server/pm/InstallPackageHelper.smali')
         device_policy_cache_impl = os.path.join(directory, 'com/android/server/devicepolicy/DevicePolicyCacheImpl.smali')
         device_policy_manager_service = os.path.join(directory, 'com/android/server/devicepolicy/DevicePolicyManagerService.smali')
         window_state = os.path.join(directory, 'com/android/server/wm/WindowState.smali')
         window_surface_controller = os.path.join(directory, 'com/android/server/wm/WindowSurfaceController.smali')
+        pre_patch1 = os.path.join(directory, 'android/hardware/input/KeyboardLayoutPreviewDrawable$GlyphDrawable.smali')
+        pre_patch2 = os.path.join(directory, 'android/hardware/input/PhysicalKeyLayout$EnterKey.smali')
+        pre_patch3 = os.path.join(directory, 'android/hardware/input/PhysicalKeyLayout$LayoutKey.smali')
+        pre_patch4 = os.path.join(directory, 'android/media/MediaRouter2$InstanceInvalidatedCallbackRecord.smali')
+        pre_patch5 = os.path.join(directory, 'android/media/MediaRouter2$PackageNameUserHandlePair.smali')
+        if os.path.exists(pre_patch1):
+            prepatch(pre_patch1)
+        if os.path.exists(pre_patch2):
+            prepatch(pre_patch2)
+        if os.path.exists(pre_patch3):
+            prepatch(pre_patch3)
+        if os.path.exists(pre_patch4):
+            prepatch(pre_patch4)
+        if os.path.exists(pre_patch5):
+            prepatch(pre_patch5)
 
         if os.path.exists(package_manager_service_utils):
             logging.info(f"Found file: {package_manager_service_utils}")
@@ -262,21 +279,6 @@ def modify_smali_files(directories):
             modify_file(device_policy_cache_impl)
         else:
             logging.warning(f"File not found: {device_policy_cache_impl}")
-
-        if core:
-
-            if os.path.exists(parsing_package_utils):
-                logging.info(f"Found file: {parsing_package_utils}")
-                modify_parsing_package_utils(parsing_package_utils)
-            else:
-                logging.warning(f"File not found: {parsing_package_utils}")
-
-            if os.path.exists(package_info_utils):
-                logging.info(f"Found file: {package_info_utils}")
-                modify_invoke_interface(package_info_utils)
-            else:
-                logging.warning(f"File not found: {package_info_utils}")
-
 
 if __name__ == "__main__":
     directories = ["services_classes", "services_classes2", "services_classes3", "services_classes4", "services_classes5"]

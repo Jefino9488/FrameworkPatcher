@@ -98,8 +98,8 @@ mkdir -p magisk_module/system/framework
 mkdir -p magisk_module/system/system_ext/framework
 cp aligned_framework.jar magisk_module/system/framework/framework.jar
 cp aligned_services.jar magisk_module/system/framework/services.jar
-cp aligned_miui_services.jar magisk_module/system/system_ext/framework/services.jar
-cp aligned_miui_framework.jar magisk_module/system/system_ext/framework/framework.jar
+cp aligned_miui_services.jar magisk_module/system/system_ext/framework/miui-services.jar
+cp aligned_miui_framework.jar magisk_module/system/system_ext/framework/miui-framework.jar
 
 cd magisk_module
 zip -r ../moded_framework_services.zip *
