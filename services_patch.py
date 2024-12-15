@@ -227,6 +227,10 @@ def modify_smali_files(directories):
         pre_patch3 = os.path.join(directory, 'android/hardware/input/PhysicalKeyLayout$LayoutKey.smali')
         pre_patch4 = os.path.join(directory, 'android/media/MediaRouter2$InstanceInvalidatedCallbackRecord.smali')
         pre_patch5 = os.path.join(directory, 'android/media/MediaRouter2$PackageNameUserHandlePair.smali')
+        pre_patch6 = os.path.join(directory, 'com/android/server/BinaryTransparencyService$Digest.smali')
+        pre_patch7 = os.path.join(directory, 'com/android/server/inputmethod/AdditionalSubtypeMapRepository$WriteTask.smali')
+        pre_patch8 = os.path.join(directory, 'com/android/server/policy/PhoneWindowManager$SwitchKeyboardLayoutMessageObject.smali')
+        pre_patch9 = os.path.join(directory, '')
         if os.path.exists(pre_patch1):
             prepatch(pre_patch1)
         if os.path.exists(pre_patch2):
@@ -237,6 +241,14 @@ def modify_smali_files(directories):
             prepatch(pre_patch4)
         if os.path.exists(pre_patch5):
             prepatch(pre_patch5)
+        if os.path.exists(pre_patch6):
+            prepatch(pre_patch6)
+        if os.path.exists(pre_patch7):
+            prepatch(pre_patch7)
+        if os.path.exists(pre_patch8):
+            prepatch(pre_patch8)
+        if os.path.exists(pre_patch9):
+            prepatch(pre_patch9)
 
         if os.path.exists(package_manager_service_utils):
             logging.info(f"Found file: {package_manager_service_utils}")

@@ -41,7 +41,7 @@ def prepatch(filepath):
                         modified_lines.append("    return v0\n")
                     elif method_type == "toString":
                         modified_lines.append("    const/4 v0, 0x0\n")
-                        modified_lines.append("    return v0\n")
+                        modified_lines.append("    return-object v0\n")
                 in_method = False
                 method_type = None
                 registers_line = ""
@@ -147,6 +147,7 @@ def modify_smali_files(directories):
         pre_patch3 = os.path.join(directory, 'com/android/server/input/InputOneTrackUtil$TrackEventStringData.smali')
         pre_patch4 = os.path.join(directory, 'com/android/server/policy/MiuiScreenOnProximityLock$AcquireMessageObject.smali')
         pre_patch5 = os.path.join(directory, 'com/android/server/policy/MiuiScreenOnProximityLock$ReleaseMessageObject.smali')
+
         if os.path.exists(pre_patch1):
             prepatch(pre_patch1)
         if os.path.exists(pre_patch2):
