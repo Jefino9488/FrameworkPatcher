@@ -230,14 +230,14 @@ const App = () => {
                 <h3 className="text-lg font-semibold text-[#d1d5db]">Additional Settings</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="android-api-level-input" className="text-[#d1d5db]">Android API Level</Label>
+                    <Label htmlFor="android-api-level-input" className="text-[#d1d5db]">Android Version</Label>
                     <Select value={androidApiLevel} onValueChange={setAndroidApiLevel}>
                       <SelectTrigger id="android-api-level-input" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
                         <SelectValue placeholder="Select API Level" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
-                        <SelectItem value="34">34</SelectItem>
-                        <SelectItem value="33">33</SelectItem>
+                        <SelectItem value="34">14</SelectItem>
+                        <SelectItem value="35">15</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

@@ -11,7 +11,7 @@ Refer to the usage section to know how to use this patcher
 ## Supported Devices
 
  - All Xiaomi Devices
- - Only A13 - A14 devices are supported
+ - Only A14 - A15 devices are supported
  - use stock framework files `(modified files are not supported)`
  - recommended to use on CN Hyper OS
 
@@ -32,9 +32,9 @@ Alternatively, after cloning the repository, you can use the `LocalPatch.sh` scr
 ## Features
 
  - China Notification Fix
- - Support Gboard keyboard extension
  - Fully Disabled signature verification (core patch)
  - disable secure flag
+ - Add dex2oat compile
 
 ## Contributing
 
