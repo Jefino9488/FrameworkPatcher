@@ -62,8 +62,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt update
-        sudo apt full-upgrade -y
         sudo apt install -y default-jdk zipalign p7zip-full python3 aria2
 
     - name: Download and validate JARs
