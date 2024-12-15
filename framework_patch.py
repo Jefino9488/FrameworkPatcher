@@ -3,147 +3,9 @@ import re
 import logging
 import shutil
 import sys
+import utils
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-def prepatch(filepath):
-    with open(filepath, 'r') as file:
-        lines = file.readlines()
-
-    if not any('invoke-custom' in line for line in lines):
-        logging.info(f"No invoke-custom found in file: {filepath}. Skipping modification.")
-        return
-
-    modified_lines = []
-    in_method = False
-    method_type = None
-    method_patterns = {
-        "equals": re.compile(r'\.method.*equals\(Ljava/lang/Object;\)Z'),
-        "hashCode": re.compile(r'\.method.*hashCode\(\)I'),
-        "toString": re.compile(r'\.method.*toString\(\)Ljava/lang/String;')
-    }
-    registers_line = ""
-
-    for line in lines:
-        if in_method:
-            if line.strip().startswith('.registers'):
-                registers_line = line
-                continue
-
-            if line.strip() == '.end method':
-                # Clear out content for targeted methods
-                if method_type in method_patterns:
-                    logging.info(f"Clearing method body for {method_type}")
-                    modified_lines.append(registers_line)
-                    if method_type == "hashCode":
-                        modified_lines.append("    const/4 v0, 0x0\n")
-                        modified_lines.append("    return v0\n")
-                    elif method_type == "equals":
-                        modified_lines.append("    const/4 v0, 0x0\n")
-                        modified_lines.append("    return v0\n")
-                    elif method_type == "toString":
-                        modified_lines.append("    const/4 v0, 0x0\n")
-                        modified_lines.append("    return v0\n")
-                in_method = False
-                method_type = None
-                registers_line = ""
-            else:
-                continue
-
-        # Identify methods to be cleared
-        for key, pattern in method_patterns.items():
-            if pattern.search(line):
-                logging.info(f"Found method {key}. Clearing method content.")
-                in_method = True
-                method_type = key
-                modified_lines.append(line)  # Add method declaration to output
-                break
-
-        if not in_method:
-            modified_lines.append(line)
-
-    with open(filepath, 'w') as file:
-        file.writelines(modified_lines)
-    logging.info(f"Completed modification for file: {filepath}")
-
-def modify_file(file_path):
-    logging.info(f"Modifying file: {file_path}")
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
-
-    modified_lines = []
-    in_method = False
-    method_type = None
-    method_start_line = ""
-    original_registers_line = ""
-
-    method_patterns = {
-        "checkCapability": re.compile(r'\.method.*checkCapability\(.*\)Z'),
-        "checkCapabilityRecover": re.compile(r'\.method.*checkCapabilityRecover\(.*\)Z'),
-        "hasAncestorOrSelf": re.compile(r'\.method.*hasAncestorOrSelf\(.*\)Z'),
-        "getMinimumSignatureSchemeVersionForTargetSdk": re.compile(
-            r'\.method.*getMinimumSignatureSchemeVersionForTargetSdk\(I\)I'),
-        "isPackageWhitelistedForHiddenApis": re.compile(r'\.method.*isPackageWhitelistedForHiddenApis\(.*\)Z')
-    }
-
-    for line in lines:
-        if in_method:
-            if line.strip().startswith('.registers'):
-                original_registers_line = line
-                continue
-
-            if line.strip() == '.end method':
-                modified_lines.append(method_start_line)
-                if method_type == "checkCapability":
-                    logging.info(f"Modifying method body for {method_type}")
-                    modified_lines.append(original_registers_line)
-                    modified_lines.append("    const/4 v0, 0x1\n")
-                    modified_lines.append("    return v0\n")
-                elif method_type == "checkCapabilityRecover":
-                    logging.info(f"Modifying method body for {method_type}")
-                    modified_lines.append(original_registers_line)
-                    modified_lines.append("    .annotation system Ldalvik/annotation/Throws;\n")
-                    modified_lines.append("        value = {\n")
-                    modified_lines.append("            Ljava/security/cert/CertificateException;\n")
-                    modified_lines.append("        }\n")
-                    modified_lines.append("    .end annotation\n")
-                    modified_lines.append("    const/4 v0, 0x1\n")
-                    modified_lines.append("    return v0\n")
-                elif method_type == "hasAncestorOrSelf":
-                    logging.info(f"Modifying method body for {method_type}")
-                    modified_lines.append(original_registers_line)
-                    modified_lines.append("    const/4 v0, 0x1\n")
-                    modified_lines.append("    return v0\n")
-                elif method_type == "getMinimumSignatureSchemeVersionForTargetSdk":
-                    logging.info(f"Modifying method body for {method_type}")
-                    modified_lines.append(original_registers_line)
-                    modified_lines.append("    const/4 v0, 0x0\n")
-                    modified_lines.append("    return v0\n")
-                elif method_type == "isPackageWhitelistedForHiddenApis":
-                    logging.info(f"Modifying method body for {method_type}")
-                    modified_lines.append(original_registers_line)
-                    modified_lines.append("    const/4 v0, 0x1\n")
-                    modified_lines.append("    return v0\n")
-                in_method = False
-                method_type = None
-                original_registers_line = ""
-            else:
-                continue
-
-        for key, pattern in method_patterns.items():
-            if pattern.search(line):
-                in_method = True
-                method_type = key
-                method_start_line = line
-                break
-
-        if not in_method:
-            modified_lines.append(line)
-
-    with open(file_path, 'w') as file:
-        file.writelines(modified_lines)
-    logging.info(f"Completed modification for file: {file_path}")
-
 
 def modify_package_parser(file_path):
     logging.info(f"Modifying PackageParser file: {file_path}")
@@ -429,6 +291,12 @@ def modify_smali_files(directories):
     core = sys.argv[1].lower() == 'true'
 
     for directory in directories:
+        logging.info(f"Scanning directory: {directory}")
+        for root, _, files in os.walk(directory):
+            for file in files:
+                if file.endswith(".smali"):
+                    filepath = os.path.join(root, file)
+                    utils.patch(filepath)
         signing_details = os.path.join(directory, 'android/content/pm/SigningDetails.smali')
         package_parser_signing_details = os.path.join(directory,
                                                       'android/content/pm/PackageParser$SigningDetails.smali')
@@ -444,42 +312,27 @@ def modify_smali_files(directories):
         strict_jar_verifier = os.path.join(directory, 'android/util/jar/StrictJarVerifier.smali')
         strict_jar_file = os.path.join(directory, 'android/util/jar/StrictJarFile.smali')
         application_info = os.path.join(directory, 'android/content/pm/ApplicationInfo.smali')
-        pre_patch1 = os.path.join(directory, 'android/hardware/input/KeyboardLayoutPreviewDrawable$GlyphDrawable.smali')
-        pre_patch2 = os.path.join(directory, 'android/hardware/input/PhysicalKeyLayout$EnterKey.smali')
-        pre_patch3 = os.path.join(directory, 'android/hardware/input/PhysicalKeyLayout$LayoutKey.smali')
-        pre_patch4 = os.path.join(directory, 'android/media/MediaRouter2$InstanceInvalidatedCallbackRecord.smali')
-        pre_patch5 = os.path.join(directory, 'android/media/MediaRouter2$PackageNameUserHandlePair.smali')
-        if os.path.exists(pre_patch1):
-            prepatch(pre_patch1)
-        if os.path.exists(pre_patch2):
-            prepatch(pre_patch2)
-        if os.path.exists(pre_patch3):
-            prepatch(pre_patch3)
-        if os.path.exists(pre_patch4):
-            prepatch(pre_patch4)
-        if os.path.exists(pre_patch5):
-            prepatch(pre_patch5)
 
         if os.path.exists(signing_details):
             logging.info(f"Found file: {signing_details}")
-            modify_file(signing_details)
+            utils.modify_file(signing_details)
         else:
             logging.warning(f"File not found: {signing_details}")
         if os.path.exists(package_parser_signing_details):
             logging.info(f"Found file: {package_parser_signing_details}")
-            modify_file(package_parser_signing_details)
+            utils.modify_file(package_parser_signing_details)
         else:
             logging.warning(f"File not found: {package_parser_signing_details}")
         if os.path.exists(apk_signature_verifier):
             logging.info(f"Found file: {apk_signature_verifier}")
             modify_apk_signature_verifier(apk_signature_verifier)
             modify_is_error(apk_signature_verifier)
-            modify_file(apk_signature_verifier)
+            utils.modify_file(apk_signature_verifier)
         else:
             logging.warning(f"File not found: {apk_signature_verifier}")
         if os.path.exists(application_info):
             logging.info(f"Found file: {application_info}")
-            modify_file(application_info)
+            utils.modify_file(application_info)
         if core:
 
             if os.path.exists(apk_signature_scheme_v2_verifier):
