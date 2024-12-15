@@ -230,7 +230,7 @@ def modify_smali_files(directories):
         pre_patch6 = os.path.join(directory, 'com/android/server/BinaryTransparencyService$Digest.smali')
         pre_patch7 = os.path.join(directory, 'com/android/server/inputmethod/AdditionalSubtypeMapRepository$WriteTask.smali')
         pre_patch8 = os.path.join(directory, 'com/android/server/policy/PhoneWindowManager$SwitchKeyboardLayoutMessageObject.smali')
-        pre_patch9 = os.path.join(directory, '')
+        pre_patch9 = os.path.join(directory, 'com/android/server/policy/SingleKeyGestureDetector$MessageObject.smali')
         if os.path.exists(pre_patch1):
             prepatch(pre_patch1)
         if os.path.exists(pre_patch2):
