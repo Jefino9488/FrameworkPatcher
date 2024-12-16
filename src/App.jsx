@@ -29,10 +29,6 @@ const App = () => {
     auth: GITHUB_TOKEN
   })
 
-  const isDumpUrl = (url) => {
-    return url.startsWith('https://dumps.tadiphone.dev/dumps/') ||
-           url === 'https://drive.usercontent.google.com/download?id=1-CQY_wMkr3SSlA7DTJPCjzVoNIjWtOcR&export=download&authuser=0';
-  };
 
   const isBlockedUrl = (url) => {
     return url.startsWith('https://www.mediafire.com/') ||
@@ -267,7 +263,6 @@ const App = () => {
                   </div>
                 </div>
 
-                {!isDumpUrl(frameworkJarUrl) && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="custom-device-name-input" className="text-[#d1d5db]">Custom Device Name</Label>
@@ -294,7 +289,6 @@ const App = () => {
                       />
                     </div>
                   </div>
-                )}
               </div>
 
               <Button type="submit" className="w-full bg-[#3a3a3a] text-white hover:bg-[#4a4a4a]">Start Build</Button>
