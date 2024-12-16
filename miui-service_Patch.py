@@ -78,8 +78,8 @@ def modify_smali_files(directories):
         'com/android/server/input/InputManagerServiceStubImpl.smali',
         'com/android/server/inputmethod/InputMethodManagerServiceImpl.smali',
         'com/android/server/wm/MiuiSplitInputMethodImpl.smali',
+        'com/android/server/wm/MiuiFreeFormStackDisplayStrategy.smali',
         'com/android/server/wm/WindowManagerServiceImpl.smali'
-        'com/android/server/wm/MiuiFreeFormStackDisplayStrategy.smali'
     ]
 
     search_pattern = r'sget-boolean (v\d+), Lmiui/os/Build;->IS_INTERNATIONAL_BUILD:Z'
