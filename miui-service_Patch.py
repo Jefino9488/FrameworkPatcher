@@ -79,6 +79,7 @@ def modify_smali_files(directories):
         'com/android/server/inputmethod/InputMethodManagerServiceImpl.smali',
         'com/android/server/wm/MiuiSplitInputMethodImpl.smali',
         'com/android/server/wm/WindowManagerServiceImpl.smali'
+        'com/android/server/wm/MiuiFreeFormStackDisplayStrategy.smali'
     ]
 
     search_pattern = r'sget-boolean (v\d+), Lmiui/os/Build;->IS_INTERNATIONAL_BUILD:Z'
@@ -95,6 +96,7 @@ def modify_smali_files(directories):
             file_path = os.path.join(directory, class_file)
             if os.path.exists(file_path):
                 logging.info(f"Found file: {file_path}")
+                utils.modify_file(file_path)
                 modify_file(file_path, search_pattern, add_line_template)
                 if class_file == 'com/android/server/wm/WindowManagerServiceImpl.smali':
                     modify_not_allow_capture_display(file_path)
