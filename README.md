@@ -49,7 +49,5 @@ Alternatively, after cloning the repository, you can use the `LocalPatch.sh` scr
 
 ## Credits
 
-- [Xiaomi](https://xiaomi.com)
-- [google](https://google.com)
 - [CorePatch](https://github.com/LSPosed/CorePatch)
-- and many more
+- [MMETMA](https://github.com/MMETMA)
