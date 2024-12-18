@@ -71,7 +71,7 @@ jobs:
           url=$1
           output=$2
           if echo "$url" | grep -q "drive.google.com"; then
-            gdown -O "$output" "$url"
+            gdown --fuzzy -O "$output" "$url"
           else
             curl -L -C - -o "$output" "$url"
           fi
