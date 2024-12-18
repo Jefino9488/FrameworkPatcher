@@ -32,10 +32,6 @@ const App = () => {
 
   const isBlockedUrl = (url) => {
     return url.startsWith('https://www.mediafire.com/') ||
-           (url.startsWith('https://drive.google.com/') && !url.includes('/view?')) ||
-           url.startsWith('https://drive.google.com/file/d/') ||
-           url.startsWith('https://drive.google.com/uc?') ||
-           url.startsWith('https://drive.google.com/open?id=') ||
            url.startsWith('https://drive.proton.me/');
   };
 

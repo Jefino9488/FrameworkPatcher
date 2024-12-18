@@ -63,13 +63,25 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt install -y default-jdk zipalign p7zip-full python3 aria2
+        pip install gdown
 
     - name: Download and validate JARs
       run: |
-        curl -L -C - -o framework.jar "${{ github.event.inputs.framework_jar_url }}"
-        curl -L -C - -o services.jar "${{ github.event.inputs.services_jar_url }}"
-        curl -L -C - -o miui-services.jar "${{ github.event.inputs.miui_services_jar_url }}"
-        curl -L -C - -o miui-framework.jar "${{ github.event.inputs.miui_framework_jar_url }}"
+        download_file() {
+          url=$1
+          output=$2
+          if echo "$url" | grep -q "drive.google.com"; then
+            gdown -O "$output" "$url"
+          else
+            curl -L -C - -o "$output" "$url"
+          fi
+        }
+
+        download_file "${{ github.event.inputs.framework_jar_url }}" framework.jar
+        download_file "${{ github.event.inputs.services_jar_url }}" services.jar
+        download_file "${{ github.event.inputs.miui_services_jar_url }}" miui-services.jar
+        download_file "${{ github.event.inputs.miui_framework_jar_url }}" miui-framework.jar
+
         for jar in framework.jar services.jar miui-services.jar miui-framework.jar; do
           file_size=$(stat -c%s "$jar")
           if [ $file_size -lt 2000000 ]; then
