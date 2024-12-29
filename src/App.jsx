@@ -261,7 +261,7 @@ const App = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="custom-device-name-input" className="text-[#d1d5db]">Custom Device Name</Label>
+                      <Label htmlFor="custom-device-name-input" className="text-[#d1d5db]">Device CodeName</Label>
                       <Input
                         type="text"
                         id="custom-device-name-input"
@@ -273,7 +273,7 @@ const App = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="custom-version-input" className="text-[#d1d5db]">Custom Version</Label>
+                      <Label htmlFor="custom-version-input" className="text-[#d1d5db]">Version</Label>
                       <Input
                         type="text"
                         id="custom-version-input"

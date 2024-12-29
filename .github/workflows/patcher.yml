@@ -294,3 +294,11 @@ jobs:
           makeLatest: true
           bodyFile: release_notes.txt
           token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Notify via Telegram
+      run: |
+        curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+        -d chat_id=@codes9488 \
+        -d message_thread_id=3 \
+        -d parse_mode="MarkdownV2" \
+        -d text="🎉 *Release * 🎉%0A%0A🔧 *Device:* \`${{ env.device_name }}\`%0A🔢 *Version:* \`${{ env.version }}\`%0A🌐 *Build ID:* \`${{ github.sha }}\`%0A📝 *Core Patch:* \`${{ github.event.inputs.core }}\`%0A%0A🔗 [Download](https://github.com/${{ github.repository }}/releases/tag/${{ env.version }})%0A%0A \\#Release  \\#${{ env.device_name }}"
