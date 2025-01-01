@@ -3,79 +3,18 @@ name: Modify Framework and Services
 on:
   workflow_dispatch:
     inputs:
-      framework_jar_url:
-        description: 'URL to download framework.jar'
+      jar_urls:
+        description: 'JSON object containing URLs to download the JAR files'
         required: true
-      services_jar_url:
-        description: 'URL to download services.jar'
-        required: true
-      miui_services_jar_url:
-        description: 'URL to download miui-services.jar'
-        required: true
-      miui_framework_jar_url:
-        description: 'URL to download miui-framework.jar'
-        required: true
+        default: '{"framework_jar_url": "", "services_jar_url": "", "miui_services_jar_url": "", "miui_framework_jar_url": ""}'
       android_api_level:
         description: 'Android API level'
         required: true
         default: '34'
-      isCN:
-        description: 'Is CN'
+      features:
+        description: 'JSON object containing feature flags'
         required: true
-        type: choice
-        options:
-          - 'true'
-          - 'false'
-        default: 'true'
-# features
-      defaultcore:
-        description: 'System level core patch'
-        required: true
-        type: choice
-        options:
-          - 'true'
-          - 'false'
-        default: 'true'
-      core:
-        description: 'Full core patch'
-        required: true
-        type: choice
-        options:
-          - 'true'
-          - 'false'
-        default: 'false'
-      fixNotification:
-        description: 'Fix cn Notification'
-        required: true
-        type: choice
-        options:
-          - 'true'
-          - 'false'
-        default: 'true'
-      addGboard:
-        description: 'spoof gboard'
-        required: true
-        type: choice
-        options:
-          - 'true'
-          - 'false'
-        default: 'false'
-      disableFlagSecure:
-        description: 'Disable Screen shot Restrictions'
-        required: true
-        type: choice
-        options:
-          - 'true'
-          - 'false'
-        default: 'true'
-      multiFloatingWindow:
-        description: 'Increase limit to 50'
-        required: true
-        type: choice
-        options:
-          - 'true'
-          - 'false'
-        default: 'true'
+        default: '{"isCN": "true", "defaultcore": "true", "core": "false", "fixNotification": "true", "addGboard": "false", "disableFlagSecure": "true", "multiFloatingWindow": "true"}'
       custom_device_name:
         description: 'Device Name'
         required: true
@@ -103,8 +42,45 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install -y default-jdk zipalign p7zip-full python3 aria2
+        sudo apt install -y default-jdk zipalign p7zip-full python3 aria2 jq
         pip install gdown
+
+    - name: Parse JSON inputs
+      run: |
+        echo "Parsing jar_urls JSON input"
+        echo "${{ github.event.inputs.jar_urls }}" | jq .
+
+        echo "Parsing features JSON input"
+        echo "${{ github.event.inputs.features }}" | jq .
+
+        # Extract specific values from jar_urls
+        framework_jar_url=$(echo "${{ github.event.inputs.jar_urls }}" | jq -r .framework_jar_url)
+        services_jar_url=$(echo "${{ github.event.inputs.jar_urls }}" | jq -r .services_jar_url)
+        miui_services_jar_url=$(echo "${{ github.event.inputs.jar_urls }}" | jq -r .miui_services_jar_url)
+        miui_framework_jar_url=$(echo "${{ github.event.inputs.jar_urls }}" | jq -r .miui_framework_jar_url)
+
+        # Extract specific values from features
+        isCN=$(echo "${{ github.event.inputs.features }}" | jq -r .isCN)
+        defaultcore=$(echo "${{ github.event.inputs.features }}" | jq -r .defaultcore)
+        core=$(echo "${{ github.event.inputs.features }}" | jq -r .core)
+        fixNotification=$(echo "${{ github.event.inputs.features }}" | jq -r .fixNotification)
+        addGboard=$(echo "${{ github.event.inputs.features }}" | jq -r .addGboard)
+        disableFlagSecure=$(echo "${{ github.event.inputs.features }}" | jq -r .disableFlagSecure)
+        multiFloatingWindow=$(echo "${{ github.event.inputs.features }}" | jq -r .multiFloatingWindow)
+
+        # Export variables for use in subsequent steps
+        echo "framework_jar_url=$framework_jar_url" >> $GITHUB_ENV
+        echo "services_jar_url=$services_jar_url" >> $GITHUB_ENV
+        echo "miui_services_jar_url=$miui_services_jar_url" >> $GITHUB_ENV
+        echo "miui_framework_jar_url=$miui_framework_jar_url" >> $GITHUB_ENV
+
+        echo "isCN=$isCN" >> $GITHUB_ENV
+        echo "defaultcore=$defaultcore" >> $GITHUB_ENV
+        echo "core=$core" >> $GITHUB_ENV
+        echo "fixNotification=$fixNotification" >> $GITHUB_ENV
+        echo "addGboard=$addGboard" >> $GITHUB_ENV
+        echo "disableFlagSecure=$disableFlagSecure" >> $GITHUB_ENV
+        echo "multiFloatingWindow=$multiFloatingWindow" >> $GITHUB_ENV
 
     - name: Download and validate JARs
       run: |
@@ -118,10 +94,10 @@ jobs:
           fi
         }
 
-        download_file "${{ github.event.inputs.framework_jar_url }}" framework.jar
-        download_file "${{ github.event.inputs.services_jar_url }}" services.jar
-        download_file "${{ github.event.inputs.miui_services_jar_url }}" miui-services.jar
-        download_file "${{ github.event.inputs.miui_framework_jar_url }}" miui-framework.jar
+        download_file "${{ env.framework_jar_url }}" framework.jar
+        download_file "${{ env.services_jar_url }}" services.jar
+        download_file "${{ env.miui_services_jar_url }}" miui-services.jar
+        download_file "${{ env.miui_framework_jar_url }}" miui-framework.jar
 
         for jar in framework.jar services.jar miui-services.jar miui-framework.jar; do
           file_size=$(stat -c%s "$jar")
@@ -198,19 +174,19 @@ jobs:
 
     - name: Modify framework smali
       run: |
-        python3 framework_patch.py "${{ github.event.inputs.defaultcore }}" "${{ github.event.inputs.core }}"
+        python3 framework_patch.py "${{ env.defaultcore }}" "${{ env.core }}"
 
     - name: Modify services smali
       run: |
-        python3 services_patch.py "${{ github.event.inputs.defaultcore }}" "${{ github.event.inputs.disable_flag_secure }}"
+        python3 services_patch.py "${{ env.defaultcore }}" "${{ env.disableFlagSecure }}"
 
     - name: Modify miui-services smali files
       run: |
-        python3 miui-service_Patch.py "${{ github.event.inputs.isCN }}" "${{ github.event.inputs.fixNotification }}" "${{ github.event.inputs.multiFloatingWindow }}" "${{ github.event.inputs.addGboard }}"
+        python3 miui-service_Patch.py "${{ env.isCN }}" "${{ env.fixNotification }}" "${{ env.multiFloatingWindow }}" "${{ env.addGboard }}"
 
     - name: Modify miui-framework smali files
       run: |
-        python3 miui-framework_patch.py "${{ github.event.inputs.addGboard }}"
+        python3 miui-framework_patch.py "${{ env.addGboard }}"
 
     - name: Recompile framework dex files
       run: |
@@ -342,4 +318,4 @@ jobs:
         -d chat_id=@codes9488 \
         -d message_thread_id=3 \
         -d parse_mode="MarkdownV2" \
-        -d text="*Release *%0A%0A🔧 *Device:* \`${{ env.device_name }}\`%0A🔢 *Version:* \`${{ env.version }}\`%0A🌐 *Build ID:* \`${{ github.sha }}\`%0A📝 *Core Patch:* \`${{ github.event.inputs.core }}\`%0A%0A🔗 [Download](https://github.com/${{ github.repository }}/releases/tag/${{ env.version }})%0A%0A \\#Release  \\#${{ env.device_name }}"
+        -d text="*Release *%0A%0A🔧 *Device:* \`${{ env.device_name }}\`%0A🔢 *Version:* \`${{ env.version }}\`%0A🌐 *Build ID:* \`${{ github.sha }}\`%0A📝 *Core Patch:* \`${{ env.core }}\`%0A%0A🔗 [Download](https://github.com/${{ github.repository }}/releases/tag/${{ env.version }})%0A%0A \\#Release  \\#${{ env.device_name }}"
