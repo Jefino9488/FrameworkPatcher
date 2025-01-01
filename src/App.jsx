@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Download, GitBranch } from 'lucide-react';
+import { AlertCircle, Download, GitBranch, Info } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const App = () => {
   const [frameworkJarUrl, setFrameworkJarUrl] = useState('');
@@ -211,7 +212,19 @@ const App = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="is-cn-select" className="text-[#d1d5db]">Is CN</Label>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="is-cn-select" className="text-[#d1d5db]">Is CN</Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-400" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Determines if the build is for the Chinese version</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <Select value={isCN} onValueChange={setIsCN}>
                       <SelectTrigger id="is-cn-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
                         <SelectValue placeholder="Select Is CN" />
@@ -223,7 +236,19 @@ const App = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="defaultcore-select" className="text-[#d1d5db]">Default Core</Label>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="defaultcore-select" className="text-[#d1d5db]">Default Core</Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-400" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Applies system level core patch (disables system app verification)</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <Select value={defaultcore} onValueChange={setDefaultCore}>
                       <SelectTrigger id="defaultcore-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
                         <SelectValue placeholder="Select Default Core" />
@@ -235,7 +260,19 @@ const App = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="core-select" className="text-[#d1d5db]">Core Patch</Label>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="core-select" className="text-[#d1d5db]">Core Patch</Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-400" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Fully disables signature verification (needs default core)</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <Select value={core} onValueChange={setCore}>
                       <SelectTrigger id="core-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
                         <SelectValue placeholder="Select Core Patch" />
@@ -247,7 +284,19 @@ const App = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="fix-notification-select" className="text-[#d1d5db]">Fix Notification</Label>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="fix-notification-select" className="text-[#d1d5db]">Fix Notification</Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-400" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Reduce notification problem on cn roms</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <Select value={fixNotification} onValueChange={setFixNotification}>
                       <SelectTrigger id="fix-notification-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
                         <SelectValue placeholder="Select Fix Notification" />
@@ -259,7 +308,19 @@ const App = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="add-gboard-select" className="text-[#d1d5db]">Add Gboard</Label>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="add-gboard-select" className="text-[#d1d5db]">Add Gboard</Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-400" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>add gboard to enhance keyboard</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <Select value={addGboard} onValueChange={setAddGboard}>
                       <SelectTrigger id="add-gboard-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
                         <SelectValue placeholder="Select Add Gboard" />
@@ -271,7 +332,19 @@ const App = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="disable-flag-secure-select" className="text-[#d1d5db]">Disable Flag Secure</Label>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="disable-flag-secure-select" className="text-[#d1d5db]">Disable Flag Secure</Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-400" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Disable the FLAG_SECURE window flag</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <Select value={disableFlagSecure} onValueChange={setDisableFlagSecure}>
                       <SelectTrigger id="disable-flag-secure-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
                         <SelectValue placeholder="Select Disable Flag Secure" />
@@ -283,7 +356,19 @@ const App = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="multi-floating-window-select" className="text-[#d1d5db]">Multi Floating Window</Label>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="multi-floating-window-select" className="text-[#d1d5db]">Multi Floating Window</Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-400" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Increase limit to 50</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <Select value={multiFloatingWindow} onValueChange={setMultiFloatingWindow}>
                       <SelectTrigger id="multi-floating-window-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
                         <SelectValue placeholder="Select Multi Floating Window" />
