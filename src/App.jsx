@@ -1,44 +1,49 @@
-import { useState, useRef } from 'react'
-import { Octokit } from "https://esm.sh/@octokit/core";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { AlertCircle, Download, GitBranch } from 'lucide-react'
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useState, useRef } from 'react';
+import { Octokit } from 'https://esm.sh/@octokit/core';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, Download, GitBranch } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const App = () => {
-  const [frameworkJarUrl, setFrameworkJarUrl] = useState('')
-  const [servicesJarUrl, setServicesJarUrl] = useState('')
-  const [miuiServicesJarUrl, setMiuiServicesJarUrl] = useState('')
-  const [miuiFrameworkJarUrl, setMiuiFrameworkJarUrl] = useState('')
-  const [androidApiLevel, setAndroidApiLevel] = useState('34')
-  const [core, setCore] = useState('true')
-  const [customDeviceName, setCustomDeviceName] = useState('')
-  const [customVersion, setCustomVersion] = useState('')
-  const [isCN, setIsCN] = useState('true')
-
-  const formRef = useRef(null)
+  const [frameworkJarUrl, setFrameworkJarUrl] = useState('');
+  const [servicesJarUrl, setServicesJarUrl] = useState('');
+  const [miuiServicesJarUrl, setMiuiServicesJarUrl] = useState('');
+  const [miuiFrameworkJarUrl, setMiuiFrameworkJarUrl] = useState('');
+  const [androidApiLevel, setAndroidApiLevel] = useState('34');
+  const [isCN, setIsCN] = useState('true');
+  const [defaultcore, setDefaultCore] = useState('true');
+  const [core, setCore] = useState('false');
+  const [fixNotification, setFixNotification] = useState('true');
+  const [addGboard, setAddGboard] = useState('false');
+  const [disableFlagSecure, setDisableFlagSecure] = useState('true');
+  const [multiFloatingWindow, setMultiFloatingWindow] = useState('true');
+  const [customDeviceName, setCustomDeviceName] = useState('');
+  const [customVersion, setCustomVersion] = useState('');
+  const formRef = useRef(null);
   const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
-  const REPO_OWNER = 'Jefino9488'
-  const REPO_NAME = 'FrameworkPatcher'
-  const WORKFLOW_ID = 'patcher.yml'
-
+  const REPO_OWNER = 'Jefino9488';
+  const REPO_NAME = 'FrameworkPatcher';
+  const WORKFLOW_ID = 'patcher.yml';
   const octokit = new Octokit({
-    auth: GITHUB_TOKEN
-  })
-
-
+    auth: GITHUB_TOKEN,
+  });
   const isBlockedUrl = (url) => {
-    return url.startsWith('https://www.mediafire.com/') ||
-           url.startsWith('https://drive.proton.me/');
+    return url.startsWith('https://www.mediafire.com/') || url.startsWith('https://drive.proton.me/');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (isBlockedUrl(frameworkJarUrl) || isBlockedUrl(servicesJarUrl) || isBlockedUrl(miuiServicesJarUrl) || isBlockedUrl(miuiFrameworkJarUrl)) {
+    if (
+      isBlockedUrl(frameworkJarUrl) ||
+      isBlockedUrl(servicesJarUrl) ||
+      isBlockedUrl(miuiServicesJarUrl) ||
+      isBlockedUrl(miuiFrameworkJarUrl)
+    ) {
       window.alert('The provided URL is not allowed.');
       return;
     }
@@ -60,94 +65,64 @@ const App = () => {
           deviceName = deviceNameMatch[1];
         }
       }
+    }
 
-      try {
-        const releasesResponse = await octokit.request('GET /repos/{owner}/{repo}/releases', {
-          owner: REPO_OWNER,
-          repo: REPO_NAME
-        });
+    const jarUrls = {
+      framework_jar_url: frameworkJarUrl,
+      services_jar_url: servicesJarUrl,
+      miui_services_jar_url: miuiServicesJarUrl,
+      miui_framework_jar_url: miuiFrameworkJarUrl,
+    };
 
-        const releases = releasesResponse.data;
-        const matchingRelease = releases.find(release => release.name === `moded_${deviceName}_${version}`);
+    const features = {
+      isCN: isCN,
+      defaultcore: defaultcore,
+      core: core,
+      fixNotification: fixNotification,
+      addGboard: addGboard,
+      disableFlagSecure: disableFlagSecure,
+      multiFloatingWindow: multiFloatingWindow,
+    };
 
-        if (matchingRelease) {
-          window.alert('Build already exists for this device and version. Opening releases page.');
-          window.open(matchingRelease.html_url, '_blank');
-          return;
-        }
+    const jarUrlsJson = JSON.stringify(jarUrls);
+    const featuresJson = JSON.stringify(features);
 
-        const response = await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
-          owner: REPO_OWNER,
-          repo: REPO_NAME,
-          workflow_id: WORKFLOW_ID,
-          ref: 'main',
-          inputs: {
-            framework_jar_url: frameworkJarUrl,
-            services_jar_url: servicesJarUrl,
-            miui_services_jar_url: miuiServicesJarUrl,
-            miui_framework_jar_url: miuiFrameworkJarUrl,
-            android_api_level: androidApiLevel,
-            core: core,
-            custom_device_name: deviceName,
-            custom_version: version,
-            isCN: isCN
-          }
-        });
+    try {
+      const response = await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+        owner: REPO_OWNER,
+        repo: REPO_NAME,
+        workflow_id: WORKFLOW_ID,
+        ref: 'main',
+        inputs: {
+          jar_urls: jarUrlsJson,
+          android_api_level: androidApiLevel,
+          features: featuresJson,
+          custom_device_name: deviceName,
+          custom_version: version,
+        },
+      });
 
-        if (response.status === 204) {
-          window.alert('Build started! Wait for 5 - 10 minutes and check the releases page.');
-          setFrameworkJarUrl('');
-          setServicesJarUrl('');
-          setMiuiServicesJarUrl('');
-          setMiuiFrameworkJarUrl('');
-          setAndroidApiLevel('34');
-          setCore('true');
-          setCustomDeviceName('');
-          setCustomVersion('');
-          setIsCN('true');
-        } else {
-          console.error('Error triggering GitHub Action:', response.status);
-        }
-      } catch (error) {
-        console.error('Error triggering GitHub Action:', error);
+      if (response.status === 204) {
+        window.alert('Build started! Wait for 5 - 10 minutes and check the releases page.');
+        setFrameworkJarUrl('');
+        setServicesJarUrl('');
+        setMiuiServicesJarUrl('');
+        setMiuiFrameworkJarUrl('');
+        setAndroidApiLevel('34');
+        setIsCN('true');
+        setDefaultCore('true');
+        setCore('false');
+        setFixNotification('true');
+        setAddGboard('false');
+        setDisableFlagSecure('true');
+        setMultiFloatingWindow('true');
+        setCustomDeviceName('');
+        setCustomVersion('');
+      } else {
+        console.error('Error triggering GitHub Action:', response.status);
       }
-    } else {
-      try {
-        const response = await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
-          owner: REPO_OWNER,
-          repo: REPO_NAME,
-          workflow_id: WORKFLOW_ID,
-          ref: 'main',
-          inputs: {
-            framework_jar_url: frameworkJarUrl,
-            services_jar_url: servicesJarUrl,
-            miui_services_jar_url: miuiServicesJarUrl,
-            miui_framework_jar_url: miuiFrameworkJarUrl,
-            android_api_level: androidApiLevel,
-            core: core,
-            custom_device_name: customDeviceName,
-            custom_version: customVersion,
-            isCN: isCN
-          }
-        });
-
-        if (response.status === 204) {
-          window.alert('Build started! Wait for 5 - 10 minutes and check the releases page.');
-          setFrameworkJarUrl('');
-          setServicesJarUrl('');
-          setMiuiServicesJarUrl('');
-          setMiuiFrameworkJarUrl('');
-          setAndroidApiLevel('34');
-          setCore('true');
-          setCustomDeviceName('');
-          setCustomVersion('');
-          setIsCN('true');
-        } else {
-          console.error('Error triggering GitHub Action:', response.status);
-        }
-      } catch (error) {
-        console.error('Error triggering GitHub Action:', error);
-      }
+    } catch (error) {
+      console.error('Error triggering GitHub Action:', error);
     }
   };
 
@@ -168,6 +143,7 @@ const App = () => {
           </CardHeader>
           <CardContent>
             <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+              {/* JAR URLs Section */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-[#d1d5db]">JAR URLs</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -218,6 +194,7 @@ const App = () => {
                 </div>
               </div>
 
+              {/* Additional Settings Section */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-[#d1d5db]">Additional Settings</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -234,18 +211,6 @@ const App = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="core-select" className="text-[#d1d5db]">Core Patch</Label>
-                    <Select value={core} onValueChange={setCore}>
-                      <SelectTrigger id="core-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
-                        <SelectValue placeholder="Select Core Patch" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
-                        <SelectItem value="true">Apply</SelectItem>
-                        <SelectItem value="false">Do Not Apply</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="is-cn-select" className="text-[#d1d5db]">Is CN</Label>
                     <Select value={isCN} onValueChange={setIsCN}>
                       <SelectTrigger id="is-cn-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
@@ -257,46 +222,120 @@ const App = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="defaultcore-select" className="text-[#d1d5db]">Default Core</Label>
+                    <Select value={defaultcore} onValueChange={setDefaultCore}>
+                      <SelectTrigger id="defaultcore-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectValue placeholder="Select Default Core" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectItem value="true">True</SelectItem>
+                        <SelectItem value="false">False</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="core-select" className="text-[#d1d5db]">Core Patch</Label>
+                    <Select value={core} onValueChange={setCore}>
+                      <SelectTrigger id="core-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectValue placeholder="Select Core Patch" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectItem value="true">True</SelectItem>
+                        <SelectItem value="false">False</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fix-notification-select" className="text-[#d1d5db]">Fix Notification</Label>
+                    <Select value={fixNotification} onValueChange={setFixNotification}>
+                      <SelectTrigger id="fix-notification-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectValue placeholder="Select Fix Notification" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectItem value="true">True</SelectItem>
+                        <SelectItem value="false">False</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="add-gboard-select" className="text-[#d1d5db]">Add Gboard</Label>
+                    <Select value={addGboard} onValueChange={setAddGboard}>
+                      <SelectTrigger id="add-gboard-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectValue placeholder="Select Add Gboard" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectItem value="true">True</SelectItem>
+                        <SelectItem value="false">False</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="disable-flag-secure-select" className="text-[#d1d5db]">Disable Flag Secure</Label>
+                    <Select value={disableFlagSecure} onValueChange={setDisableFlagSecure}>
+                      <SelectTrigger id="disable-flag-secure-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectValue placeholder="Select Disable Flag Secure" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectItem value="true">True</SelectItem>
+                        <SelectItem value="false">False</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="multi-floating-window-select" className="text-[#d1d5db]">Multi Floating Window</Label>
+                    <Select value={multiFloatingWindow} onValueChange={setMultiFloatingWindow}>
+                      <SelectTrigger id="multi-floating-window-select" className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectValue placeholder="Select Multi Floating Window" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectItem value="true">True</SelectItem>
+                        <SelectItem value="false">False</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="custom-device-name-input" className="text-[#d1d5db]">Device CodeName</Label>
-                      <Input
-                        type="text"
-                        id="custom-device-name-input"
-                        value={customDeviceName}
-                        onChange={(e) => setCustomDeviceName(e.target.value)}
-                        required
-                        placeholder="xaga"
-                        className="bg-[#2a2a2a] text-white border-[#3a3a3a] focus:border-[#4a4a4a]"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="custom-version-input" className="text-[#d1d5db]">Version</Label>
-                      <Input
-                        type="text"
-                        id="custom-version-input"
-                        value={customVersion}
-                        onChange={(e) => setCustomVersion(e.target.value)}
-                        required
-                        placeholder="V14.0.8.0.TKHCNXM"
-                        className="bg-[#2a2a2a] text-white border-[#3a3a3a] focus:border-[#4a4a4a]"
-                      />
-                    </div>
+                {/* Custom Device Name and Version */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="custom-device-name-input" className="text-[#d1d5db]">Device CodeName</Label>
+                    <Input
+                      type="text"
+                      id="custom-device-name-input"
+                      value={customDeviceName}
+                      onChange={(e) => setCustomDeviceName(e.target.value)}
+                      required
+                      placeholder="xaga"
+                      className="bg-[#2a2a2a] text-white border-[#3a3a3a] focus:border-[#4a4a4a]"
+                    />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="custom-version-input" className="text-[#d1d5db]">Version</Label>
+                    <Input
+                      type="text"
+                      id="custom-version-input"
+                      value={customVersion}
+                      onChange={(e) => setCustomVersion(e.target.value)}
+                      required
+                      placeholder="V14.0.8.0.TKHCNXM"
+                      className="bg-[#2a2a2a] text-white border-[#3a3a3a] focus:border-[#4a4a4a]"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <Button type="submit" className="w-full bg-[#3a3a3a] text-white hover:bg-[#4a4a4a]">Start Build</Button>
+              {/* Submit Button */}
+              <Button type="submit" className="w-full bg-[#3a3a3a] text-white hover:bg-[#4a4a4a]">
+                Start Build
+              </Button>
             </form>
           </CardContent>
           <CardFooter className="flex flex-col items-center space-y-4">
             <Alert className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Note</AlertTitle>
-              <AlertDescription>
-                All builds are available on the releases page
-              </AlertDescription>
+              <AlertDescription>All builds are available on the releases page</AlertDescription>
             </Alert>
             <div className="flex space-x-4">
               <Button onClick={handleRedirect} variant="outline" className="bg-[#2a2a2a] hover:bg-[#3a3a3a] text-white border-[#3a3a3a]">
@@ -310,8 +349,7 @@ const App = () => {
         </Card>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default App
-
+export default App;
