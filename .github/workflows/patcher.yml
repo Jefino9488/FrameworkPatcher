@@ -45,28 +45,25 @@ jobs:
         sudo apt install -y default-jdk zipalign p7zip-full python3 aria2 jq
         pip install gdown
 
+    - name: Write inputs to files
+      run: |
+        echo "${{ github.event.inputs.jar_urls }}" > jar_urls.json
+        echo "${{ github.event.inputs.features }}" > features.json
+
     - name: Parse JSON inputs
       run: |
-        echo "Parsing jar_urls JSON input"
-        echo "${{ github.event.inputs.jar_urls }}" | jq .
+        framework_jar_url=$(jq -r .framework_jar_url jar_urls.json)
+        services_jar_url=$(jq -r .services_jar_url jar_urls.json)
+        miui_services_jar_url=$(jq -r .miui_services_jar_url jar_urls.json)
+        miui_framework_jar_url=$(jq -r .miui_framework_jar_url jar_urls.json)
 
-        echo "Parsing features JSON input"
-        echo "${{ github.event.inputs.features }}" | jq .
-
-        # Extract specific values from jar_urls
-        framework_jar_url=$(echo "${{ github.event.inputs.jar_urls }}" | jq -r .framework_jar_url)
-        services_jar_url=$(echo "${{ github.event.inputs.jar_urls }}" | jq -r .services_jar_url)
-        miui_services_jar_url=$(echo "${{ github.event.inputs.jar_urls }}" | jq -r .miui_services_jar_url)
-        miui_framework_jar_url=$(echo "${{ github.event.inputs.jar_urls }}" | jq -r .miui_framework_jar_url)
-
-        # Extract specific values from features
-        isCN=$(echo "${{ github.event.inputs.features }}" | jq -r .isCN)
-        defaultcore=$(echo "${{ github.event.inputs.features }}" | jq -r .defaultcore)
-        core=$(echo "${{ github.event.inputs.features }}" | jq -r .core)
-        fixNotification=$(echo "${{ github.event.inputs.features }}" | jq -r .fixNotification)
-        addGboard=$(echo "${{ github.event.inputs.features }}" | jq -r .addGboard)
-        disableFlagSecure=$(echo "${{ github.event.inputs.features }}" | jq -r .disableFlagSecure)
-        multiFloatingWindow=$(echo "${{ github.event.inputs.features }}" | jq -r .multiFloatingWindow)
+        isCN=$(jq -r .isCN features.json)
+        defaultcore=$(jq -r .defaultcore features.json)
+        core=$(jq -r .core features.json)
+        fixNotification=$(jq -r .fixNotification features.json)
+        addGboard=$(jq -r .addGboard features.json)
+        disableFlagSecure=$(jq -r .disableFlagSecure features.json)
+        multiFloatingWindow=$(jq -r .multiFloatingWindow features.json)
 
         # Export variables for use in subsequent steps
         echo "framework_jar_url=$framework_jar_url" >> $GITHUB_ENV
@@ -269,14 +266,14 @@ jobs:
     - name: Create Version From Link
       run: |
         if [ -z "${{ github.event.inputs.custom_version }}" ]; then
-          framework_url="${{ github.event.inputs.framework_jar_url }}"
+          framework_url="${{ env.framework_jar_url }}"
           version=$(echo $framework_url | grep -oP '(?<=V)[^/]*(?=/system)')
           echo "version=${version}" >> $GITHUB_ENV
         else
           echo "version=${{ github.event.inputs.custom_version }}" >> $GITHUB_ENV
         fi
         if [ -z "${{ github.event.inputs.custom_device_name }}" ]; then
-          framework_url="${{ github.event.inputs.framework_jar_url }}"
+          framework_url="${{ env.framework_jar_url }}"
           device_name=$(echo $framework_url | grep -oP '(?<=redmi/)[^/]*(?=/-)')
           echo "device_name=${device_name}" >> $GITHUB_ENV
         else
@@ -299,7 +296,7 @@ jobs:
         echo "## Release Notes" > release_notes.txt
         echo "- Built modified jars from commit ${{ github.sha }}" >> release_notes.txt
         echo "- Version: ${{ env.version }}" >> release_notes.txt
-        echo "- Core patch: ${{ github.event.inputs.core }}" >> release_notes.txt
+        echo "- Core patch: ${{ env.core }}" >> release_notes.txt
 
     - name: Create Release
       uses: ncipollo/release-action@v1
