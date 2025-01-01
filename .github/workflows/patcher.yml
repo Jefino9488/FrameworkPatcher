@@ -47,8 +47,8 @@ jobs:
 
     - name: Write inputs to files
       run: |
-        echo "${{ github.event.inputs.jar_urls }}" > jar_urls.json
-        echo "${{ github.event.inputs.features }}" > features.json
+        echo '${{ github.event.inputs.jar_urls }}' > jar_urls.json
+        echo '${{ github.event.inputs.features }}' > features.json
 
     - name: Parse JSON inputs
       run: |
