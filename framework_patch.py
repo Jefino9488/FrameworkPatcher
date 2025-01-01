@@ -6,6 +6,8 @@ import sys
 import utils
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+defaultcore = sys.argv[1].lower() == 'true'
+core = sys.argv[2].lower() == 'true'
 
 def modify_package_parser(file_path):
     logging.info(f"Modifying PackageParser file: {file_path}")
@@ -288,8 +290,6 @@ def copy_and_replace_files(source_dirs, target_dirs, sub_dirs):
 
 
 def modify_smali_files(directories):
-    core = sys.argv[1].lower() == 'true'
-
     for directory in directories:
         logging.info(f"Scanning directory: {directory}")
         for root, _, files in os.walk(directory):
@@ -312,29 +312,28 @@ def modify_smali_files(directories):
         strict_jar_verifier = os.path.join(directory, 'android/util/jar/StrictJarVerifier.smali')
         strict_jar_file = os.path.join(directory, 'android/util/jar/StrictJarFile.smali')
         application_info = os.path.join(directory, 'android/content/pm/ApplicationInfo.smali')
-
-        if os.path.exists(signing_details):
-            logging.info(f"Found file: {signing_details}")
-            utils.modify_file(signing_details)
-        else:
-            logging.warning(f"File not found: {signing_details}")
-        if os.path.exists(package_parser_signing_details):
-            logging.info(f"Found file: {package_parser_signing_details}")
-            utils.modify_file(package_parser_signing_details)
-        else:
-            logging.warning(f"File not found: {package_parser_signing_details}")
-        if os.path.exists(apk_signature_verifier):
-            logging.info(f"Found file: {apk_signature_verifier}")
-            modify_apk_signature_verifier(apk_signature_verifier)
-            modify_is_error(apk_signature_verifier)
-            utils.modify_file(apk_signature_verifier)
-        else:
-            logging.warning(f"File not found: {apk_signature_verifier}")
-        if os.path.exists(application_info):
-            logging.info(f"Found file: {application_info}")
-            utils.modify_file(application_info)
-        if core:
-
+        if defaultcore:
+            if os.path.exists(signing_details):
+                logging.info(f"Found file: {signing_details}")
+                utils.modify_file(signing_details)
+            else:
+                logging.warning(f"File not found: {signing_details}")
+            if os.path.exists(package_parser_signing_details):
+                logging.info(f"Found file: {package_parser_signing_details}")
+                utils.modify_file(package_parser_signing_details)
+            else:
+                logging.warning(f"File not found: {package_parser_signing_details}")
+            if os.path.exists(apk_signature_verifier):
+                logging.info(f"Found file: {apk_signature_verifier}")
+                modify_apk_signature_verifier(apk_signature_verifier)
+                modify_is_error(apk_signature_verifier)
+                utils.modify_file(apk_signature_verifier)
+            else:
+                logging.warning(f"File not found: {apk_signature_verifier}")
+            if os.path.exists(application_info):
+                logging.info(f"Found file: {application_info}")
+                utils.modify_file(application_info)
+        if core and defaultcore:
             if os.path.exists(apk_signature_scheme_v2_verifier):
                 logging.info(f"Found file: {apk_signature_scheme_v2_verifier}")
                 modify_apk_signature_scheme_v2_verifier(apk_signature_scheme_v2_verifier)

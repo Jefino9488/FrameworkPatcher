@@ -1,10 +1,10 @@
 import os
-import re
 import logging
+import sys
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
+addGboard = sys.argv[1].lower() == 'true'
 
 def replace_string_in_file(file_path, search_string, replace_string):
     logging.info(f"Replacing string in file: {file_path}")
@@ -45,4 +45,5 @@ def modify_smali_files(directories):
 
 if __name__ == "__main__":
     directories = ["miui_framework_classes"]
-    modify_smali_files(directories)
+    if addGboard:
+        modify_smali_files(directories)

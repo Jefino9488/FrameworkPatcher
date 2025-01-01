@@ -92,7 +92,8 @@ def modify_file(file_path):
         "isSecureLocked": re.compile(r'\.method.*isSecureLocked\(.*\)Z'),
         "setSecure": re.compile(r'\.method.*setSecure\(.*\)V'),
         "shouldCheckUpgradeKeySetLocked": re.compile(r'\.method.*shouldCheckUpgradeKeySetLocked\(.*\)Z'),
-        "getMaxMiuiFreeFormStackCount": re.compile(r'\.method.*getMaxMiuiFreeFormStackCount\(.*\)I')
+        "getMaxMiuiFreeFormStackCount": re.compile(r'\.method.*getMaxMiuiFreeFormStackCount\(.*\)I'),
+        "notAllowCaptureDisplay" : re.compile(r'\.method.*notAllowCaptureDisplay\(.*\)Z'),
     }
 
     for line in lines:
@@ -111,7 +112,7 @@ def modify_file(file_path):
                     "isApkVerityEnabled", "isDowngradePermitted", "verifySignatures",
                     "isVerificationEnabled", "doesSignatureMatchForPermissions", "isScreenCaptureAllowed",
                     "getScreenCaptureDisabled", "setScreenCaptureDisabled", "isSecureLocked",
-                    "setSecure", "shouldCheckUpgradeKeySetLocked" , "getMaxMiuiFreeFormStackCount"
+                    "setSecure", "shouldCheckUpgradeKeySetLocked" , "getMaxMiuiFreeFormStackCount", "notAllowCaptureDisplay"
                 ]:
                     logging.info(f"Modifying method body for {method_type}")
 
@@ -218,6 +219,10 @@ def modify_file(file_path):
                     elif method_type == "getMaxMiuiFreeFormStackCount":
                         modified_lines.append("    .registers 3\n")
                         modified_lines.append("    const/16 v0, 0x32\n")
+                        modified_lines.append("    return v0\n")
+                    elif method_type == "notAllowCaptureDisplay":
+                        modified_lines.append("    .registers 3\n")
+                        modified_lines.append("    const/4 v0, 0x0\n")
                         modified_lines.append("    return v0\n")
 
                 in_method = False

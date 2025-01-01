@@ -19,14 +19,6 @@ on:
         description: 'Android API level'
         required: true
         default: '34'
-      core:
-        description: 'Apply core patch'
-        required: true
-        type: choice
-        options:
-          - 'true'
-          - 'false'
-        default: 'false'
       isCN:
         description: 'Is CN'
         required: true
@@ -35,12 +27,61 @@ on:
           - 'true'
           - 'false'
         default: 'true'
+# features
+      defaultcore:
+        description: 'System level core patch'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
+      core:
+        description: 'Full core patch'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'false'
+      fixNotification:
+        description: 'Fix cn Notification'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
+      addGboard:
+        description: 'spoof gboard'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'false'
+      disableFlagSecure:
+        description: 'Disable Screen shot Restrictions'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
+      multiFloatingWindow:
+        description: 'Increase limit to 50'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
       custom_device_name:
-        description: 'Custom device name (optional)'
-        required: false
+        description: 'Device Name'
+        required: true
       custom_version:
-        description: 'Custom version (optional)'
-        required: false
+        description: 'Version'
+        required: true
 
 jobs:
   build:
@@ -157,19 +198,19 @@ jobs:
 
     - name: Modify framework smali
       run: |
-        python3 framework_patch.py "${{ github.event.inputs.core }}"
+        python3 framework_patch.py "${{ github.event.inputs.defaultcore }}" "${{ github.event.inputs.core }}"
 
     - name: Modify services smali
       run: |
-        python3 services_patch.py "${{ github.event.inputs.core }}" "${{ github.event.inputs.isCN }}"
+        python3 services_patch.py "${{ github.event.inputs.defaultcore }}" "${{ github.event.inputs.disable_flag_secure }}"
 
     - name: Modify miui-services smali files
       run: |
-        python3 miui-service_Patch.py
+        python3 miui-service_Patch.py "${{ github.event.inputs.isCN }}" "${{ github.event.inputs.fixNotification }}" "${{ github.event.inputs.multiFloatingWindow }}" "${{ github.event.inputs.addGboard }}"
 
     - name: Modify miui-framework smali files
       run: |
-        python3 miui-framework_patch.py
+        python3 miui-framework_patch.py "${{ github.event.inputs.addGboard }}"
 
     - name: Recompile framework dex files
       run: |
@@ -301,4 +342,4 @@ jobs:
         -d chat_id=@codes9488 \
         -d message_thread_id=3 \
         -d parse_mode="MarkdownV2" \
-        -d text="🎉 *Release * 🎉%0A%0A🔧 *Device:* \`${{ env.device_name }}\`%0A🔢 *Version:* \`${{ env.version }}\`%0A🌐 *Build ID:* \`${{ github.sha }}\`%0A📝 *Core Patch:* \`${{ github.event.inputs.core }}\`%0A%0A🔗 [Download](https://github.com/${{ github.repository }}/releases/tag/${{ env.version }})%0A%0A \\#Release  \\#${{ env.device_name }}"
+        -d text="*Release *%0A%0A🔧 *Device:* \`${{ env.device_name }}\`%0A🔢 *Version:* \`${{ env.version }}\`%0A🌐 *Build ID:* \`${{ github.sha }}\`%0A📝 *Core Patch:* \`${{ github.event.inputs.core }}\`%0A%0A🔗 [Download](https://github.com/${{ github.repository }}/releases/tag/${{ env.version }})%0A%0A \\#Release  \\#${{ env.device_name }}"
