@@ -206,6 +206,7 @@ const App = () => {
                         <SelectValue placeholder="Select API Level" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
+                        <SelectItem value="33">13 (beta test and report if working)</SelectItem>
                         <SelectItem value="34">14</SelectItem>
                         <SelectItem value="35">15</SelectItem>
                       </SelectContent>
