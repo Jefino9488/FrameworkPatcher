@@ -296,7 +296,13 @@ jobs:
         echo "## Release Notes" > release_notes.txt
         echo "- Built modified jars from commit ${{ github.sha }}" >> release_notes.txt
         echo "- Version: ${{ env.version }}" >> release_notes.txt
+        echo "- Device: ${{ env.device_name }}" >> release_notes.txt
         echo "- Core patch: ${{ env.core }}" >> release_notes.txt
+        echo "- Default Core: ${{ env.defaultcore }}" >> release_notes.txt
+        echo "- Fix Notification: ${{ env.fixNotification }}" >> release_notes.txt
+        echo "- Add Gboard: ${{ env.addGboard }}" >> release_notes.txt
+        echo "- Disable Flag Secure: ${{ env.disableFlagSecure }}" >> release_notes.txt
+        echo "- Multi Floating Window: ${{ env.multiFloatingWindow }}" >> release_notes.txt
 
     - name: Create Release
       uses: ncipollo/release-action@v1
@@ -315,4 +321,4 @@ jobs:
         -d chat_id=@codes9488 \
         -d message_thread_id=3 \
         -d parse_mode="MarkdownV2" \
-        -d text="*Release *%0A%0A🔧 *Device:* \`${{ env.device_name }}\`%0A🔢 *Version:* \`${{ env.version }}\`%0A🌐 *Build ID:* \`${{ github.sha }}\`%0A📝 *Core Patch:* \`${{ env.core }}\`%0A%0A🔗 [Download](https://github.com/${{ github.repository }}/releases/tag/${{ env.version }})%0A%0A \\#Release  \\#${{ env.device_name }}"
+        -d text="*Release *%0A%0A🔧 *Device:* \`${{ env.device_name }}\`%0A🔢 *Version:* \`${{ env.version }}\`%0A🌐 *Build ID:* \`${{ github.sha }}\`%0A📝 *Core Patch:* \`${{ env.core }}\`%0A🔧 *Default Core:* \`${{ env.defaultcore }}\`%0A🔧 *Fix Notification:* \`${{ env.fixNotification }}\`%0A🔧 *Add Gboard:* \`${{ env.addGboard }}\`%0A🔧 *Disable Flag Secure:* \`${{ env.disableFlagSecure }}\`%0A🔧 *Multi Floating Window:* \`${{ env.multiFloatingWindow }}\`%0A%0A🔗 [Download](https://github.com/${{ github.repository }}/releases/tag/${{ env.version }})%0A%0A \\#Release  \\#${{ env.device_name }}"
