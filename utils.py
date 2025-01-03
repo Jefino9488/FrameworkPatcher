@@ -70,17 +70,17 @@ def modify_file(file_path):
     original_registers_line = ""
 
     method_patterns = {
+        "getMinimumSignatureSchemeVersionForTargetSdk": re.compile(r'\.method.*getMinimumSignatureSchemeVersionForTargetSdk\(I\)I'),
+        "verifyMessageDigest" : re.compile(r'\.method.*verifyMessageDigest\(\)I'),
         "checkCapability": re.compile(r'\.method.*checkCapability\(.*\)Z'),
         "checkCapabilityRecover": re.compile(r'\.method.*checkCapabilityRecover\(.*\)Z'),
         "hasAncestorOrSelf": re.compile(r'\.method.*hasAncestorOrSelf\(.*\)Z'),
-        "getMinimumSignatureSchemeVersionForTargetSdk": re.compile(r'\.method.*getMinimumSignatureSchemeVersionForTargetSdk\(I\)I'),
         "isPackageWhitelistedForHiddenApis": re.compile(r'\.method.*isPackageWhitelistedForHiddenApis\(.*\)Z'),
         "matchSignatureInSystem": re.compile(r'\.method.*matchSignatureInSystem\(.*\)Z'),
         "matchSignaturesCompat": re.compile(r'\.method.*matchSignaturesCompat\(.*\)Z'),
         "matchSignaturesRecover": re.compile(r'\.method.*matchSignaturesRecover\(.*\)Z'),
         "canSkipForcedPackageVerification": re.compile(r'\.method.*canSkipForcedPackageVerification\(.*\)Z'),
         "checkDowngrade": re.compile(r'\.method.*checkDowngrade\(.*\)V'),
-        "compareSignatures": re.compile(r'\.method.*compareSignatures\(.*\)I'),
         "isApkVerityEnabled": re.compile(r'\.method.*isApkVerityEnabled\(.*\)Z'),
         "isDowngradePermitted": re.compile(r'\.method.*isDowngradePermitted\(.*\)Z'),
         "verifySignatures": re.compile(r'\.method.*verifySignatures\(.*\)Z'),
@@ -105,10 +105,10 @@ def modify_file(file_path):
             if line.strip() == '.end method':
                 modified_lines.append(method_start_line)
                 if method_type in [
-                    "checkCapability", "checkCapabilityRecover", "hasAncestorOrSelf",
+                    "verifyMessageDigest", "checkCapability", "checkCapabilityRecover", "hasAncestorOrSelf",
                     "getMinimumSignatureSchemeVersionForTargetSdk", "isPackageWhitelistedForHiddenApis",
                     "matchSignatureInSystem", "matchSignaturesCompat", "matchSignaturesRecover",
-                    "canSkipForcedPackageVerification", "checkDowngrade", "compareSignatures",
+                    "canSkipForcedPackageVerification", "checkDowngrade",
                     "isApkVerityEnabled", "isDowngradePermitted", "verifySignatures",
                     "isVerificationEnabled", "doesSignatureMatchForPermissions", "isScreenCaptureAllowed",
                     "getScreenCaptureDisabled", "setScreenCaptureDisabled", "isSecureLocked",
@@ -165,10 +165,6 @@ def modify_file(file_path):
                         modified_lines.append("        }\n")
                         modified_lines.append("    .end annotation\n")
                         modified_lines.append("    return-void\n")
-                    elif method_type == "compareSignatures":
-                        modified_lines.append("    .registers 3\n")
-                        modified_lines.append("    const/4 v0, 0x0\n")
-                        modified_lines.append("    return v0\n")
                     elif method_type == "isApkVerityEnabled":
                         modified_lines.append("    .registers 1\n")
                         modified_lines.append("    const/4 v0, 0x0\n")
@@ -220,9 +216,9 @@ def modify_file(file_path):
                         modified_lines.append("    .registers 3\n")
                         modified_lines.append("    const/16 v0, 0x32\n")
                         modified_lines.append("    return v0\n")
-                    elif method_type == "notAllowCaptureDisplay":
-                        modified_lines.append("    .registers 3\n")
-                        modified_lines.append("    const/4 v0, 0x0\n")
+                    elif method_type == "verifyMessageDigest":
+                        modified_lines.append("    .registers 4\n")
+                        modified_lines.append("    const/4 v0, 0x1\n")
                         modified_lines.append("    return v0\n")
 
                 in_method = False
