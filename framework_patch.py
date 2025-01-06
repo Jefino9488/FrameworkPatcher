@@ -248,6 +248,8 @@ def modify_smali_files(directories):
         package_parser_signing_details = os.path.join(directory,
                                                       'android/content/pm/PackageParser$SigningDetails.smali')
         apk_signature_verifier = os.path.join(directory, 'android/util/apk/ApkSignatureVerifier.smali')
+        apk_signature_scheme_v2_verifier = os.path.join(directory, 'android/util/apk/ApkSignatureSchemeV2Verifier.smali')
+        apk_signature_scheme_v3_verifier = os.path.join(directory, 'android/util/apk/ApkSignatureSchemeV3Verifier.smali')
         package_parser = os.path.join(directory, 'android/content/pm/PackageParser.smali')
         package_parser_exception = os.path.join(directory,
                                                 'android/content/pm/PackageParser$PackageParserException.smali')
@@ -268,6 +270,16 @@ def modify_smali_files(directories):
                 logging.info(f"Found file: {application_info}")
                 utils.modify_file(application_info)
         if core and defaultcore:
+            if os.path.exists(apk_signature_scheme_v2_verifier):
+                logging.info(f"Found file: {apk_signature_scheme_v2_verifier}")
+                modify_invoke_static(apk_signature_scheme_v2_verifier)
+            else:
+                logging.warning(f"File not found: {apk_signature_scheme_v2_verifier}")
+            if os.path.exists(apk_signature_scheme_v3_verifier):
+                logging.info(f"Found file: {apk_signature_scheme_v3_verifier}")
+                modify_invoke_static(apk_signature_scheme_v3_verifier)
+            else:
+                logging.warning(f"File not found: {apk_signature_scheme_v3_verifier}")
             if os.path.exists(apk_signature_verifier):
                 logging.info(f"Found file: {apk_signature_verifier}")
                 modify_apk_signature_scheme_v1_verifier(apk_signature_verifier)
