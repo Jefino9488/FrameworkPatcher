@@ -309,7 +309,7 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1
       with:
-          artifacts: out/$UNIQUE_NAME
+          artifacts: out/*
           tag: ${{ env.version }}
           name: moded_${{ env.device_name }}_${{ env.version }}
           allowUpdates: true
