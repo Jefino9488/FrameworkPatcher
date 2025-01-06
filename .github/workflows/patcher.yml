@@ -285,11 +285,13 @@ jobs:
     - name: Zip Magisk module
       run: |
         cd magisk_module
-        zip -r ../moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip *
+        UNIQUE_NAME="moded_framework_services_${{ env.device_name }}_${{ env.version }}_$(date +%Y%m%d%H%M%S).zip"
+        zip -r ../$UNIQUE_NAME *
         cd ..
         mkdir -p out
-        chmod +w moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip
-        mv moded_framework_services_${{ env.device_name }}_${{ env.version }}.zip out/
+        chmod +w $UNIQUE_NAME
+        mv $UNIQUE_NAME out/
+        echo "UNIQUE_NAME=$UNIQUE_NAME" >> $GITHUB_ENV
 
     - name: Create Release Notes
       run: |
@@ -307,7 +309,7 @@ jobs:
     - name: Create Release
       uses: ncipollo/release-action@v1
       with:
-          artifacts: out/*
+          artifacts: out/$UNIQUE_NAME
           tag: ${{ env.version }}
           name: moded_${{ env.device_name }}_${{ env.version }}
           allowUpdates: true
