@@ -9,24 +9,24 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 defaultcore = sys.argv[1].lower() == 'true'
 core = sys.argv[2].lower() == 'true'
 
-# def modify_package_parser(file_path):
-#     logging.info(f"Modifying PackageParser file: {file_path}")
-#     with open(file_path, 'r') as file:
-#         lines = file.readlines()
-#
-#     modified_lines = []
-#     pattern = re.compile(
-#         r'invoke-static \{v2, v0, v1\}, Landroid/util/apk/ApkSignatureVerifier;->unsafeGetCertsWithoutVerification\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;I\)Landroid/content/pm/parsing/result/ParseResult;')
-#
-#     for line in lines:
-#         if pattern.search(line):
-#             logging.info(f"Found target line. Adding line above it.")
-#             modified_lines.append("    const/4 v1, 0x1\n")
-#         modified_lines.append(line)
-#
-#     with open(file_path, 'w') as file:
-#         file.writelines(modified_lines)
-#     logging.info(f"Completed modification for file: {file_path}")
+def modify_package_parser(file_path):
+    logging.info(f"Modifying PackageParser file: {file_path}")
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    modified_lines = []
+    pattern = re.compile(
+        r'invoke-static \{v2, v0, v1\}, Landroid/util/apk/ApkSignatureVerifier;->unsafeGetCertsWithoutVerification\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;I\)Landroid/content/pm/parsing/result/ParseResult;')
+
+    for line in lines:
+        if pattern.search(line):
+            logging.info(f"Found target line. Adding line above it.")
+            modified_lines.append("    const/4 v1, 0x1\n")
+        modified_lines.append(line)
+
+    with open(file_path, 'w') as file:
+        file.writelines(modified_lines)
+    logging.info(f"Completed modification for file: {file_path}")
 
 def modify_is_error(file_path):
     logging.info(f"Modifying file: {file_path}")
@@ -248,7 +248,7 @@ def modify_smali_files(directories):
         package_parser_signing_details = os.path.join(directory,
                                                       'android/content/pm/PackageParser$SigningDetails.smali')
         apk_signature_verifier = os.path.join(directory, 'android/util/apk/ApkSignatureVerifier.smali')
-        # package_parser = os.path.join(directory, 'android/content/pm/PackageParser.smali')
+        package_parser = os.path.join(directory, 'android/content/pm/PackageParser.smali')
         package_parser_exception = os.path.join(directory,
                                                 'android/content/pm/PackageParser$PackageParserException.smali')
         strict_jar_file = os.path.join(directory, 'android/util/jar/StrictJarFile.smali')
@@ -277,11 +277,11 @@ def modify_smali_files(directories):
                 modify_is_error(apk_signature_verifier)
             else:
                 logging.warning(f"File not found: {apk_signature_verifier}")
-            # if os.path.exists(package_parser):
-            #     logging.info(f"Found file: {package_parser}")
-            #     modify_package_parser(package_parser)
-            # else:
-            #     logging.warning(f"File not found: {package_parser}")
+            if os.path.exists(package_parser):
+                logging.info(f"Found file: {package_parser}")
+                modify_package_parser(package_parser)
+            else:
+                logging.warning(f"File not found: {package_parser}")
             if os.path.exists(package_parser_exception):
                 logging.info(f"Found file: {package_parser_exception}")
                 modify_exception_file(package_parser_exception)
