@@ -58,7 +58,7 @@ def patch(filepath):
         file.writelines(modified_lines)
     logging.info(f"Completed modification for file: {filepath}")
 
-def modify_file(file_path):
+def modify_file(file_path, flag):
     logging.info(f"Modifying file: {file_path}")
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -69,32 +69,57 @@ def modify_file(file_path):
     method_start_line = ""
     original_registers_line = ""
 
-    method_patterns = {
-        "getMinimumSignatureSchemeVersionForTargetSdk": re.compile(r'\.method.*getMinimumSignatureSchemeVersionForTargetSdk\(I\)I'),
-        "verifyMessageDigest" : re.compile(r'\.method.*verifyMessageDigest\(\)I'),
-        "checkCapability": re.compile(r'\.method.*checkCapability\(.*\)Z'),
-        "checkCapabilityRecover": re.compile(r'\.method.*checkCapabilityRecover\(.*\)Z'),
-        "hasAncestorOrSelf": re.compile(r'\.method.*hasAncestorOrSelf\(.*\)Z'),
-        "isPackageWhitelistedForHiddenApis": re.compile(r'\.method.*isPackageWhitelistedForHiddenApis\(.*\)Z'),
-        "matchSignatureInSystem": re.compile(r'\.method.*matchSignatureInSystem\(.*\)Z'),
-        "matchSignaturesCompat": re.compile(r'\.method.*matchSignaturesCompat\(.*\)Z'),
-        "matchSignaturesRecover": re.compile(r'\.method.*matchSignaturesRecover\(.*\)Z'),
-        "canSkipForcedPackageVerification": re.compile(r'\.method.*canSkipForcedPackageVerification\(.*\)Z'),
-        "checkDowngrade": re.compile(r'\.method.*checkDowngrade\(.*\)V'),
-        "isApkVerityEnabled": re.compile(r'\.method.*isApkVerityEnabled\(.*\)Z'),
-        "isDowngradePermitted": re.compile(r'\.method.*isDowngradePermitted\(.*\)Z'),
-        "verifySignatures": re.compile(r'\.method.*verifySignatures\(.*\)Z'),
-        "isVerificationEnabled": re.compile(r'\.method.*isVerificationEnabled\(.*\)Z'),
-        "doesSignatureMatchForPermissions": re.compile(r'\.method.*doesSignatureMatchForPermissions\(.*\)Z'),
-        "isScreenCaptureAllowed": re.compile(r'\.method.*isScreenCaptureAllowed\(.*\)Z'),
-        "getScreenCaptureDisabled": re.compile(r'\.method.*getScreenCaptureDisabled\(.*\)Z'),
-        "setScreenCaptureDisabled": re.compile(r'\.method.*setScreenCaptureDisabled\(.*\)V'),
-        "isSecureLocked": re.compile(r'\.method.*isSecureLocked\(.*\)Z'),
-        "setSecure": re.compile(r'\.method.*setSecure\(.*\)V'),
-        "shouldCheckUpgradeKeySetLocked": re.compile(r'\.method.*shouldCheckUpgradeKeySetLocked\(.*\)Z'),
-        "getMaxMiuiFreeFormStackCount": re.compile(r'\.method.*getMaxMiuiFreeFormStackCount\(.*\)I'),
-        "notAllowCaptureDisplay" : re.compile(r'\.method.*notAllowCaptureDisplay\(.*\)Z'),
-    }
+    if flag == "framework":
+        method_patterns = {
+            "getMinimumSignatureSchemeVersionForTargetSdk": re.compile(r'\.method.*getMinimumSignatureSchemeVersionForTargetSdk\(I\)I'),
+            "verifyMessageDigest" : re.compile(r'\.method.*verifyMessageDigest\(\)I'),
+            "checkCapability": re.compile(r'\.method.*checkCapability\(.*\)Z'),
+            "checkCapabilityRecover": re.compile(r'\.method.*checkCapabilityRecover\(.*\)Z'),
+            "hasAncestorOrSelf": re.compile(r'\.method.*hasAncestorOrSelf\(.*\)Z'),
+            "isPackageWhitelistedForHiddenApis": re.compile(r'\.method.*isPackageWhitelistedForHiddenApis\(.*\)Z'),
+        }
+    elif flag == "services":
+        method_patterns = {
+            "matchSignatureInSystem": re.compile(r'\.method.*matchSignatureInSystem\(.*\)Z'),
+            "matchSignaturesCompat": re.compile(r'\.method.*matchSignaturesCompat\(.*\)Z'),
+            "matchSignaturesRecover": re.compile(r'\.method.*matchSignaturesRecover\(.*\)Z'),
+            "canSkipForcedPackageVerification": re.compile(r'\.method.*canSkipForcedPackageVerification\(.*\)Z'),
+            "checkDowngrade": re.compile(r'\.method.*checkDowngrade\(.*\)V'),
+            "isApkVerityEnabled": re.compile(r'\.method.*isApkVerityEnabled\(.*\)Z'),
+            "isDowngradePermitted": re.compile(r'\.method.*isDowngradePermitted\(.*\)Z'),
+            "verifySignatures": re.compile(r'\.method.*verifySignatures\(.*\)Z'),
+            "isVerificationEnabled": re.compile(r'\.method.*isVerificationEnabled\(.*\)Z'),
+            "doesSignatureMatchForPermissions": re.compile(r'\.method.*doesSignatureMatchForPermissions\(.*\)Z'),
+            "isScreenCaptureAllowed": re.compile(r'\.method.*isScreenCaptureAllowed\(.*\)Z'),
+            "getScreenCaptureDisabled": re.compile(r'\.method.*getScreenCaptureDisabled\(.*\)Z'),
+            "setScreenCaptureDisabled": re.compile(r'\.method.*setScreenCaptureDisabled\(.*\)V'),
+            "isSecureLocked": re.compile(r'\.method.*isSecureLocked\(.*\)Z'),
+            "setSecure": re.compile(r'\.method.*setSecure\(.*\)V'),
+            "shouldCheckUpgradeKeySetLocked": re.compile(r'\.method.*shouldCheckUpgradeKeySetLocked\(.*\)Z'),
+            "getMaxMiuiFreeFormStackCount": re.compile(r'\.method.*getMaxMiuiFreeFormStackCount\(.*\)I'),
+            "notAllowCaptureDisplay": re.compile(r'\.method.*notAllowCaptureDisplay\(.*\)Z'),
+        }
+    else:
+        method_patterns = {
+            "matchSignatureInSystem": re.compile(r'\.method.*matchSignatureInSystem\(.*\)Z'),
+            "matchSignaturesCompat": re.compile(r'\.method.*matchSignaturesCompat\(.*\)Z'),
+            "matchSignaturesRecover": re.compile(r'\.method.*matchSignaturesRecover\(.*\)Z'),
+            "canSkipForcedPackageVerification": re.compile(r'\.method.*canSkipForcedPackageVerification\(.*\)Z'),
+            "checkDowngrade": re.compile(r'\.method.*checkDowngrade\(.*\)V'),
+            "isApkVerityEnabled": re.compile(r'\.method.*isApkVerityEnabled\(.*\)Z'),
+            "isDowngradePermitted": re.compile(r'\.method.*isDowngradePermitted\(.*\)Z'),
+            "verifySignatures": re.compile(r'\.method.*verifySignatures\(.*\)Z'),
+            "isVerificationEnabled": re.compile(r'\.method.*isVerificationEnabled\(.*\)Z'),
+            "doesSignatureMatchForPermissions": re.compile(r'\.method.*doesSignatureMatchForPermissions\(.*\)Z'),
+            "isScreenCaptureAllowed": re.compile(r'\.method.*isScreenCaptureAllowed\(.*\)Z'),
+            "getScreenCaptureDisabled": re.compile(r'\.method.*getScreenCaptureDisabled\(.*\)Z'),
+            "setScreenCaptureDisabled": re.compile(r'\.method.*setScreenCaptureDisabled\(.*\)V'),
+            "isSecureLocked": re.compile(r'\.method.*isSecureLocked\(.*\)Z'),
+            "setSecure": re.compile(r'\.method.*setSecure\(.*\)V'),
+            "shouldCheckUpgradeKeySetLocked": re.compile(r'\.method.*shouldCheckUpgradeKeySetLocked\(.*\)Z'),
+            "getMaxMiuiFreeFormStackCount": re.compile(r'\.method.*getMaxMiuiFreeFormStackCount\(.*\)I'),
+            "notAllowCaptureDisplay": re.compile(r'\.method.*notAllowCaptureDisplay\(.*\)Z'),
+        }
 
     for line in lines:
         if in_method:
@@ -122,11 +147,6 @@ def modify_file(file_path):
                         modified_lines.append("    return v0\n")
                     elif method_type == "checkCapabilityRecover":
                         modified_lines.append(original_registers_line)
-                        modified_lines.append("    .annotation system Ldalvik/annotation/Throws;\n")
-                        modified_lines.append("        value = {\n")
-                        modified_lines.append("            Ljava/security/cert/CertificateException;\n")
-                        modified_lines.append("        }\n")
-                        modified_lines.append("    .end annotation\n")
                         modified_lines.append("    const/4 v0, 0x1\n")
                         modified_lines.append("    return v0\n")
                     elif method_type == "hasAncestorOrSelf":
@@ -173,7 +193,7 @@ def modify_file(file_path):
                         modified_lines.append("    .registers 3\n")
                         modified_lines.append("    const/4 v0, 0x1\n")
                         modified_lines.append("    return v0\n")
-                    elif method_type == "verifySignatures":
+                    elif method_type == "verifySignatures" :
                         modified_lines.append("    .registers 21\n")
                         modified_lines.append("    .annotation system Ldalvik/annotation/Throws;\n")
                         modified_lines.append("        value = {\n")

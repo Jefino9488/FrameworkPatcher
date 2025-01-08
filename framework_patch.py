@@ -204,25 +204,27 @@ def modify_smali_files(directories):
         apk_signature_verifier = os.path.join(directory, 'android/util/apk/ApkSignatureVerifier.smali')
         apk_signature_scheme_v2_verifier = os.path.join(directory, 'android/util/apk/ApkSignatureSchemeV2Verifier.smali')
         apk_signature_scheme_v3_verifier = os.path.join(directory, 'android/util/apk/ApkSignatureSchemeV3Verifier.smali')
+        Apk_Signing_Block_Utils = os.path.join(directory, 'android/util/apk/ApkSigningBlockUtils.smali')
         package_parser = os.path.join(directory, 'android/content/pm/PackageParser.smali')
         package_parser_exception = os.path.join(directory,
                                                 'android/content/pm/PackageParser$PackageParserException.smali')
+        Strict_Jar_Verifier = os.path.join(directory,'android/util/jar/StrictJarVerifier.smali')
         strict_jar_file = os.path.join(directory, 'android/util/jar/StrictJarFile.smali')
         application_info = os.path.join(directory, 'android/content/pm/ApplicationInfo.smali')
         if defaultcore:
             if os.path.exists(signing_details):
                 logging.info(f"Found file: {signing_details}")
-                utils.modify_file(signing_details)
+                utils.modify_file(signing_details, "framework")
             else:
                 logging.warning(f"File not found: {signing_details}")
             if os.path.exists(package_parser_signing_details):
                 logging.info(f"Found file: {package_parser_signing_details}")
-                utils.modify_file(package_parser_signing_details)
+                utils.modify_file(package_parser_signing_details, "framework")
             else:
                 logging.warning(f"File not found: {package_parser_signing_details}")
             if os.path.exists(application_info):
                 logging.info(f"Found file: {application_info}")
-                utils.modify_file(application_info)
+                utils.modify_file(application_info, "framework")
         if core and defaultcore:
             if os.path.exists(apk_signature_scheme_v2_verifier):
                 logging.info(f"Found file: {apk_signature_scheme_v2_verifier}")
@@ -241,8 +243,16 @@ def modify_smali_files(directories):
                 modify_apk_signature_verifier(apk_signature_verifier, 'v3')
                 modify_apk_signature_verifier(apk_signature_verifier, 'v3_and_below')
                 modify_is_error(apk_signature_verifier)
+                utils.modify_file(apk_signature_verifier, "framework")
             else:
                 logging.warning(f"File not found: {apk_signature_verifier}")
+            if os.path.exists(Strict_Jar_Verifier):
+                logging.info(f"Found file: {Strict_Jar_Verifier}")
+                utils.modify_file(Strict_Jar_Verifier, "framework")
+            else:
+                logging.warning(f"File not found: {Strict_Jar_Verifier}")
+            if os.path.exists(Apk_Signing_Block_Utils):
+                modify_invoke_static(Apk_Signing_Block_Utils)
             if os.path.exists(package_parser):
                 logging.info(f"Found file: {package_parser}")
                 modify_package_parser(package_parser)

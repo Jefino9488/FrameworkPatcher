@@ -81,7 +81,7 @@ def modify_smali_files(directories):
             file_path = os.path.join(directory, class_file)
             if os.path.exists(file_path):
                 logging.info(f"Found file: {file_path}")
-                utils.modify_file(file_path)
+                utils.modify_file(file_path, "")
             else:
                 logging.warning(f"File not found: {file_path}")
         if fixNotification and isCN:
@@ -97,7 +97,7 @@ def modify_smali_files(directories):
                 file_path = os.path.join(directory, class_file)
                 if os.path.exists(file_path):
                     logging.info(f"Found file: {file_path}")
-                    utils.modify_file(file_path)
+                    utils.modify_file(file_path, "")
                 else:
                     logging.warning(f"File not found: {file_path}")
         if addGboard and isCN:

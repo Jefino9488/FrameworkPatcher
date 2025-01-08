@@ -25,43 +25,43 @@ def modify_smali_files(directories):
         if defaultcore:
             if os.path.exists(package_manager_service_utils):
                 logging.info(f"Found file: {package_manager_service_utils}")
-                utils.modify_file(package_manager_service_utils)
+                utils.modify_file(package_manager_service_utils, "services")
             else:
                 logging.warning(f"File not found: {package_manager_service_utils}")
 
             if os.path.exists(install_package_helper):
                 logging.info(f"Found file: {install_package_helper}")
-                utils.modify_file(install_package_helper)
+                utils.modify_file(install_package_helper, "services")
             else:
                 logging.warning(f"File not found: {install_package_helper}")
         if disable_flag_secure:
             if os.path.exists(verification_params):
                 logging.info(f"Found file: {verification_params}")
-                utils.modify_file(verification_params)
+                utils.modify_file(verification_params, "services")
             else:
                 logging.warning(f"File not found: {verification_params}")
 
             if os.path.exists(window_state):
                 logging.info(f"Found file: {window_state}")
-                utils.modify_file(window_state)
+                utils.modify_file(window_state, "services")
             else:
                 logging.warning(f"File not found: {window_state}")
 
             if os.path.exists(window_surface_controller):
                 logging.info(f"Found file: {window_surface_controller}")
-                utils.modify_file(window_surface_controller)
+                utils.modify_file(window_surface_controller, "services")
             else:
                 logging.warning(f"File not found: {window_surface_controller}")
 
             if os.path.exists(device_policy_manager_service) :
                 logging.info(f"Found file: {device_policy_manager_service}")
-                utils.modify_file(device_policy_manager_service)
+                utils.modify_file(device_policy_manager_service, "services")
             else:
                 logging.warning(f"File not found: {device_policy_manager_service}")
 
             if os.path.exists(device_policy_cache_impl):
                 logging.info(f"Found file: {device_policy_cache_impl}")
-                utils.modify_file(device_policy_cache_impl)
+                utils.modify_file(device_policy_cache_impl, "services")
             else:
                 logging.warning(f"File not found: {device_policy_cache_impl}")
 
