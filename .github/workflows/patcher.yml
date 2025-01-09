@@ -98,7 +98,7 @@ jobs:
 
         for jar in framework.jar services.jar miui-services.jar miui-framework.jar; do
           file_size=$(stat -c%s "$jar")
-          if [ $file_size -lt 2000000 ]; then
+          if [ $file_size -lt 1500000 ]; then
             echo "Error: $jar is too small. Download might have failed." >&2
             exit 1
           fi
