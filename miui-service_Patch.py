@@ -46,7 +46,7 @@ def modify_smali_files(directories):
         'com/android/server/alarm/AlarmManagerServiceStubImpl.smali',
         'com/android/server/am/BroadcastQueueModernStubImpl.smali',
         'com/android/server/am/ProcessManagerService.smali',
-        'com/android/server/am/ProcessSceneCleaner.smali',+
+        'com/android/server/am/ProcessSceneCleaner.smali',
         'com/android/server/job/JobServiceContextImpl.smali',
         'com/android/server/notification/NotificationManagerServiceImpl.smali',
         'com/miui/server/greeze/GreezeManagerService.smali',
