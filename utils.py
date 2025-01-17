@@ -240,7 +240,11 @@ def modify_file(file_path, flag):
                         modified_lines.append("    .registers 4\n")
                         modified_lines.append("    const/4 v0, 0x1\n")
                         modified_lines.append("    return v0\n")
-
+                    elif method_type == "notAllowCaptureDisplay":
+                        modified_lines.append("    .registers 4\n")
+                        modified_lines.append("    .registers 4\n")
+                        modified_lines.append("    const/4 v0, 0x0\n")
+                        modified_lines.append("    return v0\n")
                 in_method = False
                 method_type = None
                 original_registers_line = ""
