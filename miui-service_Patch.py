@@ -10,6 +10,7 @@ isCN = sys.argv[1].lower() == 'true'
 fixNotification = sys.argv[2].lower() == 'true'
 multiFloatingWindow = sys.argv[3].lower() == 'true'
 addGboard = sys.argv[4].lower() == 'true'
+disable_flag_secure = sys.argv[5].lower() == 'true'
 
 def modify_file(file_path, search_pattern, add_line_template):
     logging.info(f"Modifying file: {file_path}")
@@ -40,16 +41,18 @@ def replace_string_in_file(file_path, search_string, replace_string):
     logging.info(f"Completed string replacement in file: {file_path}")
 
 def modify_smali_files(directories):
-    classes_to_modify = [
+    notification_classes = [
         'com/android/server/AppOpsServiceStubImpl.smali',
         'com/android/server/alarm/AlarmManagerServiceStubImpl.smali',
         'com/android/server/am/BroadcastQueueModernStubImpl.smali',
         'com/android/server/am/ProcessManagerService.smali',
-        'com/android/server/am/ProcessSceneCleaner.smali',
+        'com/android/server/am/ProcessSceneCleaner.smali',+
         'com/android/server/job/JobServiceContextImpl.smali',
         'com/android/server/notification/NotificationManagerServiceImpl.smali',
         'com/miui/server/greeze/GreezeManagerService.smali',
         'miui/app/ActivitySecurityHelper.smali',
+    ]
+    window_classes=[
         'com/android/server/am/ActivityManagerServiceImpl.smali',
         'com/android/server/ForceDarkAppListManager.smali',
         'com/android/server/wm/WindowManagerServiceImpl.smali'
@@ -77,15 +80,16 @@ def modify_smali_files(directories):
                 if file.endswith(".smali"):
                     filepath = os.path.join(root, file)
                     utils.patch(filepath)
-        for class_file in classes_to_modify:
-            file_path = os.path.join(directory, class_file)
-            if os.path.exists(file_path):
-                logging.info(f"Found file: {file_path}")
-                utils.modify_file(file_path, "")
-            else:
-                logging.warning(f"File not found: {file_path}")
+        if disable_flag_secure:
+            for class_file in window_classes:
+                file_path = os.path.join(directory, class_file)
+                if os.path.exists(file_path):
+                    logging.info(f"Found file: {file_path}")
+                    utils.modify_file(file_path, "")
+                else:
+                    logging.warning(f"File not found: {file_path}")
         if fixNotification and isCN:
-            for class_file in classes_to_modify:
+            for class_file in notification_classes:
                 file_path = os.path.join(directory, class_file)
                 if os.path.exists(file_path):
                     logging.info(f"Found file: {file_path}")

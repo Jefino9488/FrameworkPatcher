@@ -179,7 +179,7 @@ jobs:
 
     - name: Modify miui-services smali files
       run: |
-        python3 miui-service_Patch.py "${{ env.isCN }}" "${{ env.fixNotification }}" "${{ env.multiFloatingWindow }}" "${{ env.addGboard }}"
+        python3 miui-service_Patch.py "${{ env.isCN }}" "${{ env.fixNotification }}" "${{ env.multiFloatingWindow }}" "${{ env.addGboard }}" "${{ env.disableFlagSecure }}"
 
     - name: Modify miui-framework smali files
       run: |
