@@ -1,7 +1,6 @@
 import os
 import re
 import logging
-import shutil
 import sys
 import utils
 
@@ -190,6 +189,92 @@ def modify_strict_jar_file(file_path):
 
     logging.info(f"Modification completed for file: {file_path}")
 
+def modify_PackageParser_sharedUserId(file_path):
+    logging.info(f"Modifying parseBaseApkCommon in {file_path}")
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    modified_lines = []
+    in_method = False
+    const_string_index = None
+    target_register = None
+    last_if_nez_index = None
+
+    for i, line in enumerate(lines):
+        if re.match(r'\.method.*parseBaseApkCommon\(.*\)', line) and "private" in line:
+            logging.info("Found the method: parseBaseApkCommon.")
+            in_method = True
+
+        if in_method:
+            if re.search(r'const-string.*<manifest>.*sharedUserId', line):
+                logging.info(f"Found const-string with error message at line {i + 1}: {line.strip()}")
+                const_string_index = i
+                break
+
+            if "if-nez" in line:
+                last_if_nez_index = i
+                match = re.search(r'if-nez (\w+),', line)
+                if match:
+                    target_register = match.group(1)
+
+    if last_if_nez_index is not None and const_string_index is not None and last_if_nez_index < const_string_index:
+        logging.info(f"Modifying 'if-nez' at line {last_if_nez_index + 1}: {lines[last_if_nez_index].strip()}")
+        modified_lines = (
+            lines[:last_if_nez_index]
+            + [f"    const/4 {target_register}, 0x1\n"]
+            + lines[last_if_nez_index:]
+        )
+    else:
+        logging.warning("Failed to find a valid 'if-nez' before the const-string.")
+        modified_lines = lines
+
+    with open(file_path, 'w') as file:
+        file.writelines(modified_lines)
+    logging.info(f"Completed modification for parseBaseApkCommon in {file_path}")
+
+def modify_Parsing_Package_Utils_sharedUserId(file_path):
+    logging.info(f"Modifying parseSharedUser in {file_path}")
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    modified_lines = []
+    in_method = False
+    const_string_index = None
+    target_register = None
+    last_if_eqz_index = None
+
+    for i, line in enumerate(lines):
+        if re.match(r'\.method.*parseSharedUser\(.*\)', line) and "private" in line:
+            logging.info("Found the method: parseSharedUser.")
+            in_method = True
+
+        if in_method:
+            if re.search(r'const-string.*<manifest>.*sharedUserId', line):
+                logging.info(f"Found const-string with error message at line {i + 1}: {line.strip()}")
+                const_string_index = i
+                break
+
+            if "if-eqz" in line:
+                last_if_eqz_index = i
+                match = re.search(r'if-eqz (\w+),', line)
+                if match:
+                    target_register = match.group(1)
+
+    if last_if_eqz_index is not None and const_string_index is not None and last_if_eqz_index < const_string_index:
+        logging.info(f"Modifying 'if-eqz' at line {last_if_eqz_index + 1}: {lines[last_if_eqz_index].strip()}")
+        modified_lines = (
+            lines[:last_if_eqz_index]
+            + [f"    const/4 {target_register}, 0x0\n"]
+            + lines[last_if_eqz_index:]
+        )
+    else:
+        logging.warning("Failed to find a valid 'if-eqz' before the const-string.")
+        modified_lines = lines
+
+    with open(file_path, 'w') as file:
+        file.writelines(modified_lines)
+    logging.info(f"Completed modification for parseSharedUser in {file_path}")
+
 def modify_smali_files(directories):
     for directory in directories:
         logging.info(f"Scanning directory: {directory}")
@@ -206,6 +291,7 @@ def modify_smali_files(directories):
         apk_signature_scheme_v3_verifier = os.path.join(directory, 'android/util/apk/ApkSignatureSchemeV3Verifier.smali')
         Apk_Signing_Block_Utils = os.path.join(directory, 'android/util/apk/ApkSigningBlockUtils.smali')
         package_parser = os.path.join(directory, 'android/content/pm/PackageParser.smali')
+        Parsing_Package_Utils = os.path.join(directory, 'com/android/internal/pm/pkg/parsing/ParsingPackageUtils.smali')
         package_parser_exception = os.path.join(directory,
                                                 'android/content/pm/PackageParser$PackageParserException.smali')
         Strict_Jar_Verifier = os.path.join(directory,'android/util/jar/StrictJarVerifier.smali')
@@ -256,8 +342,14 @@ def modify_smali_files(directories):
             if os.path.exists(package_parser):
                 logging.info(f"Found file: {package_parser}")
                 modify_package_parser(package_parser)
+                modify_PackageParser_sharedUserId(package_parser)
             else:
                 logging.warning(f"File not found: {package_parser}")
+            if os.path.exists(Parsing_Package_Utils):
+                logging.info(f"Found file: {Parsing_Package_Utils}")
+                modify_Parsing_Package_Utils_sharedUserId(Parsing_Package_Utils)
+            else:
+                logging.warning(f"File not found: {Parsing_Package_Utils}")
             if os.path.exists(package_parser_exception):
                 logging.info(f"Found file: {package_parser_exception}")
                 modify_exception_file(package_parser_exception)
