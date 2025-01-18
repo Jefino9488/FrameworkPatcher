@@ -231,7 +231,7 @@ def modify_file(file_path, flag):
                         modified_lines.append("    .registers 14\n")
                         modified_lines.append("    return-void\n")
                     elif method_type == "shouldCheckUpgradeKeySetLocked":
-                        modified_lines.append("    .registers 3\n")
+                        modified_lines.append(original_registers_line)
                         modified_lines.append("    const/4 v0, 0x0\n")
                         modified_lines.append("    return v0\n")
                     elif method_type == "getMaxMiuiFreeFormStackCount":
