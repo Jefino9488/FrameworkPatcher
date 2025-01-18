@@ -112,8 +112,8 @@ jobs:
           fi
         done
 
-    - name: Extract framework_a14.jar
-      run: 7z x framework_a14.jar -oframework
+    - name: Extract framework.jar
+      run: 7z x framework.jar -oframework
 
     - name: Extract services.jar
       run: 7z x services.jar -oservices
@@ -121,8 +121,8 @@ jobs:
     - name: Extract miui-services.jar
       run: 7z x miui-services.jar -omiui_services
 
-    - name: Extract miui-framework_a14.jar
-      run: 7z x miui-framework_a14.jar -omiui_framework
+    - name: Extract miui-framework.jar
+      run: 7z x miui-framework.jar -omiui_framework
 
     - name: Decompile framework dex files if available
       run: |
@@ -231,7 +231,7 @@ jobs:
       run: |
         java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} miui_framework_classes -o miui_framework/classes.dex
 
-    - name: Recompile framework_a14.jar
+    - name: Recompile framework.jar
       run: |
         cd framework
         7z a -tzip ../framework_new.zip *
@@ -249,7 +249,7 @@ jobs:
         7z a -tzip ../miui_services_new.zip *
         cd ..
 
-    - name: Recompile miui-framework_a14.jar
+    - name: Recompile miui-framework.jar
       run: |
         cd miui_framework
         7z a -tzip ../miui_framework_new.zip *
