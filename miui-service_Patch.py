@@ -55,7 +55,7 @@ def modify_smali_files(directories):
     window_classes=[
         'com/android/server/am/ActivityManagerServiceImpl.smali',
         'com/android/server/ForceDarkAppListManager.smali',
-        'com/android/server/wm/WindowManagerServiceImpl.smali'
+        # 'com/android/server/wm/WindowManagerServiceImpl.smali'
     ]
     multiFloatingWindow_classes = [
         'com/android/server/wm/MiuiFreeFormStackDisplayStrategy.smali',
