@@ -50,12 +50,13 @@ jobs:
         echo '${{ github.event.inputs.jar_urls }}' > jar_urls.json
         echo '${{ github.event.inputs.features }}' > features.json
 
-    - name: Parse JSON inputs
+    - name: Parse JSON inputs & Set environment variables
       run: |
         framework_jar_url=$(jq -r .framework_jar_url jar_urls.json)
         services_jar_url=$(jq -r .services_jar_url jar_urls.json)
         miui_services_jar_url=$(jq -r .miui_services_jar_url jar_urls.json)
         miui_framework_jar_url=$(jq -r .miui_framework_jar_url jar_urls.json)
+        android_api_level=${{ github.event.inputs.android_api_level }}
 
         isCN=$(jq -r .isCN features.json)
         defaultcore=$(jq -r .defaultcore features.json)
@@ -64,6 +65,12 @@ jobs:
         addGboard=$(jq -r .addGboard features.json)
         disableFlagSecure=$(jq -r .disableFlagSecure features.json)
         multiFloatingWindow=$(jq -r .multiFloatingWindow features.json)
+        
+        if [ $android_api_level -gt 34 ]; then
+          isa15=true
+        else
+          isa15=false
+        fi
 
         # Export variables for use in subsequent steps
         echo "framework_jar_url=$framework_jar_url" >> $GITHUB_ENV
@@ -78,6 +85,7 @@ jobs:
         echo "addGboard=$addGboard" >> $GITHUB_ENV
         echo "disableFlagSecure=$disableFlagSecure" >> $GITHUB_ENV
         echo "multiFloatingWindow=$multiFloatingWindow" >> $GITHUB_ENV
+        echo "isa15=$isa15" >> $GITHUB_ENV
 
     - name: Download and validate JARs
       run: |
@@ -104,8 +112,8 @@ jobs:
           fi
         done
 
-    - name: Extract framework.jar
-      run: 7z x framework.jar -oframework
+    - name: Extract framework_a14.jar
+      run: 7z x framework_a14.jar -oframework
 
     - name: Extract services.jar
       run: 7z x services.jar -oservices
@@ -113,8 +121,8 @@ jobs:
     - name: Extract miui-services.jar
       run: 7z x miui-services.jar -omiui_services
 
-    - name: Extract miui-framework.jar
-      run: 7z x miui-framework.jar -omiui_framework
+    - name: Extract miui-framework_a14.jar
+      run: 7z x miui-framework_a14.jar -omiui_framework
 
     - name: Decompile framework dex files if available
       run: |
@@ -171,7 +179,7 @@ jobs:
 
     - name: Modify framework smali
       run: |
-        python3 framework_patch.py "${{ env.defaultcore }}" "${{ env.core }}"
+        python3 framework_patch.py "${{ env.defaultcore }}" "${{ env.core }}" "${{ env.isa15 }}"
 
     - name: Modify services smali
       run: |
@@ -223,7 +231,7 @@ jobs:
       run: |
         java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} miui_framework_classes -o miui_framework/classes.dex
 
-    - name: Recompile framework.jar
+    - name: Recompile framework_a14.jar
       run: |
         cd framework
         7z a -tzip ../framework_new.zip *
@@ -241,7 +249,7 @@ jobs:
         7z a -tzip ../miui_services_new.zip *
         cd ..
 
-    - name: Recompile miui-framework.jar
+    - name: Recompile miui-framework_a14.jar
       run: |
         cd miui_framework
         7z a -tzip ../miui_framework_new.zip *

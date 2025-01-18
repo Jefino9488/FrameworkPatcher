@@ -72,7 +72,7 @@ def modify_file(file_path, flag):
     if flag == "framework":
         method_patterns = {
             "getMinimumSignatureSchemeVersionForTargetSdk": re.compile(r'\.method.*getMinimumSignatureSchemeVersionForTargetSdk\(I\)I'),
-            "verifyMessageDigest" : re.compile(r'\.method.*verifyMessageDigest\(\)I'),
+            "verifyMessageDigest" : re.compile(r'\.method.*verifyMessageDigest\(.*\)Z'),
             "checkCapability": re.compile(r'\.method.*checkCapability\(.*\)Z'),
             "checkCapabilityRecover": re.compile(r'\.method.*checkCapabilityRecover\(.*\)Z'),
             "hasAncestorOrSelf": re.compile(r'\.method.*hasAncestorOrSelf\(.*\)Z'),

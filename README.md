@@ -48,5 +48,8 @@ Alternatively, after cloning the repository, you can use the `LocalPatch.sh` scr
 
 ## Credits
 
-- [CorePatch](https://github.com/LSPosed/CorePatch)
-- [MMETMA](https://github.com/MMETMA)
+- [CorePatch](https://github.com/LSPosed/CorePatch)  
+- [Super_Cat07](https://t.me/Super_Cat07) for the original method on A9–A14
+- [Cazymods](https://t.me/not_aric) for contributing the `isPersistent` method
+- [MMETMA](https://t.me/MMETMA2) for resolving bootloop issues on A15 and providing shared UID methods
+- [PappLaci](https://t.me/PappLaci) for fixing Google Play Services issues on A15
