@@ -80,14 +80,17 @@ def modify_file(file_path, flag):
         }
     elif flag == "services":
         method_patterns = {
-            "matchSignatureInSystem": re.compile(r'\.method.*matchSignatureInSystem\(.*\)Z'),
+            #a14
+            "checkDowngrade": re.compile(r'\.method.*checkDowngrade\(.*\)V'),
+            "shouldCheckUpgradeKeySetLocked": re.compile(r'\.method.*shouldCheckUpgradeKeySetLocked\(.*\)Z'),
+            "verifySignatures": re.compile(r'\.method.*verifySignatures\(.*\)Z'),
             "matchSignaturesCompat": re.compile(r'\.method.*matchSignaturesCompat\(.*\)Z'),
+            #..
+            "matchSignatureInSystem": re.compile(r'\.method.*matchSignatureInSystem\(.*\)Z'),
             "matchSignaturesRecover": re.compile(r'\.method.*matchSignaturesRecover\(.*\)Z'),
             "canSkipForcedPackageVerification": re.compile(r'\.method.*canSkipForcedPackageVerification\(.*\)Z'),
-            "checkDowngrade": re.compile(r'\.method.*checkDowngrade\(.*\)V'),
             "isApkVerityEnabled": re.compile(r'\.method.*isApkVerityEnabled\(.*\)Z'),
             "isDowngradePermitted": re.compile(r'\.method.*isDowngradePermitted\(.*\)Z'),
-            "verifySignatures": re.compile(r'\.method.*verifySignatures\(.*\)Z'),
             "isVerificationEnabled": re.compile(r'\.method.*isVerificationEnabled\(.*\)Z'),
             "doesSignatureMatchForPermissions": re.compile(r'\.method.*doesSignatureMatchForPermissions\(.*\)Z'),
             "isScreenCaptureAllowed": re.compile(r'\.method.*isScreenCaptureAllowed\(.*\)Z'),
@@ -95,7 +98,6 @@ def modify_file(file_path, flag):
             "setScreenCaptureDisabled": re.compile(r'\.method.*setScreenCaptureDisabled\(.*\)V'),
             "isSecureLocked": re.compile(r'\.method.*isSecureLocked\(.*\)Z'),
             "setSecure": re.compile(r'\.method.*setSecure\(.*\)V'),
-            "shouldCheckUpgradeKeySetLocked": re.compile(r'\.method.*shouldCheckUpgradeKeySetLocked\(.*\)Z'),
             "getMaxMiuiFreeFormStackCount": re.compile(r'\.method.*getMaxMiuiFreeFormStackCount\(.*\)I'),
             "notAllowCaptureDisplay": re.compile(r'\.method.*notAllowCaptureDisplay\(.*\)Z'),
         }
