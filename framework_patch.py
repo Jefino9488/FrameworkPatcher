@@ -314,6 +314,13 @@ def modify_smali_files(directories):
             if os.path.exists(application_info) and not isa15:
                 logging.info(f"Found file: {application_info}")
                 utils.modify_file(application_info, "framework")
+            if os.path.exists(Strict_Jar_Verifier):
+                logging.info(f"Found file: {Strict_Jar_Verifier}")
+                utils.modify_file(Strict_Jar_Verifier, "framework")
+            else:
+                logging.warning(f"File not found: {Strict_Jar_Verifier}")
+            if os.path.exists(apk_signature_verifier):
+                utils.modify_file(apk_signature_verifier, "framework")
         if core and defaultcore:
             if os.path.exists(apk_signature_verifier) and not isa15: # a14
                 logging.info(f"Found file: {apk_signature_verifier}")
@@ -323,7 +330,6 @@ def modify_smali_files(directories):
                 modify_apk_signature_verifier(apk_signature_verifier, 'v3_and_below')
                 modify_apk_signature_verifier(apk_signature_verifier, 'v4')
                 modify_is_error(apk_signature_verifier)
-                utils.modify_file(apk_signature_verifier, "framework")
             elif os.path.exists(apk_signature_verifier) and isa15:
                 utils.modify_file(apk_signature_verifier, "framework")
                 modify_apk_signature_verifier(apk_signature_verifier, 'v1')
@@ -334,11 +340,6 @@ def modify_smali_files(directories):
                 modify_strict_jar_file(strict_jar_file)
             else:
                 logging.warning(f"File not found: {strict_jar_file}")
-            if os.path.exists(Strict_Jar_Verifier):
-                logging.info(f"Found file: {Strict_Jar_Verifier}")
-                utils.modify_file(Strict_Jar_Verifier, "framework")
-            else:
-                logging.warning(f"File not found: {Strict_Jar_Verifier}")
             # a15
             if os.path.exists(package_parser) and isa15:
                 logging.info(f"Found file: {package_parser}")
