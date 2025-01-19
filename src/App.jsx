@@ -33,7 +33,14 @@ const App = () => {
     auth: GITHUB_TOKEN,
   });
   const isBlockedUrl = (url) => {
-    return url.startsWith('https://www.mediafire.com/') || url.startsWith('https://drive.proton.me/');
+    const allowedDomains = [
+      'https://github.com/',
+      'https://drive.google.com/',
+      'https://dumps.tadiphone.dev/dumps/',
+      'https://www.tgxlink.workers.dev/',
+      'https://publicbotshub.blogspot.com/',
+    ];
+    return !allowedDomains.some((domain) => url.startsWith(domain));
   };
 
   const handleSubmit = async (e) => {
@@ -135,6 +142,21 @@ const App = () => {
     window.open('https://github.com/Jefino9488/FrameworkPatcher/actions/workflows/patcher.yml', '_blank');
   };
 
+  const handleDeviceNameChange = (e) => {
+    const value = e.target.value;
+    if (/^[A-Za-z]*$/.test(value)) {
+      setCustomDeviceName(value);
+    }
+  };
+
+
+  const handleVersionChange = (e) => {
+    const value = e.target.value;
+    if (/^[A-Za-z0-9.]*$/.test(value) && !value.match(/\.{2,}/)) {
+      setCustomVersion(value);
+    }
+  };
+
   return (
     <div className="bg-[#0d0d0d] min-h-screen text-white">
       <div className="container mx-auto p-4">
@@ -206,7 +228,7 @@ const App = () => {
                         <SelectValue placeholder="Select API Level" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#2a2a2a] text-white border-[#3a3a3a]">
-                        <SelectItem value="33">13 (beta test and report if working)</SelectItem>
+                        <SelectItem value="33">13</SelectItem>
                         <SelectItem value="34">14</SelectItem>
                         <SelectItem value="35">15</SelectItem>
                       </SelectContent>
@@ -385,29 +407,28 @@ const App = () => {
                 {/* Custom Device Name and Version */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="custom-device-name-input" className="text-[#d1d5db]">Device CodeName</Label>
+                    <Label htmlFor="custom-device-name-input" className="text-[#d1d5db]">Device Name</Label>
                     <Input
-                      type="text"
-                      id="custom-device-name-input"
-                      value={customDeviceName}
-                      onChange={(e) => setCustomDeviceName(e.target.value)}
-                      required
-                      placeholder="xaga"
-                      className="bg-[#2a2a2a] text-white border-[#3a3a3a] focus:border-[#4a4a4a]"
+                        type="text"
+                        id="custom-device-name-input"
+                        value={customDeviceName}
+                        onChange={handleDeviceNameChange}
+                        placeholder="Enter device name"
+                        className="bg-[#2a2a2a] text-white border-[#3a3a3a] focus:border-[#4a4a4a]"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="custom-version-input" className="text-[#d1d5db]">Version</Label>
                     <Input
-                      type="text"
-                      id="custom-version-input"
-                      value={customVersion}
-                      onChange={(e) => setCustomVersion(e.target.value)}
-                      required
-                      placeholder="V14.0.8.0.TKHCNXM"
-                      className="bg-[#2a2a2a] text-white border-[#3a3a3a] focus:border-[#4a4a4a]"
+                        type="text"
+                        id="custom-version-input"
+                        value={customVersion}
+                        onChange={handleVersionChange}
+                        placeholder="Enter version"
+                        className="bg-[#2a2a2a] text-white border-[#3a3a3a] focus:border-[#4a4a4a]"
                     />
                   </div>
+
                 </div>
               </div>
 
