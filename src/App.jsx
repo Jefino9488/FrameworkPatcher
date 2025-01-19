@@ -260,7 +260,7 @@ const App = () => {
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <Label htmlFor="defaultcore-select" className="text-[#d1d5db]">Default Core</Label>
+                      <Label htmlFor="defaultcore-select" className="text-[#d1d5db]">Remove Apk Protection</Label>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
