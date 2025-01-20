@@ -58,7 +58,7 @@ def patch(filepath):
         file.writelines(modified_lines)
     logging.info(f"Completed modification for file: {filepath}")
 
-def modify_file(file_path, flag):
+def modify_file(file_path, flag, iscn):
     logging.info(f"Modifying file: {file_path}")
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -86,7 +86,7 @@ def modify_file(file_path, flag):
             "verifySignatures": re.compile(r'\.method.*verifySignatures\(.*\)Z'),
             "matchSignaturesCompat": re.compile(r'\.method.*matchSignaturesCompat\(.*\)Z'),
             #..
-            "compareSignatures": re.compile(r'\.method.*compareSignatures\(.*\)I'),
+            # "compareSignatures": re.compile(r'\.method.*compareSignatures\(.*\)I'),
             "matchSignatureInSystem": re.compile(r'\.method.*matchSignatureInSystem\(.*\)Z'),
             "matchSignaturesRecover": re.compile(r'\.method.*matchSignaturesRecover\(.*\)Z'),
             "canSkipForcedPackageVerification": re.compile(r'\.method.*canSkipForcedPackageVerification\(.*\)Z'),
@@ -135,7 +135,7 @@ def modify_file(file_path, flag):
                 if method_type in [
                     "verifyMessageDigest", "checkCapability", "checkCapabilityRecover", "hasAncestorOrSelf",
                     "getMinimumSignatureSchemeVersionForTargetSdk", "isPackageWhitelistedForHiddenApis",
-                    "matchSignatureInSystem", "matchSignaturesCompat", "matchSignaturesRecover", "compareSignatures",
+                    "matchSignatureInSystem", "matchSignaturesCompat", "matchSignaturesRecover",
                     "canSkipForcedPackageVerification", "checkDowngrade",
                     "isApkVerityEnabled", "isDowngradePermitted", "verifySignatures",
                     "isVerificationEnabled", "doesSignatureMatchForPermissions", "isScreenCaptureAllowed",
@@ -245,10 +245,6 @@ def modify_file(file_path, flag):
                         modified_lines.append("    return v0\n")
                     elif method_type == "notAllowCaptureDisplay":
                         modified_lines.append("    .registers 4\n")
-                        modified_lines.append("    const/4 v0, 0x0\n")
-                        modified_lines.append("    return v0\n")
-                    elif method_type == "compareSignatures":
-                        modified_lines.append("    .registers 3\n")
                         modified_lines.append("    const/4 v0, 0x0\n")
                         modified_lines.append("    return v0\n")
                 in_method = False
