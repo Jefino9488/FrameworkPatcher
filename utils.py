@@ -58,7 +58,7 @@ def patch(filepath):
         file.writelines(modified_lines)
     logging.info(f"Completed modification for file: {filepath}")
 
-def modify_file(file_path, flag, iscn):
+def modify_file(file_path, flag):
     logging.info(f"Modifying file: {file_path}")
     with open(file_path, 'r') as file:
         lines = file.readlines()
