@@ -101,6 +101,7 @@ def modify_file(file_path, flag):
             "setSecure": re.compile(r'\.method.*setSecure\(.*\)V'),
             "getMaxMiuiFreeFormStackCount": re.compile(r'\.method.*getMaxMiuiFreeFormStackCount\(.*\)I'),
             "notAllowCaptureDisplay": re.compile(r'\.method.*notAllowCaptureDisplay\(.*\)Z'),
+            "canBeUpdate": re.compile(r'\.method.*canBeUpdate\(.*\)V'),
         }
     else:
         method_patterns = {
@@ -122,6 +123,7 @@ def modify_file(file_path, flag):
             "shouldCheckUpgradeKeySetLocked": re.compile(r'\.method.*shouldCheckUpgradeKeySetLocked\(.*\)Z'),
             "getMaxMiuiFreeFormStackCount": re.compile(r'\.method.*getMaxMiuiFreeFormStackCount\(.*\)I'),
             "notAllowCaptureDisplay": re.compile(r'\.method.*notAllowCaptureDisplay\(.*\)Z'),
+            "verifyIsolationViolation": re.compile(r'\.method.*verifyIsolationViolation\(.*\)V'),
         }
 
     for line in lines:
@@ -140,7 +142,7 @@ def modify_file(file_path, flag):
                     "isApkVerityEnabled", "isDowngradePermitted", "verifySignatures",
                     "isVerificationEnabled", "doesSignatureMatchForPermissions", "isScreenCaptureAllowed",
                     "getScreenCaptureDisabled", "setScreenCaptureDisabled", "isSecureLocked",
-                    "setSecure", "shouldCheckUpgradeKeySetLocked" , "getMaxMiuiFreeFormStackCount", "notAllowCaptureDisplay"
+                    "setSecure", "shouldCheckUpgradeKeySetLocked" , "getMaxMiuiFreeFormStackCount", "notAllowCaptureDisplay", "verifyIsolationViolation", "canBeUpdate"
                 ]:
                     logging.info(f"Modifying method body for {method_type}")
 
@@ -247,6 +249,12 @@ def modify_file(file_path, flag):
                         modified_lines.append("    .registers 4\n")
                         modified_lines.append("    const/4 v0, 0x0\n")
                         modified_lines.append("    return v0\n")
+                    elif method_type == "verifyIsolationViolation":
+                        modified_lines.append("    .registers 4\n")
+                        modified_lines.append("    return-void\n")
+                    elif method_type == "canBeUpdate":
+                        modified_lines.append("    .registers 4\n")
+                        modified_lines.append("    return-void\n")
                 in_method = False
                 method_type = None
                 original_registers_line = ""
